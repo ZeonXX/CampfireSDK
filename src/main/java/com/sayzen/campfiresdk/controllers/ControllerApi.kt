@@ -61,7 +61,7 @@ import java.lang.Exception
 val api: API = API(
         ControllerCampfireSDK.projectKey,
         instanceTokenProvider(),
-        if (ControllerCampfireSDK.IS_DEBUG) ("192.168.0.116") else API.IP,
+        if (ControllerCampfireSDK.IS_DEBUG) ("192.168.0.117") else API.IP,
         API.PORT_HTTPS,
         API.PORT_CERTIFICATE,
         { key, token -> ToolsStorage.put(key, token) },

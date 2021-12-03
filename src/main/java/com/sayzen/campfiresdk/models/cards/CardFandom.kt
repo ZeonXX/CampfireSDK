@@ -11,6 +11,7 @@ import com.sayzen.campfiresdk.controllers.ControllerFandoms
 import com.sayzen.campfiresdk.models.events.fandom.EventFandomRemove
 import com.sayzen.campfiresdk.models.events.fandom.EventFandomSubscribe
 import com.sayzen.campfiresdk.screens.fandoms.view.SFandom
+import com.sup.dev.android.app.SupAndroid
 import com.sup.dev.android.libs.screens.navigator.Navigator
 import com.sup.dev.android.tools.ToolsView
 import com.sup.dev.android.views.cards.Card
@@ -78,6 +79,7 @@ class CardFandom constructor(
             onLongClick?.invoke()
             return
         }
+        SupAndroid.activity?.hideAllSplash()
         ControllerFandoms.showPopupMenu(xFandom, view, x, y)
     }
 

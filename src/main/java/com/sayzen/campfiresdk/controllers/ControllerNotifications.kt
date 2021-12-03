@@ -101,7 +101,7 @@ object ControllerNotifications {
 
         ToolsNotifications.notificationsListener = { intent, type, _ ->
             if (intent.hasExtra(EXTRA_NOTIFICATION)) {
-                val n = Notification.instance(Json(intent.getStringExtra(EXTRA_NOTIFICATION)))
+                val n = Notification.instance(Json(intent.getStringExtra(EXTRA_NOTIFICATION)?:""))
                 intent.removeExtra(EXTRA_NOTIFICATION)
                 removeNotificationFromNew(n.id)
                 if (type == ToolsNotifications.IntentType.CLICK) parser(n).doAction()
