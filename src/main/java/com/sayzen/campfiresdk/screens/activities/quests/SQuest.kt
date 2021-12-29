@@ -10,10 +10,13 @@ import com.sayzen.campfiresdk.controllers.ControllerApi
 import com.sayzen.campfiresdk.controllers.ControllerLinks
 import com.sup.dev.android.libs.screens.Screen
 import com.sup.dev.android.libs.image_loader.ImageLoader
+import com.sup.dev.android.libs.image_loader.ImageLoaderUrl
 import com.sup.dev.android.tools.ToolsResources
 import com.sup.dev.android.tools.ToolsStorage
 import com.sup.dev.android.tools.ToolsView
 import com.sup.dev.android.views.views.ViewText
+import com.sup.dev.java.libs.debug.err
+import com.sup.dev.java.libs.debug.log
 import com.sup.dev.java.tools.ToolsThreads
 
 abstract class SQuest : Screen(R.layout.screen_quest) {
@@ -30,7 +33,7 @@ abstract class SQuest : Screen(R.layout.screen_quest) {
 
     var currentItem: QuestItem? = null
     var globalLabel = ""
-    var globalImage = 0L
+    var globalImage:Any = 0L
 
     init {
         isNavigationAllowed = false
@@ -39,9 +42,26 @@ abstract class SQuest : Screen(R.layout.screen_quest) {
 
         ToolsThreads.main(true) {
             val saveItem = ToolsStorage.getString(getSaveKey(), "") ?: ""
-            if (!to(saveItem)) toFirstItem()
+            if (!toScreen(saveItem)) toFirstItem()
+        }
+        createQuest()
+        checkQuest()
+    }
+
+    fun checkQuest(){
+        for(i in quest){
+            for(b in i.buttons){
+                if(b.toIndex != null) {
+                    var found = false
+                    for (q in quest) if (q.index == b.toIndex)
+                        found = true
+                    if (!found) err("Quest Нет ключа для экрана квеста [${b.toIndex}]")
+                }
+            }
         }
     }
+
+    abstract fun createQuest()
 
     abstract fun toFirstItem()
 
@@ -51,21 +71,25 @@ abstract class SQuest : Screen(R.layout.screen_quest) {
 
     fun addQuest(vararg items: QuestItem) {
         for (i in items) {
+            for (q in quest) {
+                if(q.index == i.index)
+                    err("Quest Уже существует экран с ключем [${q.index}]")
+            }
             quest.add(i)
         }
         quest.addAll(items)
     }
 
-    fun to(index: String): Boolean {
+    fun toScreen(index: String): Boolean {
         for (i in quest) if (i.index == index) {
-            to(i)
+            toScreen(i)
             ToolsStorage.put(getSaveKey(), index)
             return true
         }
         return false
     }
 
-    fun to(item: QuestItem) {
+    fun toScreen(item: QuestItem) {
         if (currentItem == null) setQuestItemNoAnimation(item)
         else setQuestItemWithAnimation(item)
     }
@@ -95,7 +119,11 @@ abstract class SQuest : Screen(R.layout.screen_quest) {
         this.currentItem = item
         currentItem?.onStart?.invoke()
 
-        ImageLoader.load(globalImage).into(vTitleImage)
+        if(globalImage is Long) {
+            ImageLoader.load(globalImage as Long).into(vTitleImage)
+        } else if(globalImage is String){
+            ImageLoaderUrl(globalImage as String).into(vTitleImage)
+        }
 
         vLabel.text = parseText(globalLabel)
 
@@ -121,7 +149,10 @@ abstract class SQuest : Screen(R.layout.screen_quest) {
             }
 
             vButton.text = parseText(button.text)
-            vButton.setOnClickListener { button.action.invoke() }
+            vButton.setOnClickListener {
+                button.action.invoke()
+                if(button.toIndex != null) toScreen(button.toIndex!!)
+            }
             vButton.isEnabled = button.enabled.invoke()
             vButtonContainer.addView(vButton)
 

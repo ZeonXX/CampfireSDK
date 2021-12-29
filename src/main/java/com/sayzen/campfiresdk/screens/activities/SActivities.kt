@@ -15,7 +15,7 @@ import com.sayzen.campfiresdk.screens.activities.administration.fandoms.SAdminis
 import com.sayzen.campfiresdk.screens.activities.administration.reports.SAdministrationReports
 import com.sayzen.campfiresdk.screens.activities.administration.reports.SAdministrationUserReports
 import com.sayzen.campfiresdk.screens.activities.administration.votes.SAdminVotes
-import com.sayzen.campfiresdk.screens.activities.quests.SQuestNewYear
+import com.sayzen.campfiresdk.screens.activities.quests.SQuestsList
 import com.sayzen.campfiresdk.screens.activities.support.SDonate
 import com.sayzen.campfiresdk.screens.activities.user_activities.SRelayRacesList
 import com.sayzen.campfiresdk.screens.administation.SAdministrationDeepBlocked
@@ -88,7 +88,7 @@ class SActivities : Screen(R.layout.screen_activities) {
         vTranslatesModeration.setTitle(t(API_TRANSLATE.translates_title_translate_moderation))
         vAdminVotes.setTitle(t(API_TRANSLATE.translates_title_administration))
 
-        vQuest.setOnClickListener { Navigator.to(SQuestNewYear()) }
+        vQuest.setOnClickListener { Navigator.to(SQuestsList()) }
         vRelayRace.setOnClickListener { Navigator.to(SRelayRacesList()) }
         vRubrics.setOnClickListener { Navigator.to(SRubricsList(0, 0, ControllerApi.account.getId(), true)) }
         vFandoms.setOnClickListener { SAdministrationFandoms.instance(Navigator.TO) }
@@ -99,7 +99,7 @@ class SActivities : Screen(R.layout.screen_activities) {
         vQuery.setOnClickListener { SAdministrationQuery.instance(Navigator.TO) }
         vErrors.setOnClickListener { SAdministrationErrors.instance(Navigator.TO) }
         vSupport.setOnClickListener { SDonate.instance(Navigator.TO) }
-        vDebug.setOnClickListener { Navigator.to(SQuestNewYear()) }
+        vDebug.setOnClickListener { Navigator.to(SQuestsList()) }
         vDeepBlocks.setOnClickListener { Navigator.to(SAdministrationDeepBlocked(0)) }
         vTranslates.setOnClickListener { Navigator.to(STranslates()) }
         vTranslatesModeration.setOnClickListener { Navigator.to(STranslateModeration()) }
@@ -117,7 +117,7 @@ class SActivities : Screen(R.layout.screen_activities) {
         vRequests.visibility = if (ControllerApi.isProtoadmin()) View.VISIBLE else View.GONE
         vQuery.visibility = if (ControllerApi.isProtoadmin()) View.VISIBLE else View.GONE
         vErrors.visibility = if (ControllerApi.isProtoadmin()) View.VISIBLE else View.GONE
-        vDebug.visibility = if (ControllerApi.isProtoadmin()) View.VISIBLE else View.GONE
+        //vDebug.visibility = if (ControllerApi.isProtoadmin()) View.VISIBLE else View.GONE
         vDeepBlocks.visibility = if (ControllerApi.isProtoadmin()) View.VISIBLE else View.GONE
 
         vRelayRaceChip.setBackground(ToolsResources.getSecondaryColor(context))

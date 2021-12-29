@@ -30,16 +30,42 @@ class QuestItem() {
         return this
     }
 
+    fun addButtonParams(text: String): QuestButton {
+        return addButtonParams(text){}
+    }
+
+    fun addButtonParams(text: String, key: String): QuestButton {
+        return addButtonParams(text, key){}
+    }
+
     fun addButtonParams(text: String, action: () -> Unit): QuestButton {
+        return addButtonParams(text, text, action)
+    }
+
+    fun addButtonParams(text: String, toKey: String?, action: () -> Unit): QuestButton {
         val button = QuestButton()
         button.text = text
         button.action = action
+        button.toIndex = toKey
         buttons.add(button)
         return button
     }
 
+    fun addButton(text: String): QuestItem {
+        return addButton(text) {}
+    }
+
     fun addButton(text: String, action: () -> Unit): QuestItem {
-        addButtonParams(text, action)
+        return addButton(text, text, action)
+    }
+
+    fun addButton(text: String, toKey: String?): QuestItem {
+        addButtonParams(text, toKey){}
+        return this
+    }
+
+    fun addButton(text: String, toKey: String?, action: () -> Unit): QuestItem {
+        addButtonParams(text, toKey, action)
         return this
     }
 
@@ -60,6 +86,7 @@ class QuestItem() {
     inner class QuestButton {
 
         var text = ""
+        var toIndex:String? = null
         var enabled : () -> Boolean = {true}
         var visible : () -> Boolean = {true}
         var action: () -> Unit = {}
