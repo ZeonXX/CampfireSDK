@@ -110,6 +110,7 @@ internal class SplashLink(
                 vLink.getText().contains("play.google", true) -> setSelectedIcon(6L)
                 vLink.getText().contains("itunes.apple", true) -> setSelectedIcon(7L)
                 vLink.getText().contains("sayzen.ru", true) -> setSelectedIcon(8L)
+                vLink.getText().contains("campfiresayzen.net", true) -> setSelectedIcon(8L)
                 else -> setSelectedIcon(0L)
             }
         }

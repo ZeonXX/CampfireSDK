@@ -88,7 +88,7 @@ class SGoogleRules(
             }, t.indexOf(tApp), t.indexOf(tApp) + tApp.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             span.setSpan(object : ClickableSpan() {
                 override fun onClick(v: View) {
-                    ToolsIntent.openLink("http://sayzen.ru/eng.html")
+                    ToolsIntent.openLink("http://campfiresayzen.net/eng.html")
                 }
             }, t.indexOf(tPolicy), t.indexOf(tPolicy) + tPolicy.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
 
