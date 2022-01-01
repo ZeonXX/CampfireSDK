@@ -21,7 +21,6 @@ import com.sayzen.campfiresdk.support.ApiRequestsSupporter
 import com.sup.dev.android.libs.image_loader.ImageLoader
 import com.sup.dev.android.libs.screens.navigator.Navigator
 import com.sup.dev.android.tools.ToolsAndroid
-import com.sup.dev.android.tools.ToolsResources
 import com.sup.dev.android.tools.ToolsToast
 import com.sup.dev.android.views.screens.SImageView
 import com.sup.dev.android.views.support.adapters.recycler_view.RecyclerCardAdapter
@@ -65,6 +64,7 @@ object ControllerPost {
                 .add(t(API_TRANSLATE.app_change)) { ControllerCampfireSDK.onToDraftClicked(post.id, Navigator.TO) }.condition(ENABLED_CHANGE && (post.isPublic || post.status == API.STATUS_PENDING) && ControllerApi.isCurrentAccount(post.creator.id))
                 .add(t(API_TRANSLATE.post_menu_change_tags)) { changeTags(post) }.condition(ENABLED_CHANGE_TAGS && (post.isPublic || post.status == API.STATUS_PENDING) && post.fandom.languageId != -1L && ControllerApi.isCurrentAccount(post.creator.id))
                 .add(t(API_TRANSLATE.app_remove)) { remove(post) }.condition(ENABLED_REMOVE && ControllerApi.isCurrentAccount(post.creator.id))
+                .add(t(API_TRANSLATE.app_duplicate)) { duplicateDraft(post) }.condition(post.isDraft)
                 .add(t(API_TRANSLATE.app_to_drafts)) { toDrafts(post) }.condition(ENABLED_TO_DRAFTS && (post.isPublic || post.status == API.STATUS_PENDING) && ControllerApi.isCurrentAccount(post.creator.id))
                 .add(t(API_TRANSLATE.app_publish)) { publishPending(post) }.condition(post.status == API.STATUS_PENDING && ControllerApi.isCurrentAccount(post.creator.id))
                 .add(t(API_TRANSLATE.app_copy_link)) { copyLink(post) }.condition(ENABLED_COPY_LINK && post.isPublic)
@@ -482,6 +482,19 @@ object ControllerPost {
                 t(API_TRANSLATE.post_remove_confirm),
                 t(API_TRANSLATE.post_error_gone)
         )
+    }
+
+    private fun duplicateDraft(publication: PublicationPost) {
+        ApiRequestsSupporter.executeProgressDialog(RPostPutPage(
+            publicationId = 0,
+            pages = publication.pages,
+            fandomId = publication.fandom.id,
+            languageId = publication.fandom.languageId,
+            appKey = ControllerCampfireSDK.ROOT_PROJECT_KEY,
+            appSubKey = ControllerCampfireSDK.ROOT_PROJECT_SUB_KEY
+        )) { response ->
+            EventBus.post(EventPostDraftCreated(response.publicationId))
+        }
     }
 
     private fun toDrafts(publication: Publication) {
