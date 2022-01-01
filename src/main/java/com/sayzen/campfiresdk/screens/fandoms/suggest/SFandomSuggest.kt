@@ -1,5 +1,6 @@
 package com.sayzen.campfiresdk.screens.fandoms.suggest
 
+import android.graphics.Color
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -28,7 +29,6 @@ import com.sup.dev.android.libs.screens.Screen
 import com.sup.dev.android.libs.screens.navigator.NavigationAction
 import com.sup.dev.android.libs.screens.navigator.Navigator
 import com.sup.dev.android.tools.ToolsBitmap
-import com.sup.dev.android.tools.ToolsResources
 import com.sup.dev.android.tools.ToolsToast
 import com.sup.dev.android.tools.ToolsView
 import com.sup.dev.android.views.screens.SCrop
@@ -54,18 +54,19 @@ class SFandomSuggest(
         val params1: Array<Long>,
         val params2: Array<Long>,
         val params3: Array<Long>,
-        val params4: Array<Long>
+        val params4: Array<Long>,
+        val notes: String,
 ) : Screen(R.layout.screen_fandom_suggest) {
 
     companion object {
 
         fun instance(action: NavigationAction) {
-            Navigator.action(action, SFandomSuggest(null, Account(), emptyArray(), emptyArray(), emptyArray(), emptyArray()))
+            Navigator.action(action, SFandomSuggest(null, Account(), emptyArray(), emptyArray(), emptyArray(), emptyArray(), ""))
         }
 
         fun instance(fandomId: Long, action: NavigationAction) {
             ApiRequestsSupporter.executeInterstitial(action, RFandomsSuggestedGet(fandomId)) { r ->
-                SFandomSuggest(r.fandom, r.creator, r.params1, r.params2, r.params3, r.params4)
+                SFandomSuggest(r.fandom, r.creator, r.params1, r.params2, r.params3, r.params4, r.notes)
             }
         }
     }
@@ -75,6 +76,7 @@ class SFandomSuggest(
     private val vImageMini: ImageView = findViewById(R.id.vImageMini)
     private val vImageMiniPlus: View = findViewById(R.id.vImageMiniPlus)
     private val vName: SettingsField = findViewById(R.id.vName)
+    private val vFandomSuggestionNotes: SettingsField = findViewById(R.id.vFandomSuggestionNotes)
     private val vFandomIsClosed: SettingsCheckBox = findViewById(R.id.vFandomIsClosed)
     private val vCategoriesContainer: ViewGroup = findViewById(R.id.vCategoriesContainer)
     private val vCategoriesTitle: TextView = findViewById(R.id.vCategoriesTitle)
@@ -177,6 +179,11 @@ class SFandomSuggest(
 
         ToolsView.disableScrollViewJump(vScroll)
 
+        vFandomSuggestionNotes.setHint(t(API_TRANSLATE.fandoms_suggest_notes))
+        vFandomSuggestionNotes.setText(notes)
+        if (changeFandom != null) {
+            vFandomSuggestionNotes.isEnabled = false
+        }
     }
 
     private fun isHasChanges(): Boolean {
@@ -318,7 +325,8 @@ class SFandomSuggest(
                 paramGet(1),
                 paramGet(3),
                 paramGet(5),
-                paramGet(7)
+                paramGet(7),
+                vFandomSuggestionNotes.getText()
         )) { _ ->
             ToolsToast.show(t(API_TRANSLATE.fandoms_suggest_suggested))
             Navigator.back()
