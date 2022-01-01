@@ -111,6 +111,12 @@
                 app:Settings_lineVisible="false"
                 app:Settings_icon_background="@color/lime_500"/>
 
+            <com.sup.dev.android.views.settings.SettingsTitle
+                android:id="@+id/vChatsTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:Settings_lineVisible="false"/>
+
             <com.sup.dev.android.views.settings.SettingsSwitcher
                 android:id="@+id/vConferenceAllow"
                 android:layout_width="match_parent"
