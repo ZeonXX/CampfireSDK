@@ -169,6 +169,20 @@ class SChatCreate(
             EventBus.post(EventChatChanged(chatId, cardTitle.text, changeImageId, count))
             Navigator.remove(this)
             SChat.instance(r.tag, 0, false, Navigator.TO)
+        }.onApiError { exception ->
+            if (exception.code == RChatChange.E_CONFERENCE_BLOCK) {
+                SplashAlert()
+                    .setText(t(API_TRANSLATE.error_blocked_adding_to_conferences))
+                    .addLine("")
+                    .addLine(exception.params.joinToString(", ") { accountId ->
+                        val id = accountId.toLong()
+                        adapter.get(CardChatMember::class)
+                            .find { it.chatMember.account.id == id }!!
+                            .chatMember.account.name
+                    })
+                    .setOnEnter(t(API_TRANSLATE.app_ok))
+                    .asSheetShow()
+            }
         }
 
     }
