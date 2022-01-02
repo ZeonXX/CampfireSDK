@@ -701,4 +701,11 @@ object ControllerSettings {
             onSettingsUpdated()
         }
 
+
+    var allowAddingToConferences: Boolean
+        get() = accountSettings.allowAddingToConferences
+        set(b) {
+            accountSettings.allowAddingToConferences = b
+            onSettingsUpdated()
+        }
 }
