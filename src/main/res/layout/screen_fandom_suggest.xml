@@ -112,6 +112,19 @@
                 app:LayoutFlow_horizontal="4dp"
                 app:LayoutFlow_vertical="4dp" />
 
+            <com.sup.dev.android.views.settings.SettingsField
+                android:id="@+id/vFandomSuggestionNotes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="12dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:inputType="textMultiLine|textCapSentences|textAutoCorrect"
+                android:textColor="?android:textColorPrimary" />
+            <!-- Specified the textColor explicitly to make the text white even if the
+                 field is disabled (see SFandomSuggest.kt) -->
+
             <com.sup.dev.android.views.settings.SettingsCheckBox
                 android:id="@+id/vFandomIsClosed"
                 android:layout_width="match_parent"
