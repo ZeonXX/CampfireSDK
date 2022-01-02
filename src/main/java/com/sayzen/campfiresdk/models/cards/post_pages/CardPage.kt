@@ -38,7 +38,8 @@ abstract class CardPage(
             if (page is PageDownload) return CardPageDownload(pagesContainer, page)
             if (page is PageCampfireObject) return CardPageCampfireObject(pagesContainer, page)
             if (page is PageUserActivity) return CardPageUserActivity(pagesContainer, page)
-           return CardPageUnknown(pagesContainer, page)
+            if (page is PageCode) return CardPageCode(pagesContainer, page)
+            return CardPageUnknown(pagesContainer, page)
         }
     }
 

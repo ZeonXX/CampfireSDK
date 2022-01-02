@@ -45,7 +45,7 @@ class SplashAdd(
         add(t(API_TRANSLATE.post_page_spoiler)) {
             wasClicked = true
             SplashPageSpoiler(requestPutPage, requestChangePage, null, null).asSheetShow()
-        }.icon(R.drawable.ic_code_white_24dp)
+        }.icon(R.drawable.eye_off)
         add(t(API_TRANSLATE.post_page_polling)) {
             wasClicked = true
             Navigator.to(SCreatePagePolling(requestPutPage, requestChangePage, null, null))
@@ -58,6 +58,10 @@ class SplashAdd(
             wasClicked = true
             Navigator.to(SCreatePageTable(requestPutPage, requestChangePage, null, null))
         }.icon(R.drawable.ic_border_all_white_24dp)
+        add(t(API_TRANSLATE.post_page_code)) {
+            wasClicked = true
+            Navigator.to(SCreatePageCode(requestPutPage, requestChangePage, null, null))
+        }.icon(R.drawable.ic_code_white_24dp)
         add(t(API_TRANSLATE.post_page_campfire_object)) {
             wasClicked = true
             SplashPageCampfireObject(requestPutPage, requestChangePage, null, null).asSheetShow()
@@ -75,6 +79,7 @@ class SplashAdd(
         if (c is CardPagePolling) Navigator.to(SCreatePagePolling(requestPutPage, requestChangePage, c, c.page as PagePolling))
         if (c is CardPageImages) SplashPageImages(requestChangePage, c, c.page as PageImages).asSheetShow()
         if (c is CardPageTable) Navigator.to(SCreatePageTable(requestPutPage, requestChangePage, c, c.page as PageTable))
+        if (c is CardPageCode) Navigator.to(SCreatePageCode(requestPutPage, requestChangePage, c, c.page as PageCode))
         if (c is CardPageCampfireObject) SplashPageCampfireObject(requestPutPage, requestChangePage, c, c.page as PageCampfireObject).asSheetShow()
     }
 
