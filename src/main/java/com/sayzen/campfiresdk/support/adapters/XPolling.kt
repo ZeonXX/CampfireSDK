@@ -184,9 +184,10 @@ class XPolling(
             if (page.minLevel > 0) vLimit.text = "${vLimit.text} ${t(API_TRANSLATE.app_level)} ${ToolsText.numToStringRoundAndTrim(page.minLevel / 100f, 2)}  "
             if (page.minKarma > 0) vLimit.text = "${vLimit.text} ${t(API_TRANSLATE.app_karma)} ${((page.minKarma / 100).toInt())}"
             if (page.minDays > 0) vLimit.text = "${vLimit.text} ${t(API_TRANSLATE.post_page_polling_limit_days)} ${page.minDays}"
+            if (page.blacklist.find { it.id == ControllerApi.account.getId() } != null)
+                vLimit.text = "${vLimit.text}  ${t(API_TRANSLATE.settings_black_list)}"
             vLimit.setTextColor(ToolsResources.getColor(if (!canVote()) R.color.red_700 else R.color.green_700))
         }
-
     }
 
     private fun canVote() =
