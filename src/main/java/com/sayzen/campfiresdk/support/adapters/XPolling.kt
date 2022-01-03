@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.dzen.campfire.api.API_TRANSLATE
+import com.dzen.campfire.api.models.account.Account
 import com.dzen.campfire.api.models.publications.PagesContainer
 import com.dzen.campfire.api.models.publications.post.PagePolling
 import com.sayzen.campfiresdk.R
@@ -13,14 +14,22 @@ import com.sayzen.campfiresdk.controllers.ControllerApi
 import com.sayzen.campfiresdk.controllers.ControllerLinks
 import com.sayzen.campfiresdk.controllers.ControllerPolling
 import com.sayzen.campfiresdk.controllers.t
+import com.sayzen.campfiresdk.models.cards.CardAccount
 import com.sayzen.campfiresdk.models.events.publications.EventPollingChanged
+import com.sup.dev.android.libs.screens.navigator.Navigator
 import com.sup.dev.android.tools.ToolsResources
 import com.sup.dev.android.tools.ToolsView
+import com.sup.dev.android.views.screens.SLoadingRecycler
+import com.sup.dev.android.views.screens.SRecycler
+import com.sup.dev.android.views.support.adapters.recycler_view.RecyclerCardAdapter
+import com.sup.dev.android.views.views.ViewAvatarTitle
+import com.sup.dev.android.views.views.ViewButton
 import com.sup.dev.android.views.views.ViewProgressLine
 import com.sup.dev.android.views.views.ViewText
 import com.sup.dev.java.libs.eventBus.EventBus
 import com.sup.dev.java.tools.ToolsText
 import com.sup.dev.java.tools.ToolsThreads
+import kotlin.reflect.KClass
 
 class XPolling(
         val page: PagePolling,
@@ -38,6 +47,29 @@ class XPolling(
         updateLimits(view)
         updateTitle(view)
         updateVotes(view)
+
+        val vBlacklistView: ViewButton = view.findViewById(R.id.vBlackListView)
+        if (page.blacklist.isEmpty()) vBlacklistView.visibility = View.GONE
+        else {
+            val blacklistRecycler = object : SRecycler() {
+                private val adapter: RecyclerCardAdapter = RecyclerCardAdapter()
+
+                init {
+                    disableShadows()
+                    disableNavigation()
+
+                    setTitle(t(API_TRANSLATE.settings_black_list))
+
+                    for (account in page.blacklist) adapter.add(CardAccount(account))
+                    vRecycler.adapter = adapter
+                }
+            }
+            vBlacklistView.visibility = View.VISIBLE
+            vBlacklistView.text = t(API_TRANSLATE.settings_black_list)
+            vBlacklistView.setOnClickListener {
+                Navigator.to(blacklistRecycler)
+            }
+        }
     }
 
     private fun updateVotes(view: View){
@@ -144,20 +176,22 @@ class XPolling(
     private fun updateLimits(view: View){
         val vLimit: ViewText = view.findViewById(R.id.vLimit)
 
-        if (page.minKarma <= 0 && page.minLevel <= 0) {
+        if (page.minKarma <= 0 && page.minLevel <= 0 && page.minDays <= 0) {
             vLimit.visibility = View.GONE
         } else {
             vLimit.visibility = View.VISIBLE
             vLimit.text = "${t(API_TRANSLATE.app_limitations)}: "
             if (page.minLevel > 0) vLimit.text = "${vLimit.text} ${t(API_TRANSLATE.app_level)} ${ToolsText.numToStringRoundAndTrim(page.minLevel / 100f, 2)}  "
             if (page.minKarma > 0) vLimit.text = "${vLimit.text} ${t(API_TRANSLATE.app_karma)} ${((page.minKarma / 100).toInt())}"
+            if (page.minDays > 0) vLimit.text = "${vLimit.text} ${t(API_TRANSLATE.post_page_polling_limit_days)} ${page.minDays}"
             vLimit.setTextColor(ToolsResources.getColor(if (!canVote()) R.color.red_700 else R.color.green_700))
         }
 
     }
 
-    private fun canVote() = ControllerApi.account.getLevel() >= page.minLevel && ControllerApi.account.getKarma30() >= page.minKarma
-
-
-
+    private fun canVote() =
+            ControllerApi.account.getLevel() >= page.minLevel &&
+            ControllerApi.account.getKarma30() >= page.minKarma &&
+            ((ControllerApi.currentTime() - ControllerApi.account.getDateAccountCreated()) / (3600000L * 24) + 1) >= page.minDays &&
+            page.blacklist.find { it.id == ControllerApi.account.getId() } == null
 }
