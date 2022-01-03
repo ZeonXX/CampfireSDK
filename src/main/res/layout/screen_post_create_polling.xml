@@ -39,7 +39,9 @@
                 android:layout_height="wrap_content"
                 android:textColor="?attr/colorStroke" />
 
-            <com.google.android.material.textfield.TextInputLayout style="@style/TextInputLayout.Outlined">
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/TextInputLayout.Outlined"
+                android:layout_marginBottom="8dp">
 
                 <EditText
                     android:id="@+id/vPgeTitle"
@@ -66,23 +68,61 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
 
-            <com.sup.dev.android.views.settings.SettingsTitle
-                android:id="@+id/vTitleLimit"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:Settings_lineVisible="false"/>
+                android:orientation="vertical"
+                android:layout_marginLeft="-6dp"
+                android:layout_marginRight="-6dp">
 
-            <com.sup.dev.android.views.settings.SettingsField
-                android:id="@+id/vLvl"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:Settings_maxLength="3" />
+                <com.sup.dev.android.views.settings.SettingsTitle
+                    android:id="@+id/vTitleLimit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:Settings_lineVisible="false"/>
 
-            <com.sup.dev.android.views.settings.SettingsField
-                android:id="@+id/vKarma"
+                <com.sup.dev.android.views.settings.SettingsField
+                    android:id="@+id/vLvl"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    app:Settings_maxLength="3" />
+
+                <com.sup.dev.android.views.settings.SettingsField
+                    android:id="@+id/vKarma"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    app:Settings_maxLength="3" />
+
+                <com.sup.dev.android.views.settings.SettingsField
+                    android:id="@+id/vDays"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    app:Settings_maxLength="4" />
+
+
+                <com.sup.dev.android.views.settings.SettingsTitle
+                    android:id="@+id/vBlackListTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    app:Settings_lineVisible="false" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/vBlackListUsers"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:Settings_maxLength="3" />
+                android:orientation="vertical" />
+
+            <com.sup.dev.android.views.views.ViewButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/vBlackListAdd"
+                style="@style/Button.Text" />
 
         </LinearLayout>
 
