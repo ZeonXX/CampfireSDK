@@ -108,21 +108,27 @@ object ControllerTranslate {
         else loadLanguage(languageId, onLoaded, onError)
     }
 
-    fun loadLanguage(languageId:Long, onLoaded:()->Unit, onError:()->Unit={}){
+    fun loadLanguage(languageId: Long, onLoaded: () -> Unit, onError: () -> Unit = {}) {
         ApiRequestsSupporter.executeProgressDialog(RTranslateGetMap(languageId).onError { onError.invoke() }){ r->
-            addMap(r.translate_language_id, r.translate_map)
+            addMap(r.translate_language_id, r.translate_map, r.translateMapHash)
             onLoaded.invoke()
         }
     }
 
-    fun addMap(languageId:Long, map:HashMap<String, Translate>){
+    fun addMap(languageId:Long, map:HashMap<String, Translate>, hash: Int) {
+        if (map.isEmpty()) return
         maps[languageId] = map
         EventBus.post(EventTranslateChanged(languageId))
 
         val json = JsonArray()
         for(i in map.values) json.put(i.json(true, Json()))
         ToolsStorage.put("ControllerTranslate.map.$languageId", json)
+        ToolsStorage.put("ControllerTranslate.hash.$languageId", hash)
     }
 
-
+    // this is only used when loading in SIntroConnection, so
+    // there is no need to store it in memory
+    fun getSavedHash(languageId: Long): Int {
+        return ToolsStorage.getInt("ControllerTranslate.hash.$languageId", 0)
+    }
 }
