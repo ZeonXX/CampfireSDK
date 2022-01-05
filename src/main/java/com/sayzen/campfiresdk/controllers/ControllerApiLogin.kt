@@ -60,8 +60,8 @@ object ControllerApiLogin {
     }
 
     fun getEmailToken() = ToolsStorage.getString("ControllerApiLogin.email_token", null)
-    fun setEmailToken(email:String, passwordMD5:String){
-        ToolsStorage.put("ControllerApiLogin.email_token", "${API.LOGIN_EMAIL_PREFIX}${API.LOGIN_SPLITTER}$email${API.LOGIN_SPLITTER}$passwordMD5")
+    fun setEmailToken(email:String, passwordSha512:String){
+        ToolsStorage.put("ControllerApiLogin.email_token", "${API.LOGIN_EMAIL_SHA_PREFIX}${API.LOGIN_SPLITTER}$email${API.LOGIN_SPLITTER}$passwordSha512")
         EventBus.post(EventAccountEmailChanged(email))
     }
     fun clearEmailToken() = ToolsStorage.clear("ControllerApiLogin.email_token")
