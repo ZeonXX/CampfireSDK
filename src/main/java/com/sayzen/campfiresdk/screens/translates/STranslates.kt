@@ -39,7 +39,7 @@ class STranslates : Screen(R.layout.screen_translates) {
             SplashMenu()
                     .add(t(API_TRANSLATE.translates_label_history)){ Navigator.to(STranslatesHistory(getFromLanguage(), "")) }
                     .add(t(API_TRANSLATE.translates_label_history_all)){ Navigator.to(STranslatesHistory(0, "")) }
-                    .add(t(API_TRANSLATE.app_link)){
+                    .add(t(API_TRANSLATE.app_copy_link)){
                         ToolsAndroid.setToClipboard(API.LINK_TRANSLATES.asWeb())
                         ToolsToast.show(t(API_TRANSLATE.app_copied))
                     }

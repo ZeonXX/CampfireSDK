@@ -73,7 +73,10 @@ class SFandom private constructor(
 
     private val adapter: RecyclerCardAdapterLoading<CardPublication, Publication>
     private val xFandom = XFandom().setFandom(fandom).setOnChanged { update() }
-    private val cardFilters: CardFilters
+    private val cardFilters: CardFilters = CardFilters {
+        if (cardPinnedPost != null) setPinnedPost(cardPinnedPost!!.xPublication.publication as PublicationPost)
+        reload()
+    }
     private val cardTitle = CardTitle(xFandom, fandom.category)
     private val cardButtons = CardButtons(xFandom)
     private val cardViceroy = CardViceroy(xFandom.getId(), xFandom.getLanguageId())
@@ -96,6 +99,7 @@ class SFandom private constructor(
                             .setIncludeMultilingual(true)
                             .setIncludeModerationsBlocks(ControllerSettings.fandomFilterModerationsBlocks)
                             .setIncludeModerationsOther(ControllerSettings.fandomFilterModerations)
+                            .setAccountId(cardFilters.account?.id ?: 0)
                             .onComplete { rr ->
                                 onLoad.invoke(rr.publications)
                                 afterPackLoaded()
@@ -106,12 +110,6 @@ class SFandom private constructor(
                 .setRetryMessage(t(API_TRANSLATE.error_network), t(API_TRANSLATE.app_retry))
                 .setEmptyMessage(t(API_TRANSLATE.fandom_posts_empty))
                 .setNotifyCount(5)
-
-
-        cardFilters = CardFilters {
-            if (cardPinnedPost != null) setPinnedPost(cardPinnedPost!!.xPublication.publication as PublicationPost)
-            reload()
-        }
 
         adapter.add(cardTitle)
         adapter.add(cardButtons)
