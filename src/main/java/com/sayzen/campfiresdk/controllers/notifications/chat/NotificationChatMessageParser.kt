@@ -4,6 +4,7 @@ import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.graphics.*
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
@@ -25,6 +26,7 @@ import com.sayzen.campfiresdk.support.ApiRequestsSupporter
 import com.sup.dev.android.app.SupAndroid
 import com.sup.dev.android.libs.image_loader.ImageLoader
 import com.sup.dev.android.libs.screens.navigator.Navigator
+import com.sup.dev.android.tools.ToolsBitmap
 import com.sup.dev.android.tools.ToolsNotifications
 import com.sup.dev.android.tools.ToolsToast
 import com.sup.dev.java.libs.debug.Debug
@@ -81,6 +83,22 @@ class MessageReadReceiver : BroadcastReceiver() {
     }
 }
 
+// taken from s/o: https://stackoverflow.com/questions/11932805#12089127
+fun Bitmap.getRounded(): Bitmap? {
+    val output = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+    val canvas = Canvas(output)
+    val color = -0xbdbdbe
+    val paint = Paint()
+    val rect = Rect(0, 0, width, height)
+    paint.isAntiAlias = true
+    canvas.drawARGB(0, 0, 0, 0)
+    paint.color = color
+    canvas.drawCircle((width / 2).toFloat(), (height / 2).toFloat(), (width / 2).toFloat(), paint)
+    paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
+    canvas.drawBitmap(this, rect, rect, paint)
+    return output
+}
+
 fun NotificationChatMessageParser.Companion.sendNotification(tag: ChatTag, sound: Boolean = true) {
     val chatMessages = ControllerChats.getMessages(tag)
     if (chatMessages.isEmpty()) {
@@ -130,9 +148,9 @@ fun NotificationChatMessageParser.Companion.sendNotification(tag: ChatTag, sound
                         .setIcon(kotlin.run {
                             // TODO: Download avatars in the background
                             val avatar = ImageLoader.load(message.creator.imageId).startLoad()
-                            if (avatar != null)
-                                IconCompat.createWithData(avatar, 0, avatar.size)
-                            else null
+                            if (avatar != null) IconCompat.createWithBitmap(
+                                ToolsBitmap.decode(avatar)!!.getRounded()
+                            ) else null
                         })
                         .build()
                 ))
