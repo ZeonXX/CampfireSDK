@@ -2,12 +2,12 @@ package com.sayzen.campfiresdk.controllers
 
 
 import android.content.Intent
-import android.util.LongSparseArray
 import com.dzen.campfire.api.API_TRANSLATE
-import com.dzen.campfire.api.models.notifications.*
+import com.dzen.campfire.api.models.chat.ChatTag
+import com.dzen.campfire.api.models.notifications.Notification
 import com.dzen.campfire.api.models.notifications.account.*
-import com.dzen.campfire.api.models.notifications.activities.NotificationActivitiesRelayRaceLost
 import com.dzen.campfire.api.models.notifications.activities.NotificationActivitiesNewPost
+import com.dzen.campfire.api.models.notifications.activities.NotificationActivitiesRelayRaceLost
 import com.dzen.campfire.api.models.notifications.activities.NotificationActivitiesRelayRaceTurn
 import com.dzen.campfire.api.models.notifications.activities.NotificationActivitiesRelayRejected
 import com.dzen.campfire.api.models.notifications.chat.*
@@ -19,18 +19,13 @@ import com.dzen.campfire.api.models.notifications.project.NotificationDonate
 import com.dzen.campfire.api.models.notifications.project.NotificationProjectABParamsChanged
 import com.dzen.campfire.api.models.notifications.project.NotificationQuestFinish
 import com.dzen.campfire.api.models.notifications.project.NotificationQuestProgress
-import com.dzen.campfire.api.models.notifications.rubrics.NotificationRubricsChangeName
-import com.dzen.campfire.api.models.notifications.rubrics.NotificationRubricsChangeOwner
-import com.dzen.campfire.api.models.notifications.rubrics.NotificationRubricsKarmaCofChanged
-import com.dzen.campfire.api.models.notifications.rubrics.NotificationRubricsMakeOwner
-import com.dzen.campfire.api.models.notifications.rubrics.NotificationRubricsRemove
 import com.dzen.campfire.api.models.notifications.publications.*
+import com.dzen.campfire.api.models.notifications.rubrics.*
 import com.dzen.campfire.api.models.notifications.translates.NotificationTranslatesAccepted
 import com.dzen.campfire.api.models.notifications.translates.NotificationTranslatesRejected
 import com.dzen.campfire.api.requests.accounts.RAccountsNotificationsRemoveToken
 import com.dzen.campfire.api.requests.accounts.RAccountsNotificationsView
 import com.google.firebase.messaging.RemoteMessage
-import com.sayzen.campfiresdk.R
 import com.sayzen.campfiresdk.controllers.notifications.account.*
 import com.sayzen.campfiresdk.controllers.notifications.activities.NotificationActivitiesRelayRaceLostParser
 import com.sayzen.campfiresdk.controllers.notifications.activities.NotificationActivitiesRelayRaceNewPostParser
@@ -52,16 +47,18 @@ import com.sayzen.campfiresdk.controllers.notifications.translates.NotificationT
 import com.sayzen.campfiresdk.models.events.notifications.EventNotification
 import com.sayzen.campfiresdk.models.events.notifications.EventNotificationReaded
 import com.sayzen.campfiresdk.models.events.notifications.EventNotificationsCountChanged
+import com.sayzen.campfiresdk.support.ApiRequestsSupporter
 import com.sayzen.devsupandroidgoogle.GoogleNotifications
 import com.sup.dev.android.app.SupAndroid
-import com.sayzen.campfiresdk.support.ApiRequestsSupporter
 import com.sup.dev.android.tools.ToolsNotifications
 import com.sup.dev.android.tools.ToolsStorage
 import com.sup.dev.java.libs.debug.info
 import com.sup.dev.java.libs.eventBus.EventBus
 import com.sup.dev.java.libs.json.Json
 import com.sup.dev.java.libs.json.JsonArray
-import com.sup.dev.java.tools.*
+import com.sup.dev.java.tools.ToolsCollections
+import com.sup.dev.java.tools.ToolsDate
+import com.sup.dev.java.tools.ToolsThreads
 import kotlin.reflect.KClass
 
 object ControllerNotifications {
@@ -216,6 +213,8 @@ object ControllerNotifications {
             TYPE_CHAT -> {
                 chanelChatMessages.cancelAllOrByTagIfNotEmpty(tag)
                 chanelChatMessages_salient.cancelAllOrByTagIfNotEmpty(tag)
+
+                NotificationChatMessageParser.clearNotification(ChatTag(tag))
             }
             else -> {
                 chanelOther.cancelAllOrByTagIfNotEmpty(tag)

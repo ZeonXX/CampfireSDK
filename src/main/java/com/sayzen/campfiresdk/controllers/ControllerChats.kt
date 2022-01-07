@@ -8,11 +8,14 @@ import com.dzen.campfire.api.models.notifications.chat.NotificationChatAnswer
 import com.dzen.campfire.api.models.notifications.chat.NotificationChatMessage
 import com.dzen.campfire.api.models.notifications.chat.NotificationChatRead
 import com.dzen.campfire.api.models.notifications.chat.NotificationChatTyping
+import com.dzen.campfire.api.models.publications.chat.Chat
 import com.dzen.campfire.api.models.publications.chat.PublicationChatMessage
 import com.dzen.campfire.api.requests.chat.*
 import com.dzen.campfire.api.requests.fandoms.RFandomsModerationChangeImageBackground
 import com.dzen.campfire.api.requests.fandoms.RFandomsModerationChatRemove
 import com.sayzen.campfiresdk.R
+import com.sayzen.campfiresdk.controllers.notifications.chat.NotificationChatMessageParser
+import com.sayzen.campfiresdk.controllers.notifications.chat.clearNotification
 import com.sayzen.campfiresdk.models.events.chat.*
 import com.sayzen.campfiresdk.models.events.fandom.EventFandomBackgroundImageChanged
 import com.sayzen.campfiresdk.models.events.fandom.EventFandomBackgroundImageChangedModeration
@@ -213,6 +216,7 @@ object ControllerChats {
         putRead(chatTag, System.currentTimeMillis())
         ApiRequestsSupporter.execute(RChatRead(chatTag)) { r ->
             putRead(chatTag, r.date)
+            EventBus.post(EventChatRead(chatTag))
         }
     }
 
@@ -232,11 +236,13 @@ object ControllerChats {
         return count
     }
 
-    fun incrementMessages(chatTag: ChatTag, message:String, showInNavigation: Boolean) {
+    fun incrementMessages(chatTag: ChatTag, message: PublicationChatMessage, showInNavigation: Boolean) {
         val messages = getMessages(chatTag)
-        messages.add(message)
-        messages.showInNavigation = showInNavigation
-        setMessages(messages)
+        if (messages.messages.find { it.id == message.id } == null) {
+            messages.add(message)
+            messages.showInNavigation = showInNavigation
+            setMessages(messages)
+        }
     }
 
     fun clearMessages(chatTag: ChatTag) {
@@ -295,6 +301,22 @@ object ControllerChats {
         return list
     }
 
+    fun getChat(tag: ChatTag, cb: (Chat) -> Unit) {
+        val chat = ToolsStorage.getJson("ControllerChats.tag.${tag.asTag()}")
+        if (chat == null) {
+            ApiRequestsSupporter.execute(RChatGet(tag, 0)) {
+                cb(it.chat)
+                ToolsStorage.put(
+                    "ControllerChats.tag.${tag.asTag()}",
+                    Json().apply { it.chat.json(true, this) }
+                )
+            }.onApiError {
+                ToolsToast.show(t(API_TRANSLATE.error_unknown))
+            }
+        } else {
+            cb(Chat().apply { json(false, chat) })
+        }
+    }
 
     //
     //  Typing
@@ -390,13 +412,13 @@ object ControllerChats {
         if (e.notification is NotificationChatMessage) {
             removeTyping(e.notification.tag, e.notification.publicationChatMessage.creator.name)
             val n = e.notification
-            incrementMessages(n.tag, n.publicationChatMessage.text, n.subscribed)
+            incrementMessages(n.tag, n.publicationChatMessage, n.subscribed)
             putRead(n.tag, n.dateCreate)
         }
         if (e.notification is NotificationChatAnswer) {
             removeTyping(e.notification.tag, e.notification.publicationChatMessage.creator.name)
             val n = e.notification
-            incrementMessages(n.tag, n.publicationChatMessage.text, n.subscribed)
+            incrementMessages(n.tag, n.publicationChatMessage, n.subscribed)
             putRead(n.tag, n.dateCreate)
         }
         if (e.notification is NotificationChatTyping) {
@@ -412,6 +434,6 @@ object ControllerChats {
 
     private fun onEventChatRead(e: EventChatRead) {
         setMessages(MChatMessagesPool(e.tag, false))
+        NotificationChatMessageParser.clearNotification(e.tag)
     }
-
 }

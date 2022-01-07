@@ -17,10 +17,7 @@ import com.sup.dev.android.tools.ToolsResources
 public class NotificationChatAnswerParser(override val n: NotificationChatAnswer) : ControllerNotifications.Parser(n) {
 
     override fun post(icon: Int, intent: Intent, text: String, title: String, tag: String, sound: Boolean) {
-        val publication = n.publicationChatMessage
-        val tagV = n.tag.asTag()
-
-        (if (sound) ControllerNotifications.chanelChatMessages else ControllerNotifications.chanelChatMessages_salient).post(icon, publication.fandom.name, text, intent, tagV)
+        NotificationChatMessageParser.sendNotification(n.tag, sound)
     }
 
     override fun asString(html: Boolean): String {
