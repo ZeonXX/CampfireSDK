@@ -1,27 +1,40 @@
 package com.sayzen.campfiresdk.screens.fandoms.view
 
 import android.view.View
+import android.view.ViewGroup
 import android.widget.TextView
 import com.dzen.campfire.api.API_TRANSLATE
+import com.dzen.campfire.api.models.account.Account
 import com.sayzen.campfiresdk.R
 import com.sayzen.campfiresdk.controllers.ControllerSettings
 import com.sayzen.campfiresdk.controllers.t
+import com.sayzen.campfiresdk.screens.account.search.SAccountSearch
+import com.sup.dev.android.libs.screens.navigator.Navigator
 import com.sup.dev.android.views.cards.Card
+import com.sup.dev.android.views.cards.CardMenu
 import com.sup.dev.android.views.views.ViewIcon
 import com.sup.dev.android.views.splash.SplashCheckBoxes
 
 class CardFilters(
         private val onChange: () -> Unit
 ) : Card(R.layout.screen_account_card_filters) {
+    var account: Account? = null
 
     override fun bindView(view: View) {
         super.bindView(view)
         val vFilters: ViewIcon = view.findViewById(R.id.vFilters)
         val vText: TextView = view.findViewById(R.id.vText)
 
+        vFilters.setImageResource(if (account != null) R.drawable.ic_clear_white_24dp else R.drawable.ic_tune_white_24dp)
         vText.text = t(API_TRANSLATE.app_publications)
 
         vFilters.setOnClickListener {
+            if (account != null) {
+                account = null
+                onChange()
+                update()
+                return@setOnClickListener
+            }
 
             val fandomFilterModerationsPostsOld = ControllerSettings.fandomFilterModerationsPosts
             val fandomFilterOnlyImportantOld = ControllerSettings.fandomFilterOnlyImportant
@@ -35,7 +48,7 @@ class CardFilters(
             var fandomFilterModerationsNew = fandomFilterModerationsOld
             var fandomFilterModerationsBlocksNew = fandomFilterModerationsBlocksOld
 
-            SplashCheckBoxes()
+            val splash = SplashCheckBoxes()
                     .add(t(API_TRANSLATE.filter_posts)).checked(ControllerSettings.fandomFilterModerationsPosts).onChange { fandomFilterModerationsPostsNew = it.isChecked }
                     .add(t(API_TRANSLATE.filter_only_important)).checked(ControllerSettings.fandomFilterOnlyImportant).onChange { fandomFilterOnlyImportantNew = it.isChecked }
                     .add(t(API_TRANSLATE.filter_events)).checked(ControllerSettings.fandomFilterAdministrations).onChange { fandomFilterAdministrationsNew = it.isChecked }
@@ -59,7 +72,21 @@ class CardFilters(
                             onChange.invoke()
                         }
                     }
-                    .asSheetShow()
+
+            val accountCard = CardMenu()
+                    .setText(t(API_TRANSLATE.app_choose_user))
+                    .setOnClick {
+                        Navigator.to(SAccountSearch(showMyAccount = true) {
+                            account = it
+                            onChange()
+                            update()
+                        })
+                    }
+            val viewAccount = accountCard.instanceView(splash.view as ViewGroup)
+            accountCard.bindCardView(viewAccount)
+            splash.addView(viewAccount)
+
+            splash.asSheetShow()
         }
     }
 }

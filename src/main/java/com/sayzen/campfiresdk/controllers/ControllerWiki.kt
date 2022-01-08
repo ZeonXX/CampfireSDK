@@ -25,7 +25,7 @@ object ControllerWiki {
 
     fun instanceMenu(wikiTitle: WikiTitle, languageId: Long): SplashMenu {
         return SplashMenu()
-                .add(t(API_TRANSLATE.app_link)) { copyLink(wikiTitle) }
+                .add(t(API_TRANSLATE.app_copy_link)) { copyLink(wikiTitle) }
                 .add(t(API_TRANSLATE.app_history)) { Navigator.to(SWikiArticleHistory(wikiTitle, languageId)) }
                 .spoiler(t(API_TRANSLATE.app_moderator))
                 .add(t(API_TRANSLATE.wiki_edit_title)) { Navigator.to(SWikiItemCreate(wikiTitle.fandomId, wikiTitle.parentItemId, wikiTitle)) }.backgroundRes(R.color.blue_700).condition(ControllerApi.can(wikiTitle.fandomId, ControllerApi.getLanguage("en").id, API.LVL_MODERATOR_WIKI_EDIT))
