@@ -214,7 +214,12 @@ object ControllerNotifications {
                 chanelChatMessages.cancelAllOrByTagIfNotEmpty(tag)
                 chanelChatMessages_salient.cancelAllOrByTagIfNotEmpty(tag)
 
-                NotificationChatMessageParser.clearNotification(ChatTag(tag))
+                // other notifications also have type == TYPE_CHAT, but the
+                // tag cannot be parsed as a ChatTag. if it errors, it's pretty
+                // safe to just ignore it
+                try {
+                    NotificationChatMessageParser.clearNotification(ChatTag(tag))
+                } catch (e: Exception) {}
             }
             else -> {
                 chanelOther.cancelAllOrByTagIfNotEmpty(tag)
