@@ -214,7 +214,9 @@ object ControllerNotifications {
                 chanelChatMessages.cancelAllOrByTagIfNotEmpty(tag)
                 chanelChatMessages_salient.cancelAllOrByTagIfNotEmpty(tag)
 
-                NotificationChatMessageParser.clearNotification(ChatTag(tag))
+                try {
+                    NotificationChatMessageParser.clearNotification(ChatTag(tag))
+                } catch (e: Exception) {}
             }
             else -> {
                 chanelOther.cancelAllOrByTagIfNotEmpty(tag)
