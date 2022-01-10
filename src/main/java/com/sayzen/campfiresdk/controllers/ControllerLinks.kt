@@ -56,6 +56,8 @@ object ControllerLinks {
                 t = link.substring(1)
             } else if (link.startsWith(API.DOMEN)) {
                 t = link.substring(API.DOMEN.length)
+            } else if (link.startsWith(API.DOMEN_OLD)) {
+                t = link.substring(API.DOMEN_OLD.length)
             } else {
                 t = link.substring("http://@".length)
                 t = t.replace("_", "-")
@@ -157,6 +159,8 @@ object ControllerLinks {
                 t = link.substring(1)
             } else if (link.startsWith(API.DOMEN)) {
                 t = link.substring(API.DOMEN.length)
+            } else if (link.startsWith(API.DOMEN_OLD)) {
+                t = link.substring(API.DOMEN_OLD.length)
             } else {
                 t = link.substring("http://@".length)
                 t = t.replace("_", "-")
@@ -270,6 +274,7 @@ object ControllerLinks {
     fun makeLinkable(vText: ViewText, onReplace: () -> Unit = {}) {
 
         for (i in API.LINKS_ARRAY) replaceLinkable(vText, i.asLink(), i.asWeb())
+        for (i in API.LINKS_ARRAY) replaceLinkable(vText, i.asLink(), i.asWebOld())
         replaceLinkable(vText, API.LINK_SHORT_PROFILE, API.LINK_PROFILE_NAME)
 
 
