@@ -79,7 +79,7 @@ object ControllerRubrics {
     }
 
     private fun changeFandom(rubric: Rubric) {
-        SFandomsSearch.instance(Navigator.TO) { fandom ->
+        SFandomsSearch.instance(Navigator.TO, backWhenSelect = true) { fandom ->
             if (rubric.owner.id != ControllerApi.account.getId()) {
                 ControllerApi.moderation(
                     t(API_TRANSLATE.rubric_move_fandom),
