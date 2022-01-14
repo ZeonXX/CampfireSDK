@@ -418,6 +418,7 @@ object ControllerNotifications {
             is NotificationRubricsChangeOwner -> NotificationRubricsChangeOwnerParser(n)
             is NotificationRubricsKarmaCofChanged -> NotificationRubricsKarmaCofChangedParser(n)
             is NotificationRubricsRemove -> NotificationRubricsRemoveParser(n)
+            is NotificationRubricsMoveFandom -> NotificationRubricsMoveFandomParser(n)
             is NotificationPublicationRestore -> NotificationPublicationRestoreParser(n)
             is NotificationAdminPostFandomChange -> NotificationAdminPostFandomChangeParser(n)
             is NotificationAdminPostRemoveMedia -> NotificationAdminPostRemoveMediaParser(n)

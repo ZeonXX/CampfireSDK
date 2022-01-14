@@ -18,10 +18,7 @@ import com.dzen.campfire.api.models.publications.moderations.fandom.*
 import com.dzen.campfire.api.models.publications.moderations.posts.*
 import com.dzen.campfire.api.models.publications.moderations.publications.ModerationBlock
 import com.dzen.campfire.api.models.publications.moderations.publications.ModerationForgive
-import com.dzen.campfire.api.models.publications.moderations.rubrics.ModerationRubricChangeName
-import com.dzen.campfire.api.models.publications.moderations.rubrics.ModerationRubricChangeOwner
-import com.dzen.campfire.api.models.publications.moderations.rubrics.ModerationRubricCreate
-import com.dzen.campfire.api.models.publications.moderations.rubrics.ModerationRubricRemove
+import com.dzen.campfire.api.models.publications.moderations.rubrics.*
 import com.dzen.campfire.api.models.publications.moderations.tags.*
 import com.dzen.campfire.api.models.publications.tags.PublicationTag
 import com.dzen.campfire.api.requests.bookmarks.RBookmarksAdd
@@ -56,9 +53,9 @@ import com.sup.dev.android.tools.ToolsAndroid
 import com.sup.dev.android.tools.ToolsResources
 import com.sup.dev.android.tools.ToolsToast
 import com.sup.dev.android.tools.ToolsView
-import com.sup.dev.android.views.views.ViewText
 import com.sup.dev.android.views.splash.SplashField
 import com.sup.dev.android.views.splash.SplashMenu
+import com.sup.dev.android.views.views.ViewText
 import com.sup.dev.java.libs.eventBus.EventBus
 import com.sup.dev.java.tools.ToolsDate
 import com.sup.dev.java.tools.ToolsText
@@ -516,8 +513,9 @@ object ControllerPublications {
             is ModerationRubricRemove -> {
                 text = tCap(API_TRANSLATE.moderation_rubric_remove, ToolsResources.sex(publication.creator.sex, t(API_TRANSLATE.he_remove), t(API_TRANSLATE.she_remove)), m.rubricName)
             }
-
-
+            is ModerationRubricFandomMove -> {
+                text = tCap(API_TRANSLATE.moderation_rubric_move_fandom, ToolsResources.sex(publication.creator.sex, t(API_TRANSLATE.he_move), t(API_TRANSLATE.she_move)), m.rubricName, m.srcFandomName, m.destFandomName)
+            }
         }
 
         if (publication.moderation != null)

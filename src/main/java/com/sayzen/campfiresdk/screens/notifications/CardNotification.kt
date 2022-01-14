@@ -2,7 +2,7 @@ package com.sayzen.campfiresdk.screens.notifications
 
 import android.view.View
 import android.widget.TextView
-import com.dzen.campfire.api.models.notifications.*
+import com.dzen.campfire.api.models.notifications.Notification
 import com.dzen.campfire.api.models.notifications.account.NotificationAccountsFollowsAdd
 import com.dzen.campfire.api.models.notifications.account.NotificationAchievement
 import com.dzen.campfire.api.models.notifications.chat.NotificationChatAnswer
@@ -10,22 +10,22 @@ import com.dzen.campfire.api.models.notifications.comments.NotificationComment
 import com.dzen.campfire.api.models.notifications.comments.NotificationCommentAnswer
 import com.dzen.campfire.api.models.notifications.fandom.NotificationFandomAccepted
 import com.dzen.campfire.api.models.notifications.fandom.NotificationModerationRejected
-import com.dzen.campfire.api.models.notifications.rubrics.*
 import com.dzen.campfire.api.models.notifications.publications.NotificationFollowsPublication
 import com.dzen.campfire.api.models.notifications.publications.NotificationKarmaAdd
 import com.dzen.campfire.api.models.notifications.publications.NotificationMention
 import com.dzen.campfire.api.models.notifications.publications.NotificationPublicationReaction
+import com.dzen.campfire.api.models.notifications.rubrics.*
 import com.dzen.campfire.api.models.notifications.translates.NotificationTranslatesRejected
 import com.sayzen.campfiresdk.R
-import com.sayzen.campfiresdk.screens.account.profile.SProfile
-import com.sayzen.campfiresdk.screens.achievements.SAchievements
 import com.sayzen.campfiresdk.controllers.ControllerApi
 import com.sayzen.campfiresdk.controllers.ControllerLinks
 import com.sayzen.campfiresdk.controllers.ControllerNotifications
 import com.sayzen.campfiresdk.models.events.notifications.EventNotificationsCountChanged
+import com.sayzen.campfiresdk.screens.account.profile.SProfile
+import com.sayzen.campfiresdk.screens.achievements.SAchievements
 import com.sayzen.campfiresdk.screens.fandoms.view.SFandom
-import com.sup.dev.android.libs.screens.navigator.Navigator
 import com.sup.dev.android.libs.image_loader.ImageLoader
+import com.sup.dev.android.libs.screens.navigator.Navigator
 import com.sup.dev.android.tools.ToolsView
 import com.sup.dev.android.views.cards.CardAvatar
 import com.sup.dev.android.views.support.adapters.NotifyItem
@@ -70,6 +70,7 @@ class CardNotification(
             is NotificationRubricsKarmaCofChanged -> setOnCLickAvatar { SFandom.instance(notification.fandomId, notification.languageId, Navigator.TO) }
             is NotificationRubricsMakeOwner -> setOnCLickAvatar { SFandom.instance(notification.fandomId, notification.languageId, Navigator.TO) }
             is NotificationRubricsRemove -> setOnCLickAvatar { SFandom.instance(notification.fandomId, notification.languageId, Navigator.TO) }
+            is NotificationRubricsMoveFandom -> setOnCLickAvatar { SFandom.instance(notification.destFandomId, notification.destLanguageId, Navigator.TO) }
             is NotificationPublicationReaction -> setOnCLickAvatar { SProfile.instance(notification.accountId, Navigator.TO) }
             is NotificationTranslatesRejected -> setOnCLickAvatar { SProfile.instance(notification.adminId, Navigator.TO) }
         }

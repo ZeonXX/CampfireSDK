@@ -145,6 +145,7 @@ object CampfireConstants {
             AppLevel(API_TRANSLATE.lvl_admin_fandom_category, API.LVL_ADMIN_FANDOM_CATEGORY, R.color.red_500),
             AppLevel(API_TRANSLATE.lvl_ads_ban, API.LVL_ADMIN_BAN, R.color.red_500),
             AppLevel(API_TRANSLATE.lvl_post_fandom_change, API.LVL_ADMIN_POST_CHANGE_FANDOM, R.color.red_500),
+            AppLevel(API_TRANSLATE.lvl_rubric_move, API.LVL_ADMIN_MOVE_RUBRIC, R.color.red_500),
             AppLevel(API_TRANSLATE.lvl_fandoms, API.LVL_ADMIN_FANDOMS_ACCEPT, R.color.red_500),
             AppLevel(API_TRANSLATE.lvl_remove_status, API.LVL_ADMIN_USER_REMOVE_STATUS, R.color.red_500),
             AppLevel(API_TRANSLATE.lvl_remove_image, API.LVL_ADMIN_USER_REMOVE_IMAGE, R.color.red_500),
