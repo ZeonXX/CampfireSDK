@@ -28,10 +28,9 @@ import com.sup.dev.android.libs.image_loader.ImageLoader
 import com.sup.dev.android.libs.screens.Screen
 import com.sup.dev.android.libs.screens.navigator.NavigationAction
 import com.sup.dev.android.libs.screens.navigator.Navigator
-import com.sup.dev.android.tools.ToolsResources
 import com.sup.dev.android.tools.ToolsToast
-import com.sup.dev.android.views.support.adapters.recycler_view.RecyclerCardAdapter
 import com.sup.dev.android.views.splash.SplashAlert
+import com.sup.dev.android.views.support.adapters.recycler_view.RecyclerCardAdapter
 import com.sup.dev.java.libs.eventBus.EventBus
 
 class SWikiArticleView(
@@ -90,7 +89,7 @@ class SWikiArticleView(
         vRecycler.layoutManager = LinearLayoutManager(context)
         vRecycler.adapter = adapter
 
-        vMore.setOnClickListener { ControllerWiki.showMenu(wikiTitle, languageId, vMore, 0f, 0f) }
+        vMore.setOnClickListener { ControllerWiki.showMenu(wikiTitle, languageId, null, vMore, 0f, 0f) }
 
         vLanguage.setOnClickListener {
             ControllerCampfireSDK.createLanguageMenu(languageId) { languageId ->

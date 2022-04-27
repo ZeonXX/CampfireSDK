@@ -3,8 +3,8 @@ package com.sayzen.campfiresdk.controllers
 import android.widget.EditText
 import com.dzen.campfire.api.API
 import com.sayzen.campfiresdk.views.SplashSearch
-import com.sayzen.campfiresdk.views.SplashSearchFandom
 import com.sayzen.campfiresdk.views.SplashSearchAccount
+import com.sayzen.campfiresdk.views.SplashSearchFandom
 import com.sup.dev.android.tools.ToolsView
 
 object ControllerMention {
@@ -13,7 +13,14 @@ object ControllerMention {
     private val wFandomSearch = SplashSearchFandom { field, fandom -> setMentionFandom(field, fandom.id) }.makeCompanion() as SplashSearchFandom
 
     fun startFor(vField: EditText, addSpace: Boolean = true) {
-        ToolsView.onSelectionChanged(vField) { updateMention(vField, addSpace) }
+        var firstTime = true
+        ToolsView.onSelectionChanged(vField) {
+            if (firstTime) {
+                firstTime = false
+                return@onSelectionChanged
+            }
+            updateMention(vField, addSpace)
+        }
     }
 
     fun updateMention(vField: EditText, addSpace: Boolean = true): Boolean {

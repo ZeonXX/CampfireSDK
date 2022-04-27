@@ -5,25 +5,27 @@ import com.dzen.campfire.api.API
 import com.dzen.campfire.api.API_TRANSLATE
 import com.dzen.campfire.api.models.wiki.WikiTitle
 import com.dzen.campfire.api.requests.wiki.RWikiArticleChangeLanguage
+import com.dzen.campfire.api.requests.wiki.RWikiItemMove
 import com.dzen.campfire.api.requests.wiki.RWikiRemove
+import com.dzen.campfire.api.requests.wiki.RWikiReorder
 import com.sayzen.campfiresdk.R
+import com.sayzen.campfiresdk.models.events.wiki.EventWikiListChanged
 import com.sayzen.campfiresdk.models.events.wiki.EventWikiPagesChanged
 import com.sayzen.campfiresdk.models.events.wiki.EventWikiRemove
 import com.sayzen.campfiresdk.screens.wiki.SWikiArticleEdit
 import com.sayzen.campfiresdk.screens.wiki.SWikiItemCreate
+import com.sayzen.campfiresdk.screens.wiki.SWikiList
 import com.sayzen.campfiresdk.screens.wiki.history.SWikiArticleHistory
 import com.sayzen.campfiresdk.support.ApiRequestsSupporter
 import com.sup.dev.android.libs.screens.navigator.Navigator
 import com.sup.dev.android.tools.ToolsAndroid
-import com.sup.dev.android.tools.ToolsResources
 import com.sup.dev.android.tools.ToolsToast
 import com.sup.dev.android.views.splash.SplashAlert
 import com.sup.dev.android.views.splash.SplashMenu
 import com.sup.dev.java.libs.eventBus.EventBus
 
 object ControllerWiki {
-
-    fun instanceMenu(wikiTitle: WikiTitle, languageId: Long): SplashMenu {
+    fun instanceMenu(wikiTitle: WikiTitle, languageId: Long, items: List<WikiTitle>?): SplashMenu {
         return SplashMenu()
                 .add(t(API_TRANSLATE.app_copy_link)) { copyLink(wikiTitle) }
                 .add(t(API_TRANSLATE.app_history)) { Navigator.to(SWikiArticleHistory(wikiTitle, languageId)) }
@@ -32,10 +34,40 @@ object ControllerWiki {
                 .add(t(API_TRANSLATE.app_remove)) { removeWikiItem(wikiTitle.itemId) }.backgroundRes(R.color.blue_700).condition(ControllerApi.can(wikiTitle.fandomId, ControllerApi.getLanguage("en").id, API.LVL_MODERATOR_WIKI_EDIT))
                 .add(t(API_TRANSLATE.app_edit)) { toEditArticle(wikiTitle.itemId, languageId)}.backgroundRes(R.color.blue_700).condition(wikiTitle.itemType == API.WIKI_TYPE_ARTICLE && ControllerApi.can(wikiTitle.fandomId, languageId, API.LVL_MODERATOR_WIKI_EDIT))
                 .add(t(API_TRANSLATE.wiki_change_language)) {changeLanguage(wikiTitle.itemId, languageId)}.backgroundRes(R.color.blue_700).condition(wikiTitle.itemType == API.WIKI_TYPE_ARTICLE && ControllerApi.can(wikiTitle.fandomId, languageId, API.LVL_MODERATOR_WIKI_EDIT))
+                .add(t(API_TRANSLATE.app_display_before)) { displayBefore(wikiTitle, items!!) }.backgroundRes(R.color.blue_700).condition(items != null && items.size > 1 && ControllerApi.can(wikiTitle.fandomId, API.LANGUAGE_EN, API.LVL_MODERATOR_WIKI_EDIT))
+                .add(t(API_TRANSLATE.app_move)) { moveTitle(wikiTitle) }.backgroundRes(R.color.blue_700).condition(ControllerApi.can(wikiTitle.fandomId, API.LANGUAGE_EN, API.LVL_MODERATOR_WIKI_EDIT))
     }
 
-    fun showMenu(wikiTitle: WikiTitle, languageId: Long, view: View, x:Float, y:Float) {
-        instanceMenu(wikiTitle, languageId).asPopupShow(view, x, y)
+    private fun displayBefore(wikiTitle: WikiTitle, items: List<WikiTitle>) {
+        val menu = SplashMenu()
+        for (t in items) {
+            if (t.itemId != wikiTitle.itemId) menu.add(t.getName(ControllerApi.getLanguageCode())) {
+                ApiRequestsSupporter.executeProgressDialog(RWikiReorder(
+                        itemId = wikiTitle.itemId,
+                        beforeId = t.itemId,
+                )) { _ ->
+                    EventBus.post(EventWikiListChanged(wikiTitle))
+                }
+            }
+        }
+        menu.asSheetShow()
+    }
+
+    private fun moveTitle(wikiTitle: WikiTitle) {
+        Navigator.to(SWikiList(wikiTitle.fandomId, 0, 0, "") {
+            ApiRequestsSupporter.executeProgressDialog(RWikiItemMove(
+                    wikiTitle.fandomId,
+                    wikiTitle.itemId,
+                    it.itemId,
+            )) { _ ->
+                // fixme: only refresh necessary SWikiLists
+                EventBus.post(EventWikiListChanged(null))
+            }
+        })
+    }
+
+    fun showMenu(wikiTitle: WikiTitle, languageId: Long, items: List<WikiTitle>?, view: View, x:Float, y:Float) {
+        instanceMenu(wikiTitle, languageId, items).asPopupShow(view, x, y)
     }
 
     fun toEditArticle(itemId:Long, languageId: Long){
