@@ -116,6 +116,7 @@ object CampfireConstants {
             AppLevel(API.LVL_CAN_CHANGE_PROFILE_IMAGE, API_TRANSLATE.lvl_app_profile_image),
             AppLevel(API.LVL_CAN_CHANGE_STATUS, API_TRANSLATE.lvl_app_status),
             AppLevel(API.LVL_CAN_MENTION, API_TRANSLATE.lvl_app_mention),
+            AppLevel(API.LVL_CREATE_QUESTS, API_TRANSLATE.lvl_create_quests),
             AppLevel(API.LVL_CAN_CHANGE_AVATAR_GIF, API_TRANSLATE.lvl_avatar_gif),
             AppLevel(API.LVL_CAN_PIN_POST, API_TRANSLATE.lvl_pin_post),
             AppLevel(API.LVL_CREATE_STICKERS, API_TRANSLATE.lvl_create_stickers),
