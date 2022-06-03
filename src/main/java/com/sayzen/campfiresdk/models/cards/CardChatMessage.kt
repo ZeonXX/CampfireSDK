@@ -35,15 +35,20 @@ import com.sup.dev.android.app.SupAndroid
 import com.sup.dev.android.libs.image_loader.ImageLoader
 import com.sup.dev.android.libs.screens.navigator.Navigator
 import com.sup.dev.android.models.EventStyleChanged
-import com.sup.dev.android.tools.*
+import com.sup.dev.android.tools.ToolsAndroid
+import com.sup.dev.android.tools.ToolsResources
+import com.sup.dev.android.tools.ToolsToast
+import com.sup.dev.android.tools.ToolsView
 import com.sup.dev.android.views.screens.SImageView
+import com.sup.dev.android.views.splash.SplashMenu
 import com.sup.dev.android.views.views.*
 import com.sup.dev.android.views.views.layouts.LayoutCorned
-import com.sup.dev.android.views.splash.SplashMenu
 import com.sup.dev.java.classes.collections.HashList
 import com.sup.dev.java.libs.eventBus.EventBus
 import com.sup.dev.java.libs.text_format.TextFormatter
-import com.sup.dev.java.tools.*
+import com.sup.dev.java.tools.ToolsColor
+import com.sup.dev.java.tools.ToolsDate
+import com.sup.dev.java.tools.ToolsText
 
 open class CardChatMessage constructor(
         publication: PublicationChatMessage,
@@ -480,7 +485,9 @@ open class CardChatMessage constructor(
         vQuoteContainer.setOnLongClickListener { showMenu(vQuoteContainer, it.x, it.y);true }
 
         val quoteTextRaw = TextFormatter(publication.quoteText).parseNoTags()
-        val quoteText = if (quoteTextRaw.length > 100) "${quoteTextRaw.substring(0, 100)}..." else quoteTextRaw
+        val quoteText = if (quoteTextRaw.length > 100) "${quoteTextRaw.substring(0, 100)}..."
+        else if (publication.type == PublicationChatMessage.TYPE_VOICE) t(API_TRANSLATE.app_voice_message)
+        else quoteTextRaw
         vQuoteText.text = quoteText
         if (publication.quoteCreatorName.isNotEmpty()) {
             val otherName = publication.quoteCreatorName + ":"
