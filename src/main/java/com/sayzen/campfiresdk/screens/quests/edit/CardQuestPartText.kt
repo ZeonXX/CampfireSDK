@@ -1,7 +1,6 @@
 package com.sayzen.campfiresdk.screens.quests.edit
 
 import android.view.View
-import com.dzen.campfire.api.API
 import com.dzen.campfire.api.API_TRANSLATE
 import com.dzen.campfire.api.models.quests.QuestEffectBox
 import com.dzen.campfire.api.models.quests.QuestEffectBoxReset
@@ -18,20 +17,15 @@ class CardQuestPartText(val part: QuestPartText) : CardQuestPart(R.layout.card_q
         val vTitle: ViewText = view.findViewById(R.id.vTitle)
         val vDescription: ViewText = view.findViewById(R.id.vDescription)
 
-        vTitle.text = t(API_TRANSLATE.quests_part_title, t(API_TRANSLATE.quests_part_text), part.devLabel)
+        vTitle.text = part.toSelectorString()
 
         val desc = StringBuilder()
         desc.append(part.text.substring(0, 100.coerceAtMost(part.text.length)))
         if (part.inputs.isNotEmpty()) {
             desc.append("\n\n")
             desc.append(part.inputs.joinToString("\n") {
-                val inputType = when (it.type) {
-                    API.QUEST_TYPE_TEXT -> t(API_TRANSLATE.quests_variable_string)
-                    API.QUEST_TYPE_NUMBER -> t(API_TRANSLATE.quests_variable_number)
-                    API.QUEST_TYPE_BOOL -> t(API_TRANSLATE.quests_variable_bool)
-                    else -> t(API_TRANSLATE.quests_variable_unknown)
-                }
-                "${it.label ?: t(API_TRANSLATE.quests_part_text_input)} ($inputType)"
+                val inputType = t(API_TRANSLATE.forQuestType(it.type))
+                "${it.hint.ifEmpty { t(API_TRANSLATE.quests_part_text_input) }} ($inputType)"
             })
         }
         if (part.buttons.isNotEmpty()) {

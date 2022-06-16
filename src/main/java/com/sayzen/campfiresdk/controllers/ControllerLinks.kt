@@ -34,8 +34,8 @@ import com.sayzen.campfiresdk.screens.wiki.SWikiList
 import com.sup.dev.android.libs.screens.navigator.Navigator
 import com.sup.dev.android.tools.ToolsIntent
 import com.sup.dev.android.tools.ToolsView
-import com.sup.dev.android.views.views.ViewText
 import com.sup.dev.android.views.splash.SplashAlert
+import com.sup.dev.android.views.views.ViewText
 import com.sup.dev.java.libs.debug.err
 import com.sup.dev.java.libs.debug.info
 import com.sup.dev.java.tools.ToolsMath
@@ -300,10 +300,10 @@ object ControllerLinks {
 
         if (ControllerHoliday.isBirthday()) {
             ToolsView.addLink(vText, "День рождения") { ControllerScreenAnimations.parseHolidayClick() }
-            ToolsView.addLink(vText, "Денём рождения") { ControllerScreenAnimations.parseHolidayClick() }
+            ToolsView.addLink(vText, "Днём рождения") { ControllerScreenAnimations.parseHolidayClick() }
             ToolsView.addLink(vText, "Birthday") { ControllerScreenAnimations.parseHolidayClick() }
             ToolsView.addLink(vText, "день рождения") { ControllerScreenAnimations.parseHolidayClick() }
-            ToolsView.addLink(vText, "денём рождения") { ControllerScreenAnimations.parseHolidayClick() }
+            ToolsView.addLink(vText, "днём рождения") { ControllerScreenAnimations.parseHolidayClick() }
             ToolsView.addLink(vText, "birthday") { ControllerScreenAnimations.parseHolidayClick() }
         }
 

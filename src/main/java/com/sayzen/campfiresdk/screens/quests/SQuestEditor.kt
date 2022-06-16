@@ -1,20 +1,21 @@
 package com.sayzen.campfiresdk.screens.quests
 
-import android.util.AttributeSet
-import android.widget.FrameLayout
 import com.dzen.campfire.api.API
 import com.dzen.campfire.api.API_TRANSLATE
 import com.dzen.campfire.api.models.quests.QuestDetails
-import com.dzen.campfire.api.models.quests.QuestVariable
+import com.dzen.campfire.api.models.quests.QuestPart
+import com.dzen.campfire.api.models.quests.QuestPartContainer
+import com.dzen.campfire.api.models.quests.QuestPartText
 import com.dzen.campfire.api.requests.quests.RQuestsModify
-import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.sayzen.campfiresdk.R
 import com.sayzen.campfiresdk.controllers.t
 import com.sayzen.campfiresdk.models.cards.CardQuestDetails
 import com.sayzen.campfiresdk.models.events.quests.EventQuestChanged
 import com.sayzen.campfiresdk.screens.quests.edit.CardQuestVariables
+import com.sayzen.campfiresdk.screens.quests.edit.SQuestPartTextCreate
 import com.sayzen.campfiresdk.support.ApiRequestsSupporter
+import com.sup.dev.android.libs.screens.navigator.Navigator
 import com.sup.dev.android.tools.ToolsToast
-import com.sup.dev.android.tools.ToolsView
 import com.sup.dev.android.views.cards.CardTitle
 import com.sup.dev.android.views.screens.SRecycler
 import com.sup.dev.android.views.splash.SplashFieldTwo
@@ -45,6 +46,12 @@ class SQuestEditor(
 
         onDetailsUpdated()
         addTitleCards()
+
+        vFab.visibility = VISIBLE
+        vFab.setImageResource(R.drawable.ic_add_white_24dp)
+        vFab.setOnClickListener {
+            openNewQuestPart()
+        }
 
         vRecycler.adapter = adapter
     }
@@ -87,14 +94,21 @@ class SQuestEditor(
             .asSheetShow()
     }
 
+    private val container = object : QuestPartContainer {
+        override fun getParts(): Array<QuestPart> = emptyArray()
+    }
+
     private fun openNewQuestPart() {
         SplashMenu()
-            .add(t(API_TRANSLATE.quests_part_text))
+            .add(t(API_TRANSLATE.quests_part_text)) {
+                Navigator.to(SQuestPartTextCreate(
+                    questDetails,
+                    container,
+                    QuestPartText()
+                ) {})
+            }
             .add(t(API_TRANSLATE.quests_part_condition))
             .add(t(API_TRANSLATE.quests_part_action))
-            .onClick {
-
-            }
             .asSheetShow()
     }
 }

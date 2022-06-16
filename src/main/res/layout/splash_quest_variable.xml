@@ -37,7 +37,7 @@
         android:orientation="horizontal"
         android:layout_margin="8dp">
 
-        <!-- SplashQuestVariable's quest looks for this, so we'll keep it. lol -->
+        <!-- SplashQuestVariable's superclass looks for this, so we'll keep it. lol -->
         <com.sup.dev.android.views.views.ViewIcon
             android:id="@+id/vIcon"
             style="@style/Icon"

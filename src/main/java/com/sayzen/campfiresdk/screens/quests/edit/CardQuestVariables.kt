@@ -7,25 +7,18 @@ import com.dzen.campfire.api.API
 import com.dzen.campfire.api.API_TRANSLATE
 import com.dzen.campfire.api.models.quests.QuestDetails
 import com.dzen.campfire.api.models.quests.QuestVariable
-import com.dzen.campfire.api.requests.quests.RQuestsModify
 import com.sayzen.campfiresdk.R
 import com.sayzen.campfiresdk.controllers.t
 import com.sayzen.campfiresdk.models.events.quests.EventQuestChanged
-import com.sayzen.campfiresdk.screens.post.create.creators.SplashAdd
 import com.sayzen.campfiresdk.screens.quests.editQuestDetails
-import com.sayzen.campfiresdk.support.ApiRequestsSupporter
-import com.sup.dev.android.tools.ToolsToast
 import com.sup.dev.android.tools.ToolsView
 import com.sup.dev.android.views.cards.Card
 import com.sup.dev.android.views.splash.SplashAlert
-import com.sup.dev.android.views.splash.view.SplashViewDialog
-import com.sup.dev.android.views.splash.view.SplashViewSheet
 import com.sup.dev.android.views.views.ViewAvatarTitle
 import com.sup.dev.android.views.views.ViewButton
 import com.sup.dev.android.views.views.ViewIcon
 import com.sup.dev.android.views.views.ViewText
 import com.sup.dev.java.libs.eventBus.EventBus
-import com.sup.dev.java.libs.json.Json
 
 class CardQuestVariables(
     var details: QuestDetails,
@@ -50,15 +43,15 @@ class CardQuestVariables(
 
         vList.removeAllViews()
         for (v in details.variables) {
-            val varView = ToolsView.inflate<FrameLayout>(vList, R.layout.card_quest_variable)
+            val varView = ToolsView.inflate<FrameLayout>(vList, R.layout.card_quest_vat)
             varView.setOnClickListener {
                 editVariable(v)
             }
 
-            val vItem: ViewAvatarTitle = varView.findViewById(R.id.vItem)
-            vItem.vAvatar.visibility = View.GONE
-            vItem.setTitle(v.devName)
-            vItem.setSubtitle(when (v.type) {
+            val vAvatar: ViewAvatarTitle = varView.findViewById(R.id.vAvatar)
+            vAvatar.vAvatar.visibility = View.GONE
+            vAvatar.setTitle(v.devName)
+            vAvatar.setSubtitle(when (v.type) {
                 API.QUEST_TYPE_TEXT -> t(API_TRANSLATE.quests_variable_string)
                 API.QUEST_TYPE_NUMBER -> t(API_TRANSLATE.quests_variable_number)
                 API.QUEST_TYPE_BOOL -> t(API_TRANSLATE.quests_variable_bool)

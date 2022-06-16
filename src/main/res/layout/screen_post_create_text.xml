@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Если сделать другой контейнер на Xiaomi текст будет отрезаться снизу-->
-<!-- Если сделать другой контейнер на Xiaomi текст будет отрезаться снизу-->
-<!-- Если сделать другой контейнер на Xiaomi текст будет отрезаться снизу-->
-<!-- Если сделать другой контейнер на Xiaomi текст будет отрезаться снизу-->
+<!-- NOTE: this layout is also used in SQuestPartTextEditor with vOptionsContainer hidden -->
 <!-- Если сделать другой контейнер на Xiaomi текст будет отрезаться снизу-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -10,11 +7,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
-<!-- Если сделать другой контейнер на Xiaomi текст будет отрезаться снизу-->
-<!-- Если сделать другой контейнер на Xiaomi текст будет отрезаться снизу-->
-<!-- Если сделать другой контейнер на Xiaomi текст будет отрезаться снизу-->
-<!-- Если сделать другой контейнер на Xiaomi текст будет отрезаться снизу-->
-<!-- Если сделать другой контейнер на Xiaomi текст будет отрезаться снизу-->
 
     <com.google.android.material.appbar.AppBarLayout style="@style/AppBar"
         app:elevation="0dp"
@@ -47,6 +39,7 @@
         android:background="?colorPrimary">
 
         <LinearLayout
+            android:id="@+id/vOptionsContainer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center|left"
