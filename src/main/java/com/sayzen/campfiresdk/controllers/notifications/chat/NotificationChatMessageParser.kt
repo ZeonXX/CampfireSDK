@@ -133,8 +133,8 @@ fun NotificationChatMessageParser.Companion.sendNotification(tag: ChatTag, sound
                     ).json(true, this)
                 }.toString())
             },
-            PendingIntent.FLAG_UPDATE_CURRENT or (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-                PendingIntent.FLAG_IMMUTABLE else 0),
+            PendingIntent.FLAG_UPDATE_CURRENT or (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+                PendingIntent.FLAG_MUTABLE else 0),
         ))
         builder.setStyle(NotificationCompat.MessagingStyle(me).also {
             it.isGroupConversation = tag.chatType != API.CHAT_TYPE_PRIVATE
@@ -167,8 +167,8 @@ fun NotificationChatMessageParser.Companion.sendNotification(tag: ChatTag, sound
                 Intent(SupAndroid.appContext!!, MessageReplyReceiver::class.java).also {
                     it.putExtra(MessageReplyReceiver.CHAT_TAG, tag.asTag())
                 },
-                PendingIntent.FLAG_UPDATE_CURRENT or (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-                    PendingIntent.FLAG_IMMUTABLE else 0),
+                PendingIntent.FLAG_UPDATE_CURRENT or (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+                    PendingIntent.FLAG_MUTABLE else 0),
             )
 
             val action = NotificationCompat.Action.Builder(
@@ -187,8 +187,8 @@ fun NotificationChatMessageParser.Companion.sendNotification(tag: ChatTag, sound
                 Intent(SupAndroid.appContext!!, MessageReadReceiver::class.java).also {
                     it.putExtra(MessageReplyReceiver.CHAT_TAG, tag.asTag())
                 },
-                PendingIntent.FLAG_UPDATE_CURRENT or (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-                    PendingIntent.FLAG_IMMUTABLE else 0),
+                PendingIntent.FLAG_UPDATE_CURRENT or (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+                    PendingIntent.FLAG_MUTABLE else 0),
             )
         )
 

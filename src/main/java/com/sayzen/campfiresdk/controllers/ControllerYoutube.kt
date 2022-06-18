@@ -3,6 +3,7 @@ package com.sayzen.campfiresdk.controllers
 import com.google.android.youtube.player.YouTubeInitializationResult
 import com.google.android.youtube.player.YouTubeStandalonePlayer
 import com.sup.dev.android.app.SupAndroid
+import com.sup.dev.android.tools.ToolsIntent
 import com.sup.dev.java.libs.debug.err
 import com.sup.dev.java.tools.ToolsThreads
 import java.io.DataInputStream
@@ -18,6 +19,11 @@ object ControllerYoutube {
     private val REQ_RESOLVE_SERVICE_MISSING = 2
 
     fun play(id: String) {
+        ToolsIntent.openLink("https://youtu.be/$id")
+    }
+
+    @Deprecated("use play()")
+    fun playStandalone(id: String) {
         val intent = YouTubeStandalonePlayer.createVideoIntent(SupAndroid.activity!!,
                 DEVELOPER_KEY_PT_1 + DEVELOPER_KEY_PT_2 + DEVELOPER_KEY_PT_3,
                 id, 0, true, false)
