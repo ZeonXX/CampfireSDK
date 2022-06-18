@@ -23,11 +23,10 @@ import com.sup.dev.android.libs.screens.navigator.Navigator
 import com.sup.dev.android.tools.ToolsAndroid
 import com.sup.dev.android.tools.ToolsToast
 import com.sup.dev.android.views.screens.SImageView
-import com.sup.dev.android.views.support.adapters.recycler_view.RecyclerCardAdapter
 import com.sup.dev.android.views.splash.SplashField
 import com.sup.dev.android.views.splash.SplashMenu
+import com.sup.dev.android.views.support.adapters.recycler_view.RecyclerCardAdapter
 import com.sup.dev.java.libs.eventBus.EventBus
-import java.util.*
 
 object ControllerPost {
 
@@ -510,14 +509,23 @@ object ControllerPost {
         var index = 0
 
         for (p in pagesContainer.getPagesArray()) {
-            if (p is PageImage) {
-                if (p.imageId == imageId) index = list.size
-                list.add(p.getMainImageId())
-            }
-            if (p is PageImages) {
-                for (subImageId in p.imagesIds) {
-                    if (subImageId == imageId) index = list.size
-                    list.add(subImageId)
+            when (p) {
+                is PageImage -> {
+                    if (p.imageId == imageId) index = list.size
+                    list.add(p.getMainImageId())
+                }
+                is PageImages -> {
+                    for (subImageId in p.imagesIds) {
+                        if (subImageId == imageId) index = list.size
+                        list.add(subImageId)
+                    }
+                }
+                is PageTable -> {
+                    for (cell in p.cells) {
+                        if (cell.imageId < 1) continue
+                        if (cell.imageId == imageId) index = list.size
+                        list.add(cell.imageId)
+                    }
                 }
             }
         }

@@ -6,11 +6,11 @@ import com.dzen.campfire.api.API_TRANSLATE
 import com.dzen.campfire.api.models.publications.post.Page
 import com.dzen.campfire.api.models.publications.post.PageTable
 import com.sayzen.campfiresdk.R
-import com.sayzen.campfiresdk.models.cards.post_pages.CardPage
-import com.sayzen.campfiresdk.models.cards.post_pages.CardPageTable
 import com.sayzen.campfiresdk.controllers.ControllerApi
 import com.sayzen.campfiresdk.controllers.ControllerLinks
 import com.sayzen.campfiresdk.controllers.t
+import com.sayzen.campfiresdk.models.cards.post_pages.CardPage
+import com.sayzen.campfiresdk.models.cards.post_pages.CardPageTable
 import com.sup.dev.android.libs.screens.Screen
 import com.sup.dev.android.libs.screens.navigator.Navigator
 import com.sup.dev.android.tools.*
@@ -18,7 +18,6 @@ import com.sup.dev.android.views.splash.*
 import com.sup.dev.android.views.views.ViewIcon
 import com.sup.dev.android.views.views.table.ViewTable
 import com.sup.dev.android.views.views.table.ViewTableCell
-import com.sup.dev.java.libs.json.Json
 import com.sup.dev.java.tools.ToolsBytes
 import com.sup.dev.java.tools.ToolsCollections
 import com.sup.dev.java.tools.ToolsThreads
@@ -185,6 +184,9 @@ class SCreatePageTable(
         val page = if (oldPage == null) PageTable() else oldPage!!
 
         if (cell != null) {
+            page.cells = page.cells.filterNot {
+                it.rowIndex == vCell.getRowIndex() && it.columnIndex == vCell.getColumnIndex()
+            }.toTypedArray()
             page.cells = ToolsCollections.add(cell, page.cells)
         } else {
             val list = ArrayList<PageTable.Cell>()
