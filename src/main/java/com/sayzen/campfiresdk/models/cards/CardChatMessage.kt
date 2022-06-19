@@ -803,7 +803,7 @@ open class CardChatMessage constructor(
         for (i in API.REACTIONS.indices) {
             val v: ViewIcon = ToolsView.inflate(vMenuReactionsLinear, R.layout.z_icon_18)
             v.setPadding(p, p, p, p)
-            v.setOnClickListener { sendReaction(i.toLong()); w.hide(); }
+            v.setOnClickListener { sendReaction(i.toLong()); w?.hide(); }
             vMenuReactionsLinear.addView(v)
             ImageLoader.load(API.REACTIONS[i]).into(v)
         }
