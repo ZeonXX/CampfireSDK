@@ -4,8 +4,11 @@ import android.view.View
 import com.dzen.campfire.api.models.publications.PagesContainer
 import com.dzen.campfire.api.models.publications.post.PageTable
 import com.sayzen.campfiresdk.R
-import com.sayzen.campfiresdk.controllers.ControllerApi
 import com.sayzen.campfiresdk.controllers.ControllerLinks
+import com.sayzen.campfiresdk.controllers.ControllerPost
+import com.sup.dev.android.libs.image_loader.ImageLoader
+import com.sup.dev.android.libs.screens.navigator.Navigator
+import com.sup.dev.android.views.screens.SImageView
 import com.sup.dev.android.views.views.table.ViewTable
 
 class CardPageTable(
@@ -26,7 +29,13 @@ class CardPageTable(
         vTable.createRows(page.rowsCount, true)
         for(c in page.cells) {
             if(c.type == PageTable.CELL_TYPE_TEXT) vTable.getCell(c.rowIndex, c.columnIndex)?.setContentText(c.text)
-            if(c.type == PageTable.CELL_TYPE_IMAGE) vTable.getCell(c.rowIndex, c.columnIndex)?.setContentImageId(c.imageId)
+            if(c.type == PageTable.CELL_TYPE_IMAGE) vTable.getCell(c.rowIndex, c.columnIndex)?.setContentImageId(c.imageId) {
+                if (pagesContainer != null) {
+                    ControllerPost.toImagesScreen(pagesContainer, c.imageId)
+                } else {
+                    Navigator.to(SImageView(ImageLoader.load(c.imageId)))
+                }
+            }
         }
 
     }

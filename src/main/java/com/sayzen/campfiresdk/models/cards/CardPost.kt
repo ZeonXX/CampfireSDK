@@ -35,8 +35,6 @@ import com.sup.dev.java.libs.eventBus.EventBus
 import com.sup.dev.java.tools.ToolsDate
 import com.sup.dev.java.tools.ToolsText
 import com.sup.dev.java.tools.ToolsThreads
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
 
 class CardPost constructor(
         private val vRecycler: RecyclerView?,
@@ -228,15 +226,16 @@ class CardPost constructor(
 
         vPagesCount.setOnClickListener { toggleShowFull() }
 
-        vBestCommentContainer.removeAllViews()
         vBestCommentRootContainer.visibility = if (publication.bestComment == null) View.GONE else View.VISIBLE
-
-        if (publication.bestComment != null) {
+        if (vBestCommentContainer.childCount == 0 && publication.bestComment != null) {
             val cardComment = CardComment.instance(publication.bestComment!!, false, true)
             cardComment.maxTextSize = 500
             val cardCommentView = cardComment.instanceView(vBestCommentContainer)
             cardComment.bindCardView(cardCommentView)
             vBestCommentContainer.addView(cardCommentView)
+        }
+        if (publication.bestComment == null) {
+            vBestCommentContainer.removeAllViews()
         }
         vComments.setOnClickListener {
             if (onClick == null && publication.status == API.STATUS_PUBLIC)

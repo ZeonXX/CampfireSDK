@@ -31,13 +31,12 @@ import com.sup.dev.android.app.SupAndroid
 import com.sup.dev.android.libs.image_loader.ImageLoader
 import com.sup.dev.android.libs.screens.navigator.Navigator
 import com.sup.dev.android.tools.ToolsAndroid
-import com.sup.dev.android.tools.ToolsResources
 import com.sup.dev.android.tools.ToolsToast
 import com.sup.dev.android.tools.ToolsView
 import com.sup.dev.android.views.screens.SImageView
+import com.sup.dev.android.views.splash.SplashMenu
 import com.sup.dev.android.views.views.*
 import com.sup.dev.android.views.views.layouts.LayoutMaxSizes
-import com.sup.dev.android.views.splash.SplashMenu
 import com.sup.dev.java.classes.collections.HashList
 import com.sup.dev.java.libs.eventBus.EventBus
 import com.sup.dev.java.libs.text_format.TextFormatter
@@ -462,7 +461,7 @@ open class CardComment protected constructor(
         for (i in API.REACTIONS.indices) {
             val v: ViewIcon = ToolsView.inflate(vMenuReactionsLinear, R.layout.z_icon_18)
             v.setPadding(p, p, p, p)
-            v.setOnClickListener { sendReaction(i.toLong()); w.hide(); }
+            v.setOnClickListener { sendReaction(i.toLong()); w?.hide(); }
             vMenuReactionsLinear.addView(v)
             ImageLoader.load(API.REACTIONS[i]).into(v)
         }
