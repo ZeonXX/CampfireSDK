@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import com.dzen.campfire.api.API_TRANSLATE
+import com.dzen.campfire.api.models.notifications.project.NotificationQuestFinish
 import com.dzen.campfire.api.models.notifications.project.NotificationQuestProgress
 import com.dzen.campfire.api.requests.achievements.RAchievementsQuestInfo
 import com.sayzen.campfiresdk.R
@@ -103,6 +104,12 @@ class CardQuest : Card(R.layout.screen_fandom_card_quest) {
         if (e.notification is NotificationQuestProgress) {
             questProgress = e.notification.progress
             update()
+        }
+        if (e.notification is NotificationQuestFinish) {
+            if (e.notification.questIndex == questIndex) {
+                questFinished = true
+                update()
+            }
         }
     }
 

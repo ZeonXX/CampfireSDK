@@ -91,6 +91,13 @@ class CardPost constructor(
             .subscribe(EventCommentRemove::class) { onEventCommentRemove(it) }
             .subscribe(EventPublicationBlockedRemove::class) { onEventPublicationBlockedRemove(it) }
             .subscribe(EventPublicationDeepBlockRestore::class) { onEventPublicationDeepBlockRestore(it) }
+            .subscribe(EventPublicationKarmaAdd::class) {
+                if (publication.bestComment?.id == it.publicationId) {
+                    publication.bestComment!!.myKarma = it.myKarma
+                    publication.bestComment!!.karmaCount += it.myKarma
+                    update()
+                }
+            }
 
     private val pages = ArrayList<CardPage>()
     private var isShowFull = false
@@ -226,16 +233,15 @@ class CardPost constructor(
 
         vPagesCount.setOnClickListener { toggleShowFull() }
 
+        vBestCommentContainer.removeAllViews()
         vBestCommentRootContainer.visibility = if (publication.bestComment == null) View.GONE else View.VISIBLE
-        if (vBestCommentContainer.childCount == 0 && publication.bestComment != null) {
+
+        if (publication.bestComment != null) {
             val cardComment = CardComment.instance(publication.bestComment!!, false, true)
             cardComment.maxTextSize = 500
             val cardCommentView = cardComment.instanceView(vBestCommentContainer)
             cardComment.bindCardView(cardCommentView)
             vBestCommentContainer.addView(cardCommentView)
-        }
-        if (publication.bestComment == null) {
-            vBestCommentContainer.removeAllViews()
         }
         vComments.setOnClickListener {
             if (onClick == null && publication.status == API.STATUS_PUBLIC)
