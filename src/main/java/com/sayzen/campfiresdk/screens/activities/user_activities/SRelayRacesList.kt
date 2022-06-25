@@ -17,9 +17,7 @@ import com.sup.dev.android.libs.screens.navigator.Navigator
 import com.sup.dev.android.views.cards.CardDividerTitle
 import com.sup.dev.android.views.cards.CardSpace
 import com.sup.dev.android.views.screens.SLoadingRecycler
-import com.sup.dev.android.views.support.adapters.recycler_view.RecyclerCardAdapterLoading
 import com.sup.dev.java.libs.eventBus.EventBus
-import kotlin.reflect.KClass
 
 class SRelayRacesList constructor(
         private val fandomId: Long = 0,
@@ -79,7 +77,7 @@ class SRelayRacesList constructor(
                     .onComplete {
                         if (it.userActivities.isEmpty()) {
                             subscribedLoaded = true
-                            if (adapter.size() > 0 && onSelected == null) adapter.add(CardDividerTitle(t(API_TRANSLATE.activities_all)).setDividerBottom(false))
+                            if (onSelected == null) adapter.add(CardDividerTitle(t(API_TRANSLATE.activities_all)).setDividerBottom(false))
                             load(onLoad, cards)
                         }else{
                             onLoad.invoke(it.userActivities)
