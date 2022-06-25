@@ -2,6 +2,7 @@ package com.sayzen.campfiresdk.controllers
 
 
 import android.content.Intent
+import com.dzen.campfire.api.API
 import com.dzen.campfire.api.API_TRANSLATE
 import com.dzen.campfire.api.models.chat.ChatTag
 import com.dzen.campfire.api.models.notifications.Notification
@@ -25,6 +26,7 @@ import com.dzen.campfire.api.models.notifications.translates.NotificationTransla
 import com.dzen.campfire.api.models.notifications.translates.NotificationTranslatesRejected
 import com.dzen.campfire.api.requests.accounts.RAccountsNotificationsRemoveToken
 import com.dzen.campfire.api.requests.accounts.RAccountsNotificationsView
+import com.dzen.campfire.api.tools.client.StreamClient
 import com.google.firebase.messaging.RemoteMessage
 import com.sayzen.campfiresdk.controllers.notifications.account.*
 import com.sayzen.campfiresdk.controllers.notifications.activities.NotificationActivitiesRelayRaceLostParser
@@ -52,7 +54,9 @@ import com.sayzen.devsupandroidgoogle.GoogleNotifications
 import com.sup.dev.android.app.SupAndroid
 import com.sup.dev.android.tools.ToolsNotifications
 import com.sup.dev.android.tools.ToolsStorage
+import com.sup.dev.java.libs.debug.err
 import com.sup.dev.java.libs.debug.info
+import com.sup.dev.java.libs.debug.log
 import com.sup.dev.java.libs.eventBus.EventBus
 import com.sup.dev.java.libs.json.Json
 import com.sup.dev.java.libs.json.JsonArray
@@ -81,6 +85,8 @@ object ControllerNotifications {
     var logoColored = 0
     var logoWhite = 0
 
+    private var streamClient: StreamClient? = null
+
     internal fun init(
             logoColored: Int,
             logoWhite: Int
@@ -104,6 +110,25 @@ object ControllerNotifications {
                 if (type == ToolsNotifications.IntentType.CLICK) parser(n).doAction()
             }
         }
+
+        streamClient?.suicide()
+        streamClient = StreamClient(
+            instanceTokenProvider(),
+            api.host,
+            API.PORT_STREAM,
+            API.PORT_CERTIFICATE,
+        )
+        streamClient!!.onMessage = { j ->
+            try {
+                if (j.containsKey("J_N_ID")) {
+                    log("stream: got notification id=${j.getLong("J_N_ID")}")
+                    onMessage(Notification.instance(j))
+                }
+            } catch (e: Exception) {
+                err(e)
+            }
+        }
+        streamClient!!.subscribe(API.SUBSCRIPTION_NOTIF)
     }
 
     private fun putNotificationKey(key: Long) {
