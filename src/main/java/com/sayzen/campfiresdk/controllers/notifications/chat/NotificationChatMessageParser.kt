@@ -55,10 +55,11 @@ class MessageReplyReceiver : BroadcastReceiver() {
                 ControllerChats.incrementMessages(chatTag, response.message, true)
 
                 NotificationChatMessageParser.sendNotification(
-                    chatTag, ControllerNotifications.canSoundBySettings(NotificationChatMessage(
+                    chatTag,
+                    ControllerNotifications.canSoundBySettings(NotificationChatMessage(
                         // canSoundBySettings doesn't actually care, but still
                         response.message, chatTag, true
-                    ))
+                    )),
                 )
             }.onApiError {
                 ToolsToast.show(t(API_TRANSLATE.error_unknown))
@@ -100,14 +101,14 @@ fun Bitmap.getRounded(): Bitmap? {
 }
 
 fun NotificationChatMessageParser.Companion.sendNotification(tag: ChatTag, sound: Boolean = true) {
-    val chatMessages = ControllerChats.getMessages(tag)
-    if (chatMessages.isEmpty()) {
-        clearNotification(tag)
-        return
-    }
-
     ApiRequestsSupporter.init(api)
     ControllerChats.getChat(tag) { chat ->
+        val chatMessages = ControllerChats.getMessages(tag)
+        if (chatMessages.isEmpty()) {
+            clearNotification(tag)
+            return@getChat
+        }
+
         val icon = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
             ControllerNotifications.logoWhite
         else ControllerNotifications.logoColored
@@ -129,18 +130,21 @@ fun NotificationChatMessageParser.Companion.sendNotification(tag: ChatTag, sound
                 putExtra("ToolsNotification.intentType", ToolsNotifications.IntentType.CLICK)
                 putExtra(ControllerNotifications.EXTRA_NOTIFICATION, Json().apply {
                     NotificationChatMessage(
-                        chatMessages.messages.last(), tag, true
+                        chat.chatMessage, tag, true
                     ).json(true, this)
                 }.toString())
             },
             PendingIntent.FLAG_UPDATE_CURRENT or (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
                 PendingIntent.FLAG_MUTABLE else 0),
         ))
-        builder.setStyle(NotificationCompat.MessagingStyle(me).also {
-            it.isGroupConversation = tag.chatType != API.CHAT_TYPE_PRIVATE
-            it.conversationTitle = chat.customName
+        builder.setStyle(NotificationCompat.MessagingStyle(me).also { style ->
+            style.isGroupConversation = tag.chatType != API.CHAT_TYPE_PRIVATE
+            style.conversationTitle = chat.customName
+            if (! chatMessages.messages.any { it.id == chat.chatMessage.id }) {
+                chatMessages.add(chat.chatMessage)
+            }
             for (message in chatMessages.messages) {
-                it.addMessage(NotificationCompat.MessagingStyle.Message(
+                style.addMessage(NotificationCompat.MessagingStyle.Message(
                     TextFormatter(message.text).parseNoTags(),
                     message.dateCreate,
                     Person.Builder()
