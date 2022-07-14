@@ -334,12 +334,12 @@ open class CardChatMessage constructor(
         val vImages: ViewImagesContainer = vImagesContainer.findViewById(R.id.vImages)
 
         ToolsView.setOnLongClickCoordinates(vImages) { v, x, y -> showMenu(v,x,y) }
-        vImages.setOnClickListener { Navigator.to(SImageView(ImageLoader.load(publication.resourceId))) }
+        vImages.setOnClickListener { Navigator.to(SImageView(ImageLoader.load(publication.resourceId, publication.imagePwd))) }
         vImages.clear()
 
         for (i in publication.imageIdArray.indices) {
             vImages.add(
-                    ImageLoader.load(publication.imageIdArray[i])
+                    ImageLoader.load(publication.imageIdArray[i], publication.imagePwdArray.getOrNull(i) ?: "")
                             .size(publication.imageWArray[i], publication.imageHArray[i]),
                     null,
                     { showMenu(it.view, it.x, it.y) })
@@ -378,13 +378,13 @@ open class CardChatMessage constructor(
         vLabelRemoved.tag = publication
         vLabelRemoved.visibility = View.GONE
 
-        ImageLoader.loadGif(publication.resourceId, publication.gifId, vImage, vGifProgressBar) {
+        ImageLoader.loadGif(publication.resourceId, publication.gifId, publication.imagePwd, vImage, vGifProgressBar) {
             it.maxSize(ToolsView.dpToPx(612).toInt())
             it.minSize(ToolsView.dpToPx(128).toInt())
             it.size((publication.imageW * 1.7f).toInt(), (publication.imageH * 1.7f).toInt())
         }
 
-        vImage.setOnClickListener { Navigator.to(SImageView(ImageLoader.load(if (publication.gifId == 0L) publication.resourceId else publication.gifId))) }
+        vImage.setOnClickListener { Navigator.to(SImageView(ImageLoader.load(if (publication.gifId == 0L) publication.resourceId else publication.gifId, publication.imagePwd))) }
     }
 
     fun updateText() {
@@ -505,7 +505,7 @@ open class CardChatMessage constructor(
                     .crop(ToolsView.dpToPx(100).toInt()).cropSquare(),
                     onClick = { SStickersView.instanceBySticker(publication.quoteStickerId, Navigator.TO) })
         } else if (publication.quoteImages.isNotEmpty()) {
-            for (i in publication.quoteImages) vQuoteImage.add(ImageLoader.load(i)
+            for (i in publication.quoteImages.indices) vQuoteImage.add(ImageLoader.load(publication.quoteImages[i], publication.quoteImagesPwd.getOrNull(i) ?: "")
                     .crop(ToolsView.dpToPx(100).toInt()).cropSquare())
         } else {
             vQuoteImage.visibility = View.GONE

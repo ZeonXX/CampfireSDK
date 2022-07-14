@@ -11,12 +11,17 @@ import com.dzen.campfire.api.models.account.Account
 import com.dzen.campfire.api.models.lvl.LvlInfo
 import com.dzen.campfire.api.models.lvl.LvlInfoAdmin
 import com.dzen.campfire.api.models.lvl.LvlInfoUser
-import com.dzen.campfire.api.requests.accounts.*
+import com.dzen.campfire.api.requests.accounts.RAccountsClearReports
+import com.dzen.campfire.api.requests.accounts.RAccountsLoginSimple
+import com.dzen.campfire.api.requests.accounts.RAccountsLogout
+import com.dzen.campfire.api.requests.accounts.RAccountsRegistration
 import com.dzen.campfire.api.requests.publications.RPublicationsAdminClearReports
 import com.dzen.campfire.api.requests.publications.RPublicationsOnShare
 import com.dzen.campfire.api.requests.publications.RPublicationsRemove
 import com.dzen.campfire.api.requests.publications.RPublicationsReport
 import com.dzen.campfire.api.tools.ApiException
+import com.dzen.campfire.api.tools.client.Request
+import com.dzen.campfire.api.tools.client.TokenProvider
 import com.dzen.campfire.api_media.APIMedia
 import com.dzen.campfire.api_media.requests.RResourcesGet
 import com.dzen.campfire.api_media.requests.RResourcesGetByTag
@@ -29,10 +34,12 @@ import com.sayzen.campfiresdk.models.events.publications.EventPublicationRemove
 import com.sayzen.campfiresdk.models.events.publications.EventPublicationReportsAdd
 import com.sayzen.campfiresdk.models.events.publications.EventPublicationReportsClear
 import com.sayzen.campfiresdk.screens.fandoms.moderation.view.SModerationView
-import com.sup.dev.java.libs.text_format.TextFormatter
+import com.sayzen.campfiresdk.support.ApiRequestsSupporter
+import com.sayzen.campfiresdk.support.adapters.XAccount
 import com.sayzen.devsupandroidgoogle.ControllerGoogleAuth
 import com.sup.dev.android.app.SupAndroid
-import com.sayzen.campfiresdk.support.ApiRequestsSupporter
+import com.sup.dev.android.libs.image_loader.ImageLink
+import com.sup.dev.android.libs.image_loader.ImageLoader
 import com.sup.dev.android.libs.image_loader.ImageLoaderId
 import com.sup.dev.android.libs.image_loader.ImageLoaderTag
 import com.sup.dev.android.libs.screens.navigator.NavigationAction
@@ -42,21 +49,16 @@ import com.sup.dev.android.views.screens.SAlert
 import com.sup.dev.android.views.splash.SplashAlert
 import com.sup.dev.android.views.splash.SplashField
 import com.sup.dev.android.views.splash.SplashMenu
+import com.sup.dev.java.classes.items.Item2
 import com.sup.dev.java.classes.items.Item3
 import com.sup.dev.java.classes.items.ItemNullable
-import com.dzen.campfire.api.tools.client.Request
-import com.dzen.campfire.api.tools.client.TokenProvider
-import com.sayzen.campfiresdk.support.adapters.XAccount
-import com.sup.dev.android.libs.image_loader.ImageLoader
-import com.sup.dev.android.libs.image_loader.ImageLink
-import com.sup.dev.java.classes.items.Item2
 import com.sup.dev.java.libs.debug.err
 import com.sup.dev.java.libs.eventBus.EventBus
 import com.sup.dev.java.libs.json.Json
 import com.sup.dev.java.libs.json.JsonArray
+import com.sup.dev.java.libs.text_format.TextFormatter
 import com.sup.dev.java.tools.ToolsMapper
 import com.sup.dev.java.tools.ToolsThreads
-import java.lang.Exception
 
 val api: API = API(
         ControllerCampfireSDK.projectKey,
@@ -127,10 +129,10 @@ object ControllerApi {
     internal fun init() {
         ApiRequestsSupporter.init(api)
 
-        ImageLoaderId.loader = { imageId ->
+        ImageLoaderId.loader = { imageId, pwd ->
             val item = ItemNullable<ByteArray>(null)
             if (imageId > 0) {
-                val r = RResourcesGet(imageId)
+                val r = RResourcesGet(imageId, pwd ?: "")
                         .onComplete { r -> item.a = r.bytes }
                         .onError { err("Error while loading image ID[$imageId] ex[$it]") }
                 r.noErrorLogs = true
