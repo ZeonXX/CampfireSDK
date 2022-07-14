@@ -1,7 +1,6 @@
 package com.sayzen.campfiresdk.screens.other.gallery
 
 import android.view.View
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.dzen.campfire.api.API
@@ -11,7 +10,6 @@ import com.sayzen.campfiresdk.R
 import com.sayzen.campfiresdk.controllers.t
 import com.sup.dev.android.libs.screens.Screen
 import com.sup.dev.android.tools.ToolsAndroid
-import com.sup.dev.android.tools.ToolsResources
 import com.sup.dev.android.tools.ToolsToast
 import com.sup.dev.android.views.support.adapters.recycler_view.RecyclerCardAdapter
 import com.sup.dev.java.tools.ToolsCollections
@@ -82,6 +80,11 @@ class SGallery : Screen(R.layout.screen_other_gallery) {
                 || imageId == API_RESOURCES.AVATAR_4
                 || imageId == API_RESOURCES.AVATAR_5
                 || imageId == API_RESOURCES.AVATAR_6
+                || imageId == API_RESOURCES.IMAGE_BACKGROUND_LEVEL_16
+                || imageId == API_RESOURCES.IMAGE_BACKGROUND_LEVEL_17
+                || imageId == API_RESOURCES.IMAGE_BACKGROUND_LEVEL_18
+                || imageId == API_RESOURCES.IMAGE_BACKGROUND_LEVEL_19
+                || imageId == API_RESOURCES.IMAGE_BACKGROUND_LEVEL_20
         ) return "NikiTank"
 
         if (imageId == API_RESOURCES.DEVELOPER_ZEON) return "Zeon"
