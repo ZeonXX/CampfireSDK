@@ -36,7 +36,7 @@ class CardQuestPartText(val part: QuestPartText) : CardQuestPart(R.layout.card_q
             desc.append("\n\n")
             desc.append(part.effects.joinToString("\n") {
                 when (it) {
-                    is QuestEffectBox -> t(API_TRANSLATE.quests_effect_box, it.box.link)
+                    is QuestEffectBox -> t(API_TRANSLATE.fromBox(it.box))
                     is QuestEffectBoxReset -> t(API_TRANSLATE.quests_effect_box_reset)
                     is QuestEffectVibrate -> t(API_TRANSLATE.quests_effect_vibrate)
                     else -> t(API_TRANSLATE.quests_effect_unknown)

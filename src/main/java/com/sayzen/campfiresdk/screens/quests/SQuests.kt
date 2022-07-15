@@ -42,10 +42,10 @@ class SQuests : Screen(R.layout.screen_quests) {
                 return adapterX
             }
         }
-        pagerCardAdapter.add(recl)
-        pagerCardAdapter.add(recl)
-        pagerCardAdapter.add(recl)
-        pagerCardAdapter.add(recl)
+//        pagerCardAdapter.add(recl)
+//        pagerCardAdapter.add(recl)
+//        pagerCardAdapter.add(recl)
+//        pagerCardAdapter.add(recl)
 
         vAddFab.setOnClickListener {
             Navigator.action(Navigator.TO, SQuestDrafts())
