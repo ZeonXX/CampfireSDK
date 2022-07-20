@@ -10,7 +10,10 @@
     <string name="app_login">Login</string>
     <string name="app_choose">Choose</string>
     <string name="connection_error">Connection error</string>
+    <string name="app_error">Error</string>
     <string name="retry">Retry</string>
     <string name="app_change_account">Change account</string>
+    <string name="app_email_verify">Check your inbox for the verification email and return to the app once you verify your address.</string>
+    <string name="app_continue">Continue</string>
 
 </resources>

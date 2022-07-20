@@ -71,6 +71,8 @@ class STranslates : Screen(R.layout.screen_translates) {
         for(c in cards){
             update_1(c)
         }
+        cardMenu.isEmpty = adapter.get(CardTranslate::class).isEmpty()
+        cardMenu.update()
     }
 
     fun update_1(c:CardTranslate){
