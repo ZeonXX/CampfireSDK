@@ -52,4 +52,25 @@
         app:Settings_lineVisible="false"
         android:layout_height="wrap_content"/>
 
+    <LinearLayout
+        android:id="@+id/vEmptyContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="20dp">
+        <ImageView
+            android:id="@+id/vEmptyImage"
+            android:layout_width="320dp"
+            android:layout_height="204dp"
+            android:layout_gravity="center"
+            android:layout_marginBottom="16dp" />
+        <TextView
+            android:id="@+id/vEmptyMessage"
+            style="@style/Base.TextAppearance.AppCompat.Subhead"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:maxWidth="240dp" />
+    </LinearLayout>
 </LinearLayout>

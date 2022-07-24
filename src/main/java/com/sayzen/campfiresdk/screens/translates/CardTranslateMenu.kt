@@ -2,11 +2,17 @@ package com.sayzen.campfiresdk.screens.translates
 
 import android.view.View
 import android.widget.EditText
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
 import com.dzen.campfire.api.API
+import com.dzen.campfire.api.API_RESOURCES
 import com.dzen.campfire.api.API_TRANSLATE
 import com.sayzen.campfiresdk.R
 import com.sayzen.campfiresdk.controllers.ControllerCampfireSDK
 import com.sayzen.campfiresdk.controllers.ControllerTranslate
+import com.sayzen.campfiresdk.controllers.t
+import com.sup.dev.android.libs.image_loader.ImageLoader
 import com.sup.dev.android.tools.ToolsView
 import com.sup.dev.android.views.cards.Card
 import com.sup.dev.android.views.settings.Settings
@@ -19,6 +25,7 @@ class CardTranslateMenu(
 ) : Card(R.layout.screen_translates_card_menu) {
 
     var searchText = ""
+    var isEmpty = false
 
     override fun bindView(view: View) {
         super.bindView(view)
@@ -28,6 +35,7 @@ class CardTranslateMenu(
         val vOnlyWithoutTranslate: SettingsCheckBox = view.findViewById(R.id.vOnlyWithoutTranslate)
         val vField: EditText = view.findViewById(R.id.vField)
         val vSearch: ViewIcon = view.findViewById(R.id.vSearch)
+        val vEmptyContainer: LinearLayout = view.findViewById(R.id.vEmptyContainer)
 
         ToolsView.onFieldEnterKey(vField){ vSearch.performClick() }
         vField.hint = ControllerTranslate.t(API_TRANSLATE.translates_hint_search)
@@ -63,6 +71,14 @@ class CardTranslateMenu(
         vSearch.setOnClickListener {
             ToolsView.hideKeyboard()
             screen.update()
+        }
+
+        vEmptyContainer.visibility = if (isEmpty) View.VISIBLE else View.GONE
+        if (isEmpty) {
+            val vEmptyImage: ImageView = view.findViewById(R.id.vEmptyImage)
+            val vEmptyMessage: TextView = view.findViewById(R.id.vEmptyMessage)
+            ImageLoader.load(API_RESOURCES.IMAGE_BACKGROUND_30).into(vEmptyImage)
+            vEmptyMessage.text = t(API_TRANSLATE.translates_empty)
         }
     }
 

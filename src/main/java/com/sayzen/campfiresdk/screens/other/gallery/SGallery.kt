@@ -74,6 +74,7 @@ class SGallery : Screen(R.layout.screen_other_gallery) {
                 || imageId == API_RESOURCES.IMAGE_BACKGROUND_27
                 || imageId == API_RESOURCES.IMAGE_BACKGROUND_28
                 || imageId == API_RESOURCES.IMAGE_BACKGROUND_29
+                || imageId == API_RESOURCES.IMAGE_BACKGROUND_30
                 || imageId == API_RESOURCES.AVATAR_1
                 || imageId == API_RESOURCES.AVATAR_2
                 || imageId == API_RESOURCES.AVATAR_3

@@ -60,9 +60,13 @@ object ControllerApiLogin {
     }
 
     fun getEmailToken() = ToolsStorage.getString("ControllerApiLogin.email_token", null)
+    @Deprecated("use firebase")
     fun setEmailToken(email:String, passwordSha512:String){
         ToolsStorage.put("ControllerApiLogin.email_token", "${API.LOGIN_EMAIL_PREFIX}${API.LOGIN_SPLITTER}$email${API.LOGIN_SPLITTER}$passwordSha512")
         EventBus.post(EventAccountEmailChanged(email))
+    }
+    fun setEmailToken(firebaseToken: String) {
+        ToolsStorage.put("ControllerApiLogin.email_token", "${API.LOGIN_EMAIL2_PREFIX}${API.LOGIN_SPLITTER}$firebaseToken")
     }
     fun clearEmailToken() = ToolsStorage.clear("ControllerApiLogin.email_token")
 

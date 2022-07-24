@@ -1,17 +1,14 @@
 package com.sayzen.campfiresdk.screens.translates
 
+import com.dzen.campfire.api.API_RESOURCES
 import com.dzen.campfire.api.API_TRANSLATE
-import com.dzen.campfire.api.models.publications.Publication
 import com.dzen.campfire.api.models.translate.TranslateHistory
-import com.dzen.campfire.api.requests.publications.RPublicationsGetAllDeepBlocked
 import com.dzen.campfire.api.requests.translates.RTranslateModerationGet
 import com.sayzen.campfiresdk.controllers.api
 import com.sayzen.campfiresdk.controllers.t
-import com.sayzen.campfiresdk.models.cards.CardPublication
-import com.sup.dev.android.tools.ToolsResources
+import com.sup.dev.android.libs.image_loader.ImageLink
+import com.sup.dev.android.libs.image_loader.ImageLoader
 import com.sup.dev.android.views.screens.SLoadingRecycler
-import com.sup.dev.android.views.support.adapters.recycler_view.RecyclerCardAdapterLoading
-import kotlin.reflect.KClass
 
 class STranslateModeration() : SLoadingRecycler<CardTranslateModeration, TranslateHistory>() {
 
@@ -19,7 +16,8 @@ class STranslateModeration() : SLoadingRecycler<CardTranslateModeration, Transla
         disableNavigation()
 
         setTitle(t(API_TRANSLATE.translates_title_translate_moderation))
-        setTextEmpty(t(API_TRANSLATE.app_empty))
+        setTextEmpty(t(API_TRANSLATE.translates_mod_empty))
+        setBackgroundImage(ImageLoader.load(API_RESOURCES.IMAGE_BACKGROUND_30) as ImageLink?)
 
         adapter.setBottomLoader { onLoad, cards ->
             RTranslateModerationGet(cards.size.toLong())
