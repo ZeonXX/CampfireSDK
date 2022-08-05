@@ -107,7 +107,12 @@ open class CardComment protected constructor(
     @Suppress("DEPRECATION")
     @SuppressLint("SetTextI18n")
     override fun bindView(view: View) {
-        if (updateBlacklisted(view)) return
+        if (updateBlacklisted(view)) {
+            view.findViewById<ViewSwipe?>(R.id.vSwipe)?.swipeEnabled = false
+            return
+        } else {
+            view.findViewById<ViewSwipe?>(R.id.vSwipe)?.swipeEnabled = true
+        }
 
         super.bindView(view)
         val publication = xPublication.publication as PublicationComment

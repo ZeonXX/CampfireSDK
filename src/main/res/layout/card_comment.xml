@@ -9,24 +9,25 @@
     android:src="@drawable/ic_reply_white_24dp"
     app:ViewSwipe_background="@color/blue_700">
 
-    <com.sup.dev.android.views.views.ViewText
-        android:id="@+id/vBlacklistedText"
-        style="@style/Base.TextAppearance.AppCompat.Body1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginRight="16dp" />
 
     <LinearLayout
-        android:id="@+id/vContentContainer"
+        android:id="@+id/vFlashView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="horizontal">
+
+        <com.sup.dev.android.views.views.ViewText
+            android:id="@+id/vBlacklistedText"
+            style="@style/Base.TextAppearance.AppCompat.Body1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:layout_marginRight="16dp" />
 
         <LinearLayout
-            android:id="@+id/vFlashView"
+            android:id="@+id/vContentContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
