@@ -5,78 +5,96 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <LinearLayout
-        android:id="@+id/vRootContainer"
-        style="@style/TouchableForeground"
+    <com.sup.dev.android.views.views.ViewText
+        android:id="@+id/vBlacklistedText"
+        style="@style/Base.TextAppearance.AppCompat.Body1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingRight="42dp"
-        android:layout_weight="1"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginRight="16dp" />
+
+    <LinearLayout
+        android:id="@+id/vContentContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/vReports"
-            style="@style/TextAppearance.AppCompat.Caption"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="16dp"
-            android:layout_marginTop="8dp"
-            android:drawableLeft="@drawable/ic_security_white_18dp"
-            android:drawablePadding="4dp"
-            android:background="?selectableItemBackground"
-            android:padding="6dp"
-            android:gravity="center" />
-
-        <FrameLayout
+        <LinearLayout
+            android:id="@+id/vRootContainer"
+            style="@style/TouchableForeground"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginLeft="8dp"
-            android:layout_marginTop="12dp"
-            android:orientation="horizontal">
+            android:paddingRight="42dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
 
-            <com.sup.dev.android.views.views.ViewAvatar
-                android:id="@+id/vAvatar"
-                android:layout_width="40dp"
-                android:layout_height="40dp" />
+            <TextView
+                android:id="@+id/vReports"
+                style="@style/TextAppearance.AppCompat.Caption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="8dp"
+                android:drawableLeft="@drawable/ic_security_white_18dp"
+                android:drawablePadding="4dp"
+                android:background="?selectableItemBackground"
+                android:padding="6dp"
+                android:gravity="center" />
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginLeft="8dp"
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal">
+
+                <com.sup.dev.android.views.views.ViewAvatar
+                    android:id="@+id/vAvatar"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp" />
+
+                <com.sup.dev.android.views.views.ViewText
+                    android:id="@+id/vLabelName"
+                    style="@style/Base.TextAppearance.AppCompat.Body1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="48dp"
+                    android:layout_marginTop="4dp" />
+
+                <com.sup.dev.android.views.views.ViewText
+                    android:id="@+id/vLabelDate"
+                    style="@style/Base.TextAppearance.AppCompat.Caption"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="48dp"
+                    android:layout_marginTop="20dp" />
+
+
+            </FrameLayout>
 
             <com.sup.dev.android.views.views.ViewText
-                android:id="@+id/vLabelName"
+                android:id="@+id/vText"
                 style="@style/Base.TextAppearance.AppCompat.Body1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="48dp"
-                android:layout_marginTop="4dp" />
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginRight="16dp" />
 
-            <com.sup.dev.android.views.views.ViewText
-                android:id="@+id/vLabelDate"
-                style="@style/Base.TextAppearance.AppCompat.Caption"
-                android:layout_width="wrap_content"
+            <FrameLayout
+                android:id="@+id/vBottomContainer"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="48dp"
-                android:layout_marginTop="20dp" />
+                android:layout_marginBottom="4dp">
 
 
-        </FrameLayout>
+            </FrameLayout>
 
-        <com.sup.dev.android.views.views.ViewText
-            android:id="@+id/vText"
-            style="@style/Base.TextAppearance.AppCompat.Body1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="16dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
-            android:layout_marginRight="16dp" />
-
-        <FrameLayout
-            android:id="@+id/vBottomContainer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="4dp">
-
-
-        </FrameLayout>
+        </LinearLayout>
 
     </LinearLayout>
 

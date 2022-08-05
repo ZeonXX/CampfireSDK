@@ -484,15 +484,10 @@ object ControllerPost {
     }
 
     private fun duplicateDraft(publication: PublicationPost) {
-        ApiRequestsSupporter.executeProgressDialog(RPostPutPage(
-            publicationId = 0,
-            pages = publication.pages,
-            fandomId = publication.fandom.id,
-            languageId = publication.fandom.languageId,
-            appKey = ControllerCampfireSDK.ROOT_PROJECT_KEY,
-            appSubKey = ControllerCampfireSDK.ROOT_PROJECT_SUB_KEY
-        )) { response ->
-            EventBus.post(EventPostDraftCreated(response.publicationId))
+        ApiRequestsSupporter.executeProgressDialog(RPostDuplicateDraft(
+            postId = publication.id,
+        )) { resp ->
+            EventBus.post(EventPostDraftCreated(resp.unitId))
         }
     }
 

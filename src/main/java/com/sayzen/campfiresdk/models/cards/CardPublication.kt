@@ -3,29 +3,34 @@ package com.sayzen.campfiresdk.models.cards
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.view.View
+import android.widget.LinearLayout
 import androidx.recyclerview.widget.RecyclerView
-import com.dzen.campfire.api.models.publications.PublicationComment
+import com.dzen.campfire.api.API_TRANSLATE
 import com.dzen.campfire.api.models.publications.Publication
-import com.dzen.campfire.api.models.publications.post.PublicationPost
+import com.dzen.campfire.api.models.publications.PublicationComment
 import com.dzen.campfire.api.models.publications.chat.PublicationChatMessage
 import com.dzen.campfire.api.models.publications.events_admins.PublicationEventAdmin
 import com.dzen.campfire.api.models.publications.events_fandoms.PublicationEventFandom
 import com.dzen.campfire.api.models.publications.events_moderators.PublicationEventModer
 import com.dzen.campfire.api.models.publications.events_user.PublicationEventUser
 import com.dzen.campfire.api.models.publications.moderations.PublicationModeration
+import com.dzen.campfire.api.models.publications.post.PublicationPost
 import com.dzen.campfire.api.models.publications.stickers.PublicationSticker
 import com.dzen.campfire.api.models.publications.stickers.PublicationStickersPack
 import com.sayzen.campfiresdk.R
-import com.sayzen.campfiresdk.support.adapters.*
+import com.sayzen.campfiresdk.controllers.ControllerLinks
+import com.sayzen.campfiresdk.controllers.t
 import com.sayzen.campfiresdk.models.cards.events.CardPublicationEventAdmin
 import com.sayzen.campfiresdk.models.cards.events.CardPublicationEventFandom
 import com.sayzen.campfiresdk.models.cards.events.CardPublicationEventModer
 import com.sayzen.campfiresdk.models.cards.events.CardPublicationEventUser
 import com.sayzen.campfiresdk.models.cards.stickers.CardSticker
 import com.sayzen.campfiresdk.models.cards.stickers.CardStickersPack
+import com.sayzen.campfiresdk.support.adapters.XPublication
 import com.sup.dev.android.tools.ToolsResources
 import com.sup.dev.android.views.cards.Card
 import com.sup.dev.android.views.support.adapters.NotifyItem
+import com.sup.dev.android.views.views.ViewText
 import com.sup.dev.java.classes.Subscription
 import com.sup.dev.java.classes.animation.AnimationPendulum
 import com.sup.dev.java.classes.animation.AnimationPendulumColor
@@ -157,6 +162,22 @@ abstract class CardPublication(
         return super.equals(other)
     }
 
+    protected fun updateBlacklisted(view: View): Boolean {
+        val vContentContainer = view.findViewById<LinearLayout>(R.id.vContentContainer)
+        val vBlacklistedText = view.findViewById<ViewText>(R.id.vBlacklistedText)
+        val pub = xPublication.publication
 
+        if (pub.blacklisted) {
+            vContentContainer.visibility = View.GONE
+            vBlacklistedText.visibility = View.VISIBLE
+            vBlacklistedText.text = t(API_TRANSLATE.publication_blacklisted, "@${pub.creator.name}")
+            ControllerLinks.makeLinkable(vBlacklistedText)
+        } else {
+            vContentContainer.visibility = View.VISIBLE
+            vBlacklistedText.visibility = View.GONE
+        }
+
+        return pub.blacklisted
+    }
 }
 

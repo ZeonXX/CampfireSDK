@@ -18,6 +18,8 @@ import com.sayzen.campfiresdk.controllers.ControllerPost
 import com.sayzen.campfiresdk.controllers.t
 import com.sayzen.campfiresdk.models.PostList
 import com.sayzen.campfiresdk.models.cards.post_pages.*
+import com.sayzen.campfiresdk.models.events.account.EventAccountAddToBlackList
+import com.sayzen.campfiresdk.models.events.account.EventAccountRemoveFromBlackList
 import com.sayzen.campfiresdk.models.events.publications.*
 import com.sayzen.campfiresdk.models.splashs.SplashComment
 import com.sayzen.campfiresdk.screens.activities.user_activities.relay_race.SRelayRaceInfo
@@ -95,6 +97,18 @@ class CardPost constructor(
                 if (publication.bestComment?.id == it.publicationId) {
                     publication.bestComment!!.myKarma = it.myKarma
                     publication.bestComment!!.karmaCount += it.myKarma
+                    update()
+                }
+            }
+            .subscribe(EventAccountRemoveFromBlackList::class) {
+                if (publication.creator.id == it.accountId) {
+                    publication.blacklisted = false
+                    update()
+                }
+            }
+            .subscribe(EventAccountAddToBlackList::class) {
+                if (publication.creator.id == it.accountId) {
+                    publication.blacklisted = true
                     update()
                 }
             }
@@ -184,6 +198,8 @@ class CardPost constructor(
     }
 
     override fun bindView(view: View) {
+        if (updateBlacklisted(view)) return
+
         super.bindView(view)
         val publication = xPublication.publication as PublicationPost
 

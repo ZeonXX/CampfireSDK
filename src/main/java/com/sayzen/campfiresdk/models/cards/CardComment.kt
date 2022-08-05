@@ -20,6 +20,8 @@ import com.dzen.campfire.api.requests.publications.RPublicationsReactionAdd
 import com.dzen.campfire.api.requests.publications.RPublicationsReactionRemove
 import com.sayzen.campfiresdk.R
 import com.sayzen.campfiresdk.controllers.*
+import com.sayzen.campfiresdk.models.events.account.EventAccountAddToBlackList
+import com.sayzen.campfiresdk.models.events.account.EventAccountRemoveFromBlackList
 import com.sayzen.campfiresdk.models.events.publications.*
 import com.sayzen.campfiresdk.models.splashs.SplashComment
 import com.sayzen.campfiresdk.screens.account.stickers.SStickersView
@@ -76,6 +78,18 @@ open class CardComment protected constructor(
     private val eventBus = EventBus
             .subscribe(EventCommentChange::class) { e: EventCommentChange -> this.onCommentChange(e) }
             .subscribe(EventPublicationDeepBlockRestore::class) { onEventPublicationDeepBlockRestore(it) }
+            .subscribe(EventAccountRemoveFromBlackList::class) {
+                if (publication.creator.id == it.accountId) {
+                    publication.blacklisted = false
+                    update()
+                }
+            }
+            .subscribe(EventAccountAddToBlackList::class) {
+                if (publication.creator.id == it.accountId) {
+                    publication.blacklisted = true
+                    update()
+                }
+            }
 
     var maxTextSize = Integer.MAX_VALUE
     var changeEnabled = true
@@ -93,6 +107,8 @@ open class CardComment protected constructor(
     @Suppress("DEPRECATION")
     @SuppressLint("SetTextI18n")
     override fun bindView(view: View) {
+        if (updateBlacklisted(view)) return
+
         super.bindView(view)
         val publication = xPublication.publication as PublicationComment
 
