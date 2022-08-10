@@ -2,16 +2,17 @@ package com.sayzen.campfiresdk.screens.quests
 
 import com.dzen.campfire.api.API
 import com.dzen.campfire.api.API_TRANSLATE
-import com.dzen.campfire.api.models.quests.QuestDetails
-import com.dzen.campfire.api.models.quests.QuestPart
-import com.dzen.campfire.api.models.quests.QuestPartContainer
-import com.dzen.campfire.api.models.quests.QuestPartText
+import com.dzen.campfire.api.models.quests.*
+import com.dzen.campfire.api.requests.quests.RQuestsAddPart
 import com.dzen.campfire.api.requests.quests.RQuestsModify
 import com.sayzen.campfiresdk.R
 import com.sayzen.campfiresdk.controllers.t
 import com.sayzen.campfiresdk.models.cards.CardQuestDetails
 import com.sayzen.campfiresdk.models.events.quests.EventQuestChanged
+import com.sayzen.campfiresdk.models.events.quests.EventQuestPartChangedOrAdded
+import com.sayzen.campfiresdk.screens.quests.edit.CardQuestPart
 import com.sayzen.campfiresdk.screens.quests.edit.CardQuestVariables
+import com.sayzen.campfiresdk.screens.quests.edit.SQuestPartConditionCreate
 import com.sayzen.campfiresdk.screens.quests.edit.SQuestPartTextCreate
 import com.sayzen.campfiresdk.support.ApiRequestsSupporter
 import com.sup.dev.android.libs.screens.navigator.Navigator
@@ -26,9 +27,12 @@ import com.sup.dev.java.libs.json.Json
 
 class SQuestEditor(
     private var questDetails: QuestDetails,
+    parts: Array<QuestPart>,
 ) : SRecycler() {
-    companion object {
-        const val partsOffset = 3
+    private val container = object : QuestPartContainer {
+        override fun getDetails(): QuestDetails = questDetails
+
+        override fun getParts(): Array<QuestPart> = adapter.get(CardQuestPart::class).map { it.part }.toTypedArray()
     }
 
     val eventBus = EventBus
@@ -36,6 +40,15 @@ class SQuestEditor(
             if (it.quest.id == questDetails.id) {
                 questDetails = it.quest
                 onDetailsUpdated()
+            }
+        }
+        .subscribe(EventQuestPartChangedOrAdded::class) { ev ->
+            ev.parts.forEach { part ->
+                adapter.find<CardQuestPart> { (it as? CardQuestPart)?.part?.id == part.id }?.let {
+                    it.part = part
+                    it.update()
+                    it
+                } ?: adapter.add(CardQuestPart.instance(part, container))
             }
         }
 
@@ -54,6 +67,10 @@ class SQuestEditor(
         }
 
         vRecycler.adapter = adapter
+
+        parts.forEach {
+            adapter.add(CardQuestPart.instance(it, container))
+        }
     }
 
     private fun onDetailsUpdated() {
@@ -94,20 +111,24 @@ class SQuestEditor(
             .asSheetShow()
     }
 
-    private val container = object : QuestPartContainer {
-        override fun getParts(): Array<QuestPart> = emptyArray()
-    }
-
     private fun openNewQuestPart() {
-        SplashMenu()
-            .add(t(API_TRANSLATE.quests_part_text)) {
-                Navigator.to(SQuestPartTextCreate(
-                    questDetails,
-                    container,
-                    QuestPartText()
-                ) {})
+        val splash = SplashMenu()
+        val onDone = { part: QuestPart ->
+            ApiRequestsSupporter.executeProgressDialog(RQuestsAddPart(questDetails.id, arrayOf(part))) { resp ->
+                EventBus.post(EventQuestPartChangedOrAdded(resp.parts))
+                Navigator.back()
+            }.onApiError(RQuestsAddPart.BAD_PART) {
+                ToolsToast.show(t(API_TRANSLATE.quests_edit_error_upload))
             }
-            .add(t(API_TRANSLATE.quests_part_condition))
+        }
+
+        splash
+            .add(t(API_TRANSLATE.quests_part_text)) {
+                Navigator.to(SQuestPartTextCreate(questDetails, container, QuestPartText()) { onDone(it) })
+            }
+            .add(t(API_TRANSLATE.quests_part_condition)) {
+                Navigator.to(SQuestPartConditionCreate(questDetails, container, QuestPartCondition()) { onDone(it) })
+            }
             .add(t(API_TRANSLATE.quests_part_action))
             .asSheetShow()
     }

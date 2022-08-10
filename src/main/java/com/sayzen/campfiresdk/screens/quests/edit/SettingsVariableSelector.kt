@@ -25,12 +25,14 @@ class SettingsVariableSelector constructor(context: Context, attrs: AttributeSet
             }
         }
 
-    private lateinit var details: QuestDetails
+    private var details: QuestDetails = QuestDetails()
     var selected: QuestVariable? = null
         set(value) {
-            setSubtitleShow(value?.devName ?: "")
+            if (!showLiteral) setSubtitleShow(value?.devName ?: "")
+            else              setSubtitleShow(value?.devName ?: t(API_TRANSLATE.quests_enter_const))
             field = value
         }
+    private var onSelected: (QuestVariable?) -> Unit = {}
     private val vArrow: ImageView = ImageView(context)
 
     private fun setSubtitleShow(subtitle: String) {
@@ -47,15 +49,28 @@ class SettingsVariableSelector constructor(context: Context, attrs: AttributeSet
         setLineVisible(false)
     }
 
+    fun setOnSelected(onSelected: (QuestVariable?) -> Unit) {
+        this.onSelected = onSelected
+    }
+
     fun setDetails(details: QuestDetails) {
         this.details = details
     }
+
+    var showLiteral = false
 
     private fun openSelector() {
         SplashMenu().run {
             for (variable in details.variables) {
                 add(variable.devName) {
                     selected = variable
+                    onSelected(selected)
+                }
+            }
+            if (showLiteral) {
+                add(t(API_TRANSLATE.quests_enter_const)) {
+                    selected = null
+                    onSelected(selected)
                 }
             }
             asSheetShow()

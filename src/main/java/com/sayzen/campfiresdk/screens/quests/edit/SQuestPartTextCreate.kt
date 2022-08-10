@@ -1,6 +1,7 @@
 package com.sayzen.campfiresdk.screens.quests.edit
 
 import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.LinearLayout
 import com.dzen.campfire.api.API
 import com.dzen.campfire.api.API_TRANSLATE
@@ -9,18 +10,23 @@ import com.sayzen.campfiresdk.R
 import com.sayzen.campfiresdk.controllers.ControllerLinks
 import com.sayzen.campfiresdk.controllers.t
 import com.sayzen.campfiresdk.models.events.quests.EventQuestChanged
+import com.sup.dev.android.libs.image_loader.ImageLoader
 import com.sup.dev.android.libs.screens.Screen
 import com.sup.dev.android.libs.screens.navigator.Navigator
+import com.sup.dev.android.tools.ToolsBitmap
 import com.sup.dev.android.tools.ToolsToast
 import com.sup.dev.android.tools.ToolsView
+import com.sup.dev.android.views.screens.SCrop
 import com.sup.dev.android.views.settings.SettingsField
 import com.sup.dev.android.views.settings.SettingsTitle
 import com.sup.dev.android.views.splash.SplashAlert
+import com.sup.dev.android.views.splash.SplashChooseImage
 import com.sup.dev.android.views.views.ViewAvatarTitle
 import com.sup.dev.android.views.views.ViewButton
 import com.sup.dev.android.views.views.ViewIcon
 import com.sup.dev.android.views.views.ViewText
 import com.sup.dev.java.libs.eventBus.EventBus
+import com.sup.dev.java.tools.ToolsThreads
 
 class SQuestPartTextCreate(
     private var details: QuestDetails,
@@ -48,6 +54,10 @@ class SQuestPartTextCreate(
     private val vTitleEffects: SettingsTitle = findViewById(R.id.vTitleEffects)
     private val vEffectsContainer: LinearLayout = findViewById(R.id.vEffectsContainer)
     private val vAddEffect: ViewButton = findViewById(R.id.vAddEffect)
+    private val vTitleImage: SettingsTitle = findViewById(R.id.vTitleImage)
+    private val vImage: ImageView = findViewById(R.id.vImage)
+    private val vImageIcon: ViewIcon = findViewById(R.id.vImageIcon)
+    private val vImageRemove: ViewButton = findViewById(R.id.vImageRemove)
 
     init {
         disableShadows()
@@ -55,9 +65,10 @@ class SQuestPartTextCreate(
         setTitle(t(API_TRANSLATE.quests_part_text))
 
         // labels
-        vCreate.text = t(API_TRANSLATE.app_create)
+        vCreate.text = t(API_TRANSLATE.app_done)
         vPartDevName.setHint(t(API_TRANSLATE.quests_edit_dev_name))
         vPartTitle.setHint(t(API_TRANSLATE.quests_edit_text_title))
+        vTitleImage.setTitle(t(API_TRANSLATE.quests_edit_text_pic))
         vTitleContent.setTitle(t(API_TRANSLATE.quests_edit_text_content))
         vEditContent.text = t(API_TRANSLATE.app_edit)
         vTitleInputs.setTitle(t(API_TRANSLATE.quests_edit_text_inputs))
@@ -67,7 +78,21 @@ class SQuestPartTextCreate(
         vTitleEffects.setTitle(t(API_TRANSLATE.quests_edit_text_effects))
         vAddEffect.text = t(API_TRANSLATE.app_add)
 
-        // data from part and input constraints
+        vCreate.setOnClickListener {
+            if (part.buttons.isEmpty()) {
+                ToolsToast.show(t(API_TRANSLATE.quests_edit_text_error_1))
+                return@setOnClickListener
+            }
+            if (part.text.isBlank()) {
+                ToolsToast.show(t(API_TRANSLATE.quests_edit_text_error_2))
+                return@setOnClickListener
+            }
+            part.devLabel = vPartDevName.getText()
+            part.title = vPartTitle.getText()
+            onDone(part)
+        }
+
+        // data from part and API.kt constraints
         vPartDevName.setText(part.devLabel)
         vPartDevName.setMaxLength(API.QUEST_DEV_LABEL_MAX_L)
         vPartTitle.setText(part.title)
@@ -81,6 +106,37 @@ class SQuestPartTextCreate(
                 ControllerLinks.makeLinkable(vPartContent)
             })
         }
+
+        if (part.imageId > 0) {
+            ImageLoader.load(part.imageId).into(vImage)
+            vImageIcon.visibility = GONE
+        } else {
+            vImageRemove.visibility = GONE
+        }
+        vImage.setOnClickListener {
+            SplashChooseImage()
+                .setOnSelectedBitmap { _, b ->
+                    Navigator.to(
+                        SCrop(b, API.QUEST_IMAGE_W, API.QUEST_IMAGE_H) { screen, b2, _, _, _, _ ->
+                            part.imageId = 0
+                            part.insertBytes = ToolsBitmap.toBytes(ToolsBitmap.resize(b2, API.QUEST_IMAGE_W, API.QUEST_IMAGE_H), API.QUEST_IMAGE_WEIGHT)
+                            vImage.setImageBitmap(b2)
+                            vImageIcon.visibility = GONE
+                            vImageRemove.visibility = VISIBLE
+                            screen.back()
+                        }.setAutoBackOnCrop(false)
+                    )
+                }
+                .asSheetShow()
+        }
+        vImageRemove.setOnClickListener {
+            part.insertBytes = null
+            part.imageId = 0
+            vImage.setImageResource(R.color.focus_dark)
+            vImageRemove.visibility = GONE
+            vImageIcon.visibility = VISIBLE
+        }
+        vImageRemove.text = t(API_TRANSLATE.app_remove_image)
 
         for (input in part.inputs) {
             val root: FrameLayout = ToolsView.inflate(vInputsContainer, R.layout.card_quest_vat)
@@ -100,7 +156,7 @@ class SQuestPartTextCreate(
         }
 
         for (button in part.buttons) {
-            val root: FrameLayout = ToolsView.inflate(vInputsContainer, R.layout.card_quest_vat)
+            val root: FrameLayout = ToolsView.inflate(vButtonsContainer, R.layout.card_quest_vat)
             updateButtonFor(root, button)
             vButtonsContainer.addView(root)
         }
@@ -109,9 +165,25 @@ class SQuestPartTextCreate(
                 .setButton(QuestButton())
                 .setOnEnter(t(API_TRANSLATE.app_add)) { button ->
                     part.buttons += button
-                    val root: FrameLayout = ToolsView.inflate(vInputsContainer, R.layout.card_quest_vat)
+                    val root: FrameLayout = ToolsView.inflate(vButtonsContainer, R.layout.card_quest_vat)
                     updateButtonFor(root, button)
                     vButtonsContainer.addView(root)
+                }
+                .asSheetShow()
+        }
+
+        for (effect in part.effects) {
+            val root: FrameLayout = ToolsView.inflate(vEffectsContainer, R.layout.card_quest_vat)
+            updateEffectFor(root, effect)
+            vEffectsContainer.addView(root)
+        }
+        vAddEffect.setOnClickListener {
+            SplashQuestEffect()
+                .setOnDone { effect ->
+                    part.effects += effect
+                    val root: FrameLayout = ToolsView.inflate(vEffectsContainer, R.layout.card_quest_vat)
+                    updateEffectFor(root, effect)
+                    vEffectsContainer.addView(root)
                 }
                 .asSheetShow()
         }
@@ -169,6 +241,41 @@ class SQuestPartTextCreate(
         makeRemove(root, t(API_TRANSLATE.quests_edit_text_button_remove_q)) {
             part.buttons = part.buttons.filterNot { it == button }.toTypedArray()
             vButtonsContainer.removeView(root)
+        }
+    }
+
+    private fun updateEffectFor(root: FrameLayout, effect: QuestEffect) {
+        val vAvatar: ViewAvatarTitle = root.findViewById(R.id.vAvatar)
+        vAvatar.setTitle(when (effect) {
+            is QuestEffectBox -> { t(API_TRANSLATE.quests_effect_box_s, t(API_TRANSLATE.fromBox(effect.box))) }
+            is QuestEffectBoxReset -> { t(API_TRANSLATE.quests_effect_box_reset) }
+            is QuestEffectVibrate -> {
+                t(
+                    API_TRANSLATE.quests_effect_vibrate_s,
+                    if (effect.times == 0) "∞" else effect.times.toString(),
+                    effect.length
+                )
+            }
+            else -> {
+                t(API_TRANSLATE.quests_effect_unknown)
+            }
+        })
+        vAvatar.setSubtitle(null)
+        vAvatar.vAvatar.visibility = GONE
+
+        root.setOnClickListener {
+            SplashQuestEffect(effect)
+                .setOnDone { newEffect ->
+                    part.effects[part.effects.indexOf(effect)] = newEffect
+                    updateEffectFor(root, newEffect)
+                    ToolsToast.show(t(API_TRANSLATE.app_changed))
+                }
+                .asSheetShow()
+        }
+
+        makeRemove(root, t(API_TRANSLATE.quests_edit_text_effect_remove_q)) {
+            part.effects = part.effects.filterNot { it == effect }.toTypedArray()
+            vEffectsContainer.removeView(root)
         }
     }
 

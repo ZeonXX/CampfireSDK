@@ -2,15 +2,15 @@ package com.sayzen.campfiresdk.screens.quests.edit
 
 import android.view.View
 import com.dzen.campfire.api.API_TRANSLATE
-import com.dzen.campfire.api.models.quests.QuestEffectBox
-import com.dzen.campfire.api.models.quests.QuestEffectBoxReset
-import com.dzen.campfire.api.models.quests.QuestEffectVibrate
-import com.dzen.campfire.api.models.quests.QuestPartText
+import com.dzen.campfire.api.models.quests.*
 import com.sayzen.campfiresdk.R
 import com.sayzen.campfiresdk.controllers.t
 import com.sup.dev.android.views.views.ViewText
 
-class CardQuestPartText(val part: QuestPartText) : CardQuestPart(R.layout.card_quest_part_short_text) {
+class CardQuestPartText(
+    part: QuestPartText,
+    container: QuestPartContainer,
+) : CardQuestPart(R.layout.card_quest_part_short_text, part, container) {
     override fun bindView(view: View) {
         super.bindView(view)
 
@@ -18,6 +18,8 @@ class CardQuestPartText(val part: QuestPartText) : CardQuestPart(R.layout.card_q
         val vDescription: ViewText = view.findViewById(R.id.vDescription)
 
         vTitle.text = part.toSelectorString()
+
+        val part = part as QuestPartText
 
         val desc = StringBuilder()
         desc.append(part.text.substring(0, 100.coerceAtMost(part.text.length)))
@@ -30,7 +32,10 @@ class CardQuestPartText(val part: QuestPartText) : CardQuestPart(R.layout.card_q
         }
         if (part.buttons.isNotEmpty()) {
             desc.append("\n\n")
-            desc.append(part.buttons.joinToString(" | ") { it.label })
+            desc.append(part.buttons.joinToString("\n") {
+                val dest = t(API_TRANSLATE.quests_edit_text_button_jump_to, jumpToIdToString(it.jumpToId, container))
+                "[${it.label}] $dest"
+            })
         }
         if (part.effects.isNotEmpty()) {
             desc.append("\n\n")

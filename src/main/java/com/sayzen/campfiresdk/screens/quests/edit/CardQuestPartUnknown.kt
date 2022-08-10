@@ -2,13 +2,16 @@ package com.sayzen.campfiresdk.screens.quests.edit
 
 import android.view.View
 import com.dzen.campfire.api.API_TRANSLATE
+import com.dzen.campfire.api.models.quests.QuestPart
+import com.dzen.campfire.api.models.quests.QuestPartContainer
 import com.dzen.campfire.api.models.quests.QuestPartText
 import com.dzen.campfire.api.models.quests.QuestPartUnknown
 import com.sayzen.campfiresdk.R
 import com.sayzen.campfiresdk.controllers.t
 import com.sup.dev.android.views.views.ViewText
 
-class CardQuestPartUnknown(val part: QuestPartUnknown) : CardQuestPart(R.layout.card_quest_part_short_text) {
+class CardQuestPartUnknown(part: QuestPart, container: QuestPartContainer)
+    : CardQuestPart(R.layout.card_quest_part_short_text, part, container) {
     override fun bindView(view: View) {
         super.bindView(view)
 

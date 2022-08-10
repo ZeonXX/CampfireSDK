@@ -5,11 +5,13 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import com.dzen.campfire.api.API_TRANSLATE
 import com.dzen.campfire.api.models.quests.QuestDetails
+import com.dzen.campfire.api.requests.quests.RQuestsGetParts
 import com.sayzen.campfiresdk.R
 import com.sayzen.campfiresdk.controllers.ControllerLinks
 import com.sayzen.campfiresdk.controllers.t
 import com.sayzen.campfiresdk.models.events.quests.EventQuestChanged
 import com.sayzen.campfiresdk.screens.quests.SQuestEditor
+import com.sayzen.campfiresdk.support.ApiRequestsSupporter
 import com.sayzen.campfiresdk.support.adapters.XAccount
 import com.sup.dev.android.libs.screens.navigator.Navigator
 import com.sup.dev.android.views.cards.Card
@@ -48,7 +50,9 @@ class CardQuestDetails constructor(
         vTouch.setOnClickListener {
             if (onClick != null) onClick.invoke()
             else {
-                Navigator.to(SQuestEditor(questDetails))
+                ApiRequestsSupporter.executeProgressDialog(RQuestsGetParts(questDetails.id)) { resp ->
+                    Navigator.to(SQuestEditor(questDetails, resp.parts))
+                }
             }
         }
     }
