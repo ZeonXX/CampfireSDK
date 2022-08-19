@@ -6,7 +6,18 @@
     android:paddingTop="8dp"
     android:paddingBottom="8dp">
 
+    <com.sup.dev.android.views.views.ViewText
+        android:id="@+id/vBlacklistedText"
+        style="@style/Base.TextAppearance.AppCompat.Body1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginRight="16dp" />
+
     <LinearLayout
+        android:id="@+id/vContentContainer"
         style="@style/TouchableForeground"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

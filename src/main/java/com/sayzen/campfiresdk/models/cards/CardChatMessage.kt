@@ -20,6 +20,8 @@ import com.dzen.campfire.api.requests.publications.RPublicationsReactionAdd
 import com.dzen.campfire.api.requests.publications.RPublicationsReactionRemove
 import com.sayzen.campfiresdk.R
 import com.sayzen.campfiresdk.controllers.*
+import com.sayzen.campfiresdk.models.events.account.EventAccountAddToBlackList
+import com.sayzen.campfiresdk.models.events.account.EventAccountRemoveFromBlackList
 import com.sayzen.campfiresdk.models.events.chat.*
 import com.sayzen.campfiresdk.models.events.notifications.EventNotification
 import com.sayzen.campfiresdk.models.events.publications.EventPublicationBlocked
@@ -96,6 +98,18 @@ open class CardChatMessage constructor(
             .subscribe(EventPublicationDeepBlockRestore::class) { onEventPublicationDeepBlockRestore(it) }
             .subscribe(EventVoiceMessageStateChanged::class) { update() }
             .subscribe(EventVoiceMessageStep::class) { if (it.id == publication.voiceResourceId) updatePlayTime() }
+            .subscribe(EventAccountRemoveFromBlackList::class) {
+                if (publication.creator.id == it.accountId) {
+                    publication.blacklisted = false
+                    update()
+                }
+            }
+            .subscribe(EventAccountAddToBlackList::class) {
+                if (publication.creator.id == it.accountId) {
+                    publication.blacklisted = true
+                    update()
+                }
+            }
 
     var changeEnabled = true
     var useMessageContainerBackground = true
@@ -120,6 +134,8 @@ open class CardChatMessage constructor(
     //
 
     override fun bindView(view: View) {
+        if (updateBlacklisted(view)) return
+
         super.bindView(view)
 
         val publication = xPublication.publication as PublicationChatMessage
@@ -419,7 +435,7 @@ open class CardChatMessage constructor(
         val vMessageContainer: LayoutCorned? = view.findViewById(R.id.vMessageContainer)
 
         if (vRootContainer != null) {
-            (vRootContainer.layoutParams as FrameLayout.LayoutParams).gravity = if (ControllerApi.isCurrentAccount(publication.creator.id)) Gravity.RIGHT or Gravity.TOP else Gravity.LEFT or Gravity.TOP
+            (vRootContainer.layoutParams as LinearLayout.LayoutParams).gravity = if (ControllerApi.isCurrentAccount(publication.creator.id)) Gravity.RIGHT or Gravity.TOP else Gravity.LEFT or Gravity.TOP
         }
 
         if (vMessageContainer != null) {
