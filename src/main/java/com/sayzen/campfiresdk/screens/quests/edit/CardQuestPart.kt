@@ -44,6 +44,9 @@ abstract class CardQuestPart(layout: Int, var part: QuestPart, val container: Qu
                 is QuestPartCondition -> Navigator.to(
                     SQuestPartConditionCreate(container.getDetails(), container, part) { submit(it) }
                 )
+                is QuestPartAction -> Navigator.to(
+                    SQuestPartActionCreate(container.getDetails(), container, part) { submit(it) }
+                )
                 else -> ToolsToast.show(t(API_TRANSLATE.app_error))
             }
         }

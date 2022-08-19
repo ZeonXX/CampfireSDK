@@ -3,7 +3,10 @@ package com.sayzen.campfiresdk.screens.quests.edit
 import android.text.InputType
 import com.dzen.campfire.api.API
 import com.dzen.campfire.api.API_TRANSLATE
-import com.dzen.campfire.api.models.quests.*
+import com.dzen.campfire.api.models.quests.QuestConditionValue
+import com.dzen.campfire.api.models.quests.QuestDetails
+import com.dzen.campfire.api.models.quests.QuestPartCondition
+import com.dzen.campfire.api.models.quests.QuestPartContainer
 import com.sayzen.campfiresdk.R
 import com.sayzen.campfiresdk.controllers.t
 import com.sup.dev.android.libs.screens.Screen
@@ -51,6 +54,7 @@ class SQuestPartConditionCreate(
         vFalseJump.setTitle(t(API_TRANSLATE.quests_edit_cond_false_jump))
 
         vPartDevName.setText(part.devLabel)
+        vPartDevName.setMaxLength(API.QUEST_DEV_LABEL_MAX_L)
         vCreate.setOnClickListener { submit() }
 
         vLeftVariable.setDetails(details)

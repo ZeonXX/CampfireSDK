@@ -10,10 +10,7 @@ import com.sayzen.campfiresdk.controllers.t
 import com.sayzen.campfiresdk.models.cards.CardQuestDetails
 import com.sayzen.campfiresdk.models.events.quests.EventQuestChanged
 import com.sayzen.campfiresdk.models.events.quests.EventQuestPartChangedOrAdded
-import com.sayzen.campfiresdk.screens.quests.edit.CardQuestPart
-import com.sayzen.campfiresdk.screens.quests.edit.CardQuestVariables
-import com.sayzen.campfiresdk.screens.quests.edit.SQuestPartConditionCreate
-import com.sayzen.campfiresdk.screens.quests.edit.SQuestPartTextCreate
+import com.sayzen.campfiresdk.screens.quests.edit.*
 import com.sayzen.campfiresdk.support.ApiRequestsSupporter
 import com.sup.dev.android.libs.screens.navigator.Navigator
 import com.sup.dev.android.tools.ToolsToast
@@ -129,7 +126,9 @@ class SQuestEditor(
             .add(t(API_TRANSLATE.quests_part_condition)) {
                 Navigator.to(SQuestPartConditionCreate(questDetails, container, QuestPartCondition()) { onDone(it) })
             }
-            .add(t(API_TRANSLATE.quests_part_action))
+            .add(t(API_TRANSLATE.quests_part_action)) {
+                Navigator.to(SQuestPartActionCreate(questDetails, container, QuestPartAction()) { onDone(it) })
+            }
             .asSheetShow()
     }
 }
