@@ -112,6 +112,13 @@ class CardPost constructor(
                     update()
                 }
             }
+            .subscribe(EventPostRubricChange::class) {
+                if (publication.id == it.postId) {
+                    publication.rubricId = it.rubric.id
+                    publication.rubricName = it.rubric.name
+                    updateAccount()
+                }
+            }
 
     private val pages = ArrayList<CardPage>()
     private var isShowFull = false
