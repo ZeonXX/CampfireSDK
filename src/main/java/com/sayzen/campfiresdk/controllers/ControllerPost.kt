@@ -15,6 +15,7 @@ import com.sayzen.campfiresdk.models.cards.post_pages.CardPage
 import com.sayzen.campfiresdk.models.cards.post_pages.CardPageSpoiler
 import com.sayzen.campfiresdk.models.events.publications.*
 import com.sayzen.campfiresdk.screens.account.profile.SProfile
+import com.sayzen.campfiresdk.screens.fandoms.rubrics.SRubricsList
 import com.sayzen.campfiresdk.screens.post.create.SPostCreationTags
 import com.sayzen.campfiresdk.screens.post.history.SPublicationHistory
 import com.sayzen.campfiresdk.support.ApiRequestsSupporter
@@ -85,6 +86,7 @@ object ControllerPost {
                                 .add(t(API_TRANSLATE.publication_menu_multilingual_not)) { multilingualNot(post) }.backgroundRes(R.color.focus).condition(ENABLED_MAKE_MULTILINGUAL && post.fandom.languageId == -1L && post.status == API.STATUS_PUBLIC && ControllerApi.isCurrentAccount(post.creator.id))
                                 .add(t(API_TRANSLATE.app_close)) { close(post) }.backgroundRes(R.color.focus).condition(!post.closed && ControllerApi.isCurrentAccount(post.creator.id))
                                 .add(t(API_TRANSLATE.app_open)) { open(post) }.backgroundRes(R.color.focus).condition(post.closed && ControllerApi.isCurrentAccount(post.creator.id))
+                                .add(t(API_TRANSLATE.post_change_rubric)) { changeRubric(post) }.backgroundRes(R.color.focus).condition(ControllerApi.isCurrentAccount(post.creator.id) && post.dateCreate < System.currentTimeMillis() - 1000 * 3600 * 24 * 7)
                                 .finishItemBuilding()
                     }
                 }
@@ -132,6 +134,23 @@ object ControllerPost {
             EventBus.post(EventPostCloseChange(publications.id, false))
             ToolsToast.show(t(API_TRANSLATE.app_done))
         }
+    }
+
+    fun changeRubric(post: PublicationPost) {
+        Navigator.to(SRubricsList(
+            fandomId = post.fandom.id,
+            languageId = post.fandom.languageId,
+            ownerId = ControllerApi.account.getId(),
+            canCreatePost = false,
+        ) { rubric ->
+            ApiRequestsSupporter.executeProgressDialog(RPostMoveRubric(post.id, rubric.id)) { _ ->
+                post.rubricId = rubric.id
+                post.rubricName = rubric.name
+
+                EventBus.post(EventPostRubricChange(post.id, rubric))
+                ToolsToast.show(t(API_TRANSLATE.app_done))
+            }
+        })
     }
 
     fun closeAdmin(publications: PublicationPost) {
