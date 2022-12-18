@@ -8,12 +8,10 @@ import com.dzen.campfire.api.API_TRANSLATE
 import com.dzen.campfire.api.models.account.Account
 import com.dzen.campfire.api.models.publications.PagesContainer
 import com.dzen.campfire.api.models.publications.post.PagePolling
+import com.dzen.campfire.api.requests.post.RPostPagePollingGetVotes
 import com.sayzen.campfiresdk.R
 import com.sayzen.campfiresdk.app.CampfireConstants
-import com.sayzen.campfiresdk.controllers.ControllerApi
-import com.sayzen.campfiresdk.controllers.ControllerLinks
-import com.sayzen.campfiresdk.controllers.ControllerPolling
-import com.sayzen.campfiresdk.controllers.t
+import com.sayzen.campfiresdk.controllers.*
 import com.sayzen.campfiresdk.models.cards.CardAccount
 import com.sayzen.campfiresdk.models.events.publications.EventPollingChanged
 import com.sup.dev.android.libs.screens.navigator.Navigator
@@ -39,7 +37,8 @@ class XPolling(
         var onChanged: () -> Unit
 ) {
 
-    val eventBud = EventBus.subscribe(EventPollingChanged::class) {
+    // you're welcome - see git blame
+    val eventBus = EventBus.subscribe(EventPollingChanged::class) {
         if (it.pollingId == page.pollingId) onChanged.invoke()
     }
 
@@ -48,6 +47,55 @@ class XPolling(
         updateTitle(view)
         updateVotes(view)
 
+        updateResultsButton(view)
+        updateBlacklistButton(view)
+    }
+
+    private fun updateResultsButton(view: View) {
+        val vPollResults: ViewButton = view.findViewById(R.id.vPollResults)
+
+        val resultsRecycler = object : SLoadingRecycler<CardAccount, RPostPagePollingGetVotes.PollingResultsItem>() {
+            init {
+                disableShadows()
+                disableNavigation()
+
+                setTitle(t(API_TRANSLATE.post_page_polling_results_full))
+                setTextEmpty(t(API_TRANSLATE.app_empty))
+                setBackgroundImage(419896L)
+
+                adapter.setBottomLoader { onLoad, cards ->
+                    if (pagesContainer == null) {
+                        onLoad(null)
+                        return@setBottomLoader
+                    }
+                    subscription = RPostPagePollingGetVotes(
+                        pagesContainer.getSourceType(),
+                        pagesContainer.getSourceId(),
+                        pagesContainer.getSourceIdSub(),
+                        page.pollingId,
+                        cards.size
+                    )
+                        .onComplete { onLoad(it.results) }
+                        .onError { onLoad(null) }
+                        .send(api)
+                }
+            }
+
+            override fun classOfCard(): KClass<CardAccount> = CardAccount::class
+            override fun map(item: RPostPagePollingGetVotes.PollingResultsItem): CardAccount {
+                val card = CardAccount(item.account)
+                card.setSubtitle(page.options[item.itemId.toInt()])
+                return card
+            }
+        }
+
+        vPollResults.text = t(API_TRANSLATE.post_page_polling_results)
+        vPollResults.setOnClickListener {
+            Navigator.to(resultsRecycler)
+        }
+    }
+
+    private fun updateBlacklistButton(view: View) {
         val vBlacklistView: ViewButton = view.findViewById(R.id.vBlackListView)
         if (page.blacklist.isEmpty()) vBlacklistView.visibility = View.GONE
         else {
@@ -72,7 +120,7 @@ class XPolling(
         }
     }
 
-    private fun updateVotes(view: View){
+    private fun updateVotes(view: View) {
         val vContainer: ViewGroup = view.findViewById(R.id.vContainer)
         val tag = System.currentTimeMillis()
         vContainer.tag = tag
@@ -91,6 +139,11 @@ class XPolling(
                 if (vContainer.tag != tag) return@get
 
                 val showResults = result.voted || !canVote()
+
+                if (showResults) {
+                    val vPollResults: ViewButton = view.findViewById(R.id.vPollResults)
+                    vPollResults.visibility = View.VISIBLE
+                }
 
                 var percentSum = 0
                 for (i in 0 until vContainer.childCount) {
