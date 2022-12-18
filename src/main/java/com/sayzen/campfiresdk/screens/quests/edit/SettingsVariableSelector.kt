@@ -19,7 +19,7 @@ class SettingsVariableSelector constructor(context: Context, attrs: AttributeSet
         .subscribe(EventQuestChanged::class) { ev ->
             if (ev.quest.id == details.id) {
                 details = ev.quest
-                if (selected != null && details.variables.find { it.id == selected!!.id } == null) {
+                if (selected != null && details.variablesMap!![selected!!.id] == null) {
                     selected = null
                 }
             }

@@ -135,7 +135,7 @@ class SplashQuestInput(
             else -> vDefaultValue.setText(input.defaultValue)
         }
 
-        vVariable.selected = details.variables.find { it.id == input.varId }
+        vVariable.selected = details.variablesMap!![input.varId]
 
         return this
     }

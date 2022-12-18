@@ -32,7 +32,7 @@ class CardQuestPartCondition(
                     else           t(API_TRANSLATE.quests_edit_cond_false_r)
                 }
                 API.QUEST_CONDITION_VALUE_VAR -> {
-                    details.variables.find { it.id == value }?.devName?.let { "[$it]" } ?: "<???>"
+                    details.variablesMap!![value]?.devName?.let { "[$it]" } ?: "<???>"
                 }
                 else -> "<???>"
             }

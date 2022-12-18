@@ -31,6 +31,7 @@ class SQuestPartActionCreate(
     private val vLField2: SettingsField = findViewById(R.id.vLField2)
     private val vAnotherVariable1: SettingsVariableSelector = findViewById(R.id.vAnotherVariable1)
     private val vAnotherVariable2: SettingsVariableSelector = findViewById(R.id.vAnotherVariable2)
+    private val vNextPart: SettingsPartSelector = findViewById(R.id.vNextPart)
 
     init {
         disableShadows()
@@ -89,7 +90,7 @@ class SQuestPartActionCreate(
         vVariable.setTitle(t(API_TRANSLATE.quests_variable))
         vVariable.setDetails(details)
         vVariable.showLiteral = false
-        vVariable.selected = details.variables.find { it.id == part.varId }
+        vVariable.selected = details.variablesMap!![part.varId]
         vVariable.setOnSelected {
             part.varId = it?.id ?: 0
             update()
@@ -104,12 +105,17 @@ class SQuestPartActionCreate(
         vLField2.setInputType(InputType.TYPE_CLASS_NUMBER)
         vAnotherVariable1.setDetails(details)
         vAnotherVariable1.showLiteral = false
-        vAnotherVariable1.selected = details.variables.find { it.id == part.lArg1 }
+        vAnotherVariable1.selected = details.variablesMap!![part.lArg1]
         vAnotherVariable2.setDetails(details)
         vAnotherVariable2.showLiteral = false
-        vAnotherVariable2.selected = details.variables.find { it.id == part.lArg2 }
+        vAnotherVariable2.selected = details.variablesMap!![part.lArg2]
         vAnotherVariable1.setOnSelected { part.lArg1 = it?.id ?: 0 }
         vAnotherVariable2.setOnSelected { part.lArg2 = it?.id ?: 0 }
+
+        vNextPart.partContainer = container
+        vNextPart.enableFinishQuest = true
+        vNextPart.enableNextPart = true
+        vNextPart.selectedId = part.jumpId
 
         update()
     }
@@ -209,14 +215,13 @@ class SQuestPartActionCreate(
     fun submit() {
         part.devLabel = vPartDevName.getText()
         part.sArg = vSField.getText().takeIf { it.isNotBlank() } ?: if (vSFieldBool.isChecked()) "1" else "0"
-        part.lArg1 = vLField1.getText().toLongOrNull() ?: run {
-            ToolsToast.show(t(API_TRANSLATE.app_edit))
-            return
+        if (vAnotherVariable1.visibility == GONE) {
+            part.lArg1 = vLField1.getText().toLongOrNull() ?: 0
         }
-        part.lArg2 = vLField2.getText().toLongOrNull() ?: run {
-            ToolsToast.show(t(API_TRANSLATE.app_edit))
-            return
+        if (vAnotherVariable2.visibility == GONE) {
+            part.lArg2 = vLField2.getText().toLongOrNull() ?: 0
         }
+        part.jumpId = vNextPart.selectedId ?: return // TODO
 
         when (part.actionType) {
             API.QUEST_ACTION_SET_LITERAL -> {}
@@ -227,8 +232,8 @@ class SQuestPartActionCreate(
                 }
             }
             API.QUEST_ACTION_SET_ANOTHER, API.QUEST_ACTION_ADD_ANOTHER -> {
-                val var1 = details.variables.find { it.id == part.varId }
-                val var2 = details.variables.find { it.id == part.lArg1 }
+                val var1 = details.variablesMap!![part.varId]
+                val var2 = details.variablesMap!![part.lArg1]
                 if (var1?.type == null || var1.type != var2?.type) {
                     ToolsToast.show(t(API_TRANSLATE.quests_edit_action_error_2))
                     return
@@ -236,9 +241,9 @@ class SQuestPartActionCreate(
             }
             API.QUEST_ACTION_ADD_LITERAL -> {}
             API.QUEST_ACTION_SET_ARANDOM -> {
-                val var1 = details.variables.find { it.id == part.varId }
-                val var2 = details.variables.find { it.id == part.lArg1 }
-                val var3 = details.variables.find { it.id == part.lArg2 }
+                val var1 = details.variablesMap!![part.varId]
+                val var2 = details.variablesMap!![part.lArg1]
+                val var3 = details.variablesMap!![part.lArg2]
                 if (var1?.type != API.QUEST_TYPE_NUMBER ||
                     var2?.type != API.QUEST_TYPE_NUMBER ||
                     var3?.type != API.QUEST_TYPE_NUMBER) {
@@ -248,8 +253,8 @@ class SQuestPartActionCreate(
             }
             API.QUEST_ACTION_MULTIPLY, API.QUEST_ACTION_DIVIDE,
             API.QUEST_ACTION_BIT_AND, API.QUEST_ACTION_BIT_OR -> {
-                val var1 = details.variables.find { it.id == part.varId }
-                val var2 = details.variables.find { it.id == part.lArg1 }
+                val var1 = details.variablesMap!![part.varId]
+                val var2 = details.variablesMap!![part.lArg1]
                 if (var1?.type != API.QUEST_TYPE_NUMBER ||
                     var2?.type != API.QUEST_TYPE_NUMBER) {
                     ToolsToast.show(t(API_TRANSLATE.quests_edit_action_error_3))

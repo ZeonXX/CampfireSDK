@@ -14,13 +14,16 @@ import com.sayzen.campfiresdk.screens.quests.edit.*
 import com.sayzen.campfiresdk.support.ApiRequestsSupporter
 import com.sup.dev.android.libs.screens.navigator.Navigator
 import com.sup.dev.android.tools.ToolsToast
+import com.sup.dev.android.tools.ToolsView
 import com.sup.dev.android.views.cards.CardTitle
 import com.sup.dev.android.views.screens.SRecycler
+import com.sup.dev.android.views.splash.SplashAlert
 import com.sup.dev.android.views.splash.SplashFieldTwo
 import com.sup.dev.android.views.splash.SplashMenu
 import com.sup.dev.android.views.support.adapters.recycler_view.RecyclerCardAdapter
 import com.sup.dev.java.libs.eventBus.EventBus
 import com.sup.dev.java.libs.json.Json
+import com.sup.dev.java.tools.ToolsThreads
 
 class SQuestEditor(
     private var questDetails: QuestDetails,
@@ -68,6 +71,53 @@ class SQuestEditor(
         parts.forEach {
             adapter.add(CardQuestPart.instance(it, container))
         }
+
+        addToolbarIcon(R.drawable.ic_play_arrow_white_24dp) {
+            startQuest()
+        }
+    }
+
+    fun startQuest() {
+        val d = ToolsView.showProgressDialog(t(API_TRANSLATE.quests_edit_checking))
+
+        val errors = mutableListOf<QuestException>()
+
+        val parts = adapter.get(CardQuestPart::class).map { it.part }
+        if (parts.isEmpty()) {
+            d.hide()
+            return
+        }
+        parts.forEach {
+            it.checkValid(questDetails, parts, errors)
+        }
+
+        if (parts[0].type != API.QUEST_PART_TYPE_TEXT) {
+            errors.add(QuestException(API_TRANSLATE.quests_edit_error_8, partId = -1))
+        }
+
+        if (errors.isNotEmpty()) {
+            val alert = SplashAlert()
+            alert.setTitle(t(API_TRANSLATE.quests_edit_errors))
+
+            val sb = StringBuilder()
+            for (error in errors.subList(0, 5.coerceAtMost(errors.size))) {
+                val part = parts.find { it.id == error.partId }
+                sb.append("*${part?.toSelectorString() ?: "---"}*\n")
+                sb.append("${t(error.translate, *error.params)}\n\n")
+            }
+
+            d.hide()
+
+            alert.setText(sb.toString())
+            alert.setOnEnter(t(API_TRANSLATE.app_ok))
+            alert.asSheetShow()
+
+            return
+        }
+
+        Navigator.to(SQuestPlayer(questDetails, parts, 0, SQuestPlayer.QuestState(dev = true)))
+
+        d.hide()
     }
 
     private fun onDetailsUpdated() {

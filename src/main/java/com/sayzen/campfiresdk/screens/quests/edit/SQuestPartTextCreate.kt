@@ -197,7 +197,7 @@ class SQuestPartTextCreate(
         vAvatar.setSubtitle(t(
             API_TRANSLATE.quests_edit_text_input_subtitle,
             t(API_TRANSLATE.forQuestType(input.type)),
-            details.variables.find { it.id == input.varId }?.devName ?: t(API_TRANSLATE.quests_placeholder_error)
+            details.variablesMap!![input.varId]?.devName ?: t(API_TRANSLATE.quests_placeholder_error)
         ))
         vAvatar.vAvatar.visibility = GONE
 
