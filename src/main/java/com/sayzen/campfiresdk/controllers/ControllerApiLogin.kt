@@ -1,10 +1,9 @@
 package com.sayzen.campfiresdk.controllers
 
 import com.dzen.campfire.api.API
-import com.sayzen.campfiresdk.models.events.account.EventAccountEmailChanged
+import com.google.firebase.auth.FirebaseAuth
 import com.sayzen.devsupandroidgoogle.ControllerGoogleAuth
 import com.sup.dev.android.tools.ToolsStorage
-import com.sup.dev.java.libs.eventBus.EventBus
 
 object ControllerApiLogin {
 
@@ -36,14 +35,14 @@ object ControllerApiLogin {
 
     fun clear(){
         setLoginType(LOGIN_NONE)
-        clearEmailToken()
+        auth.signOut()
     }
 
     //
     //  Google
     //
 
-    fun getLoginToken_Google(callbackSource: (String?) -> Unit){
+    private fun getLoginToken_Google(callbackSource: (String?) -> Unit){
         ControllerGoogleAuth.getToken {
             ControllerGoogleAuth.tokenPostExecutor.invoke(it) { token ->
                 callbackSource.invoke(token)
@@ -55,19 +54,15 @@ object ControllerApiLogin {
     //  Email
     //
 
-    fun getLoginToken_Email(callbackSource: (String?) -> Unit){
-        callbackSource.invoke(getEmailToken())
+    private val auth = FirebaseAuth.getInstance()
+    private fun getLoginToken_Email(callbackSource: (String?) -> Unit){
+        auth.currentUser?.getIdToken(false)
+            ?.addOnSuccessListener {
+                callbackSource(API.LOGIN_EMAIL2_PREFIX + API.LOGIN_SPLITTER + it.token)
+            }
+            ?.addOnFailureListener {
+                it.printStackTrace()
+                callbackSource(null)
+            }
     }
-
-    fun getEmailToken() = ToolsStorage.getString("ControllerApiLogin.email_token", null)
-    @Deprecated("use firebase")
-    fun setEmailToken(email:String, passwordSha512:String){
-        ToolsStorage.put("ControllerApiLogin.email_token", "${API.LOGIN_EMAIL_PREFIX}${API.LOGIN_SPLITTER}$email${API.LOGIN_SPLITTER}$passwordSha512")
-        EventBus.post(EventAccountEmailChanged(email))
-    }
-    fun setEmailToken(firebaseToken: String) {
-        ToolsStorage.put("ControllerApiLogin.email_token", "${API.LOGIN_EMAIL2_PREFIX}${API.LOGIN_SPLITTER}$firebaseToken")
-    }
-    fun clearEmailToken() = ToolsStorage.clear("ControllerApiLogin.email_token")
-
 }
