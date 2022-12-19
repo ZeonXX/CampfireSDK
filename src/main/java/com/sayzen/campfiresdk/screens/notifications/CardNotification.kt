@@ -4,6 +4,7 @@ import android.view.View
 import android.widget.TextView
 import com.dzen.campfire.api.models.notifications.Notification
 import com.dzen.campfire.api.models.notifications.account.NotificationAccountsFollowsAdd
+import com.dzen.campfire.api.models.notifications.account.NotificationAccountsFollowsRemove
 import com.dzen.campfire.api.models.notifications.account.NotificationAchievement
 import com.dzen.campfire.api.models.notifications.chat.NotificationChatAnswer
 import com.dzen.campfire.api.models.notifications.comments.NotificationComment
@@ -56,6 +57,7 @@ class CardNotification(
 
         when (notification) {
             is NotificationAccountsFollowsAdd -> setOnCLickAvatar { SProfile.instance(notification.accountId, Navigator.TO) }
+            is NotificationAccountsFollowsRemove -> setOnCLickAvatar { SProfile.instance(notification.accountId, Navigator.TO) }
             is NotificationFollowsPublication -> setOnCLickAvatar { SProfile.instance(notification.accountId, Navigator.TO) }
             is NotificationComment -> setOnCLickAvatar { SProfile.instance(notification.accountId, Navigator.TO) }
             is NotificationCommentAnswer -> setOnCLickAvatar { SProfile.instance(notification.accountId, Navigator.TO) }
