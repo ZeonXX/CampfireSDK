@@ -15,7 +15,6 @@ import com.sayzen.campfiresdk.controllers.t
 import com.sayzen.devsupandroidgoogle.ControllerFirebaseAnalytics
 import com.sup.dev.android.libs.screens.navigator.NavigationAction
 import com.sup.dev.android.libs.screens.navigator.Navigator
-import com.sup.dev.android.tools.ToolsResources
 import com.sup.dev.android.views.cards.CardDividerTitle
 import com.sup.dev.android.views.screens.SLoadingRecycler
 import com.sup.dev.java.tools.ToolsThreads
@@ -116,10 +115,13 @@ class SFandomsSearch private constructor(
     override fun map(fandom: NFandom): CardFandom {
         if (fandom.fandom.languageId == 0L) fandom.fandom.languageId = ControllerApi.getLanguageId()
 
-        val card = if (onSelected == null) CardFandom(fandom.fandom) else CardFandom(fandom.fandom, onClick = {
+        val card = if (onSelected == null) CardFandom(fandom.fandom)
+        else CardFandom(fandom.fandom, onClick = { language ->
+            val selectedFandom = fandom.fandom.copy()
+            selectedFandom.languageId = language
             if (backWhenSelect) Navigator.back()
-            onSelected.invoke(fandom.fandom)
-        })
+            onSelected.invoke(selectedFandom)
+        }, showLanguage = true)
 
         card.removeIfUnsubscribe = true
         card.setSubscribed(fandom.subscribed && !isSearchMode())

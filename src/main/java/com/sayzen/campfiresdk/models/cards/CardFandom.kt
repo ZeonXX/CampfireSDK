@@ -18,9 +18,10 @@ import com.sup.dev.java.libs.eventBus.EventBus
 
 class CardFandom constructor(
         val fandom: Fandom,
-        var onClick: (() -> Unit)? = null,
-        var onLongClick: (() -> Unit)? = null)
-    : Card(R.layout.card_fandom) {
+        var onClick: ((Long) -> Unit)? = null,
+        val showLanguage: Boolean = false,
+        var onLongClick: (() -> Unit)? = null,
+) : Card(R.layout.card_fandom) {
 
     private val eventBus = EventBus
             .subscribe(EventFandomRemove::class) { if (it.fandomId == fandom.id) adapter.remove(this) }
@@ -66,7 +67,7 @@ class CardFandom constructor(
 
     private fun onClick() {
         if (onClick != null) {
-            onClick?.invoke()
+            onClick?.invoke(fandom.languageId)
             return
         }
         SFandom.instance(xFandom.getFandom(), Navigator.TO)
@@ -77,7 +78,7 @@ class CardFandom constructor(
             onLongClick?.invoke()
             return
         }
-        ControllerFandoms.showPopupMenu(xFandom, view, x, y)
+        ControllerFandoms.showPopupMenu(xFandom, view, x, y, onClick.takeIf { showLanguage })
     }
 
     //
