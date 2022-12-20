@@ -84,7 +84,7 @@ class MessageReadReceiver : BroadcastReceiver() {
 }
 
 // taken from s/o: https://stackoverflow.com/questions/11932805#12089127
-fun Bitmap.getRounded(): Bitmap? {
+fun Bitmap.getRounded(): Bitmap {
     val output = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
     val canvas = Canvas(output)
     val color = -0xbdbdbe
