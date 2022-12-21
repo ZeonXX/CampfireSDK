@@ -374,6 +374,7 @@ object ControllerNotifications {
         return when (n) {
             is NotificationComment -> NotificationCommentParser(n)
             is NotificationAccountsFollowsAdd -> NotificationAccountsFollowsAddParser(n)
+            is NotificationAccountsFollowsRemove -> NotificationAccountsFollowsRemoveParser(n)
             is NotificationCommentAnswer -> NotificationCommentAnswerParser(n)
             is NotificationChatMessage -> NotificationChatMessageParser(n)
             is NotificationChatAnswer -> NotificationChatAnswerParser(n)

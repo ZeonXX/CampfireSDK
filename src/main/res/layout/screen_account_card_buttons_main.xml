@@ -12,24 +12,34 @@
     app:LayoutCorned_cornedSize="12dp">
 
     <LinearLayout
-        android:id="@+id/vButtonsContainer"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:orientation="horizontal">
+        android:orientation="vertical"
+    >
+        <TextView
+            android:id="@+id/vFollowsYou"
+            android:textAlignment="center"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
-        <com.sup.dev.android.views.views.ViewButton
-            android:id="@+id/vMessage"
-            style="@style/Button.Text"
-            android:textSize="13sp"
-            android:layout_marginRight="12dp"/>
+        <LinearLayout
+            android:id="@+id/vButtonsContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="horizontal">
 
-        <com.sup.dev.android.views.views.ViewButton
-            android:id="@+id/vFollow"
-            android:textSize="13sp"
-            style="@style/Button.Text"/>
+            <com.sup.dev.android.views.views.ViewButton
+                android:id="@+id/vMessage"
+                style="@style/Button.Text"
+                android:textSize="13sp"
+                android:layout_marginRight="12dp"/>
 
-
+            <com.sup.dev.android.views.views.ViewButton
+                android:id="@+id/vFollow"
+                android:textSize="13sp"
+                style="@style/Button.Text"/>
+        </LinearLayout>
     </LinearLayout>
 
 

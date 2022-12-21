@@ -215,6 +215,7 @@ class SProfile private constructor(
             cardTitle.updateDateCreate()
             cardStatus.setInfo(r.status, r.note, r.banDate)
             cardButtonsMain.setIsFollow(r.isFollow)
+            cardButtonsMain.setFollowsYou(r.followsYou)
 
             cardButtons.setInfo(r.followsCount, r.followersCount, r.warnsCount, r.bansCount, r.karmaTotal, r.rates, r.moderationFandomsCount,
                     r.subscribedFandomsCount, r.stickersCount, r.blackAccountsCount, r.blackFandomsCount)
