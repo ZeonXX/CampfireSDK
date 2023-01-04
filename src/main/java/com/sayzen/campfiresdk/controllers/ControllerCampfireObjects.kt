@@ -9,9 +9,8 @@ import com.dzen.campfire.api.requests.chat.RChatGet
 import com.dzen.campfire.api.requests.comments.RCommentGet
 import com.dzen.campfire.api.requests.fandoms.RFandomsGet
 import com.dzen.campfire.api.requests.post.RPostGet
+import com.dzen.campfire.api.requests.quests.RQuestsGet
 import com.dzen.campfire.api.requests.stickers.RStickersPacksGetInfo
-import com.sayzen.campfiresdk.R
-import com.sup.dev.android.tools.ToolsResources
 import com.sup.dev.java.classes.items.Item3
 
 object ControllerCampfireObjects {
@@ -44,6 +43,7 @@ object ControllerCampfireObjects {
             link.isLinkToFandom() -> loadFandom(link)
             link.isLinkToStickersPack() -> loadStickersPack(link)
             link.isLinkToComment() -> loadComment(link)
+            link.isLinkToQuest() -> loadQuest(link)
             else -> onError(link)
         }
     }
@@ -99,6 +99,15 @@ object ControllerCampfireObjects {
                 .onComplete { onComplete(link, it.stickersPack.name, t(API_TRANSLATE.app_stickers), it.stickersPack.imageId) }
                 .onError { onError(link) }
                 .send(api)
+    }
+
+    private fun loadQuest(link: LinkParsed) {
+        val publicationId = link.getLongParamOrZero(0)
+
+        RQuestsGet(publicationId)
+            .onComplete { onComplete(link, it.questDetails.title, t(API_TRANSLATE.quest), it.questDetails.creator.imageId) }
+            .onError { onError(link) }
+            .send(api)
     }
 
     private fun loadComment(link: LinkParsed) {

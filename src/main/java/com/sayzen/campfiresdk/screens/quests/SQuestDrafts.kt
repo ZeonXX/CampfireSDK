@@ -19,6 +19,7 @@ import com.sayzen.campfiresdk.support.ApiRequestsSupporter
 import com.sup.dev.android.libs.screens.navigator.Navigator
 import com.sup.dev.android.views.screens.SLoadingRecycler
 import com.sup.dev.android.views.splash.SplashField
+import com.sup.dev.android.views.splash.SplashMenu
 import com.sup.dev.java.libs.eventBus.EventBus
 import kotlin.reflect.KClass
 
@@ -74,10 +75,24 @@ class SQuestDrafts : SLoadingRecycler<CardQuestDetails, QuestDetails>() {
     override fun classOfCard(): KClass<CardQuestDetails> = CardQuestDetails::class
 
     override fun map(item: QuestDetails): CardQuestDetails {
-        return CardQuestDetails(item, onClick = {
-            ApiRequestsSupporter.executeProgressDialog(RQuestsGetParts(item.id)) { resp ->
-                Navigator.to(SQuestEditor(item, resp.parts))
-            }
-        })
+        return CardQuestDetails(
+            item,
+            onClick = {
+                ApiRequestsSupporter.executeProgressDialog(RQuestsGetParts(item.id)) { resp ->
+                    Navigator.to(SQuestEditor(item, resp.parts))
+                }
+            },
+            onLongClick = { v, x, y ->
+                SplashMenu()
+                    .add(t(API_TRANSLATE.app_remove)) {
+                        ControllerApi.removePublication(
+                            item.id,
+                            t(API_TRANSLATE.quests_remove_q),
+                            t(API_TRANSLATE.error_gone)
+                        )
+                    }
+                    .asPopupShow(v, x, y)
+            },
+        )
     }
 }

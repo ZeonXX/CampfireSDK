@@ -24,7 +24,6 @@ class SplashQuestEffect(
             API.LINK_BOX_WITH_SUMMER,
             API.LINK_BOX_WITH_AUTUMN,
             API.LINK_BOX_WITH_WINTER,
-            API.LINK_BOX_WITH_CRASH,
             API.LINK_BOX_WITH_BOMB,
             API.LINK_BOX_WITH_SNOW,
             API.LINK_BOX_WITH_BOX,

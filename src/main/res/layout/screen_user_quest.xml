@@ -20,6 +20,10 @@
                 android:layout_gravity="center|end">
 
                 <com.sup.dev.android.views.views.ViewIcon
+                    android:id="@+id/vDebugButton"
+                    style="@style/Icon.Toolbar.Filtered" />
+
+                <com.sup.dev.android.views.views.ViewIcon
                     android:id="@+id/vSaveState"
                     style="@style/Icon.Toolbar.Filtered"
                     android:src="@drawable/baseline_save_24" />

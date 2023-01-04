@@ -5,13 +5,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.dzen.campfire.api.API
 import com.dzen.campfire.api.API_TRANSLATE
 import com.dzen.campfire.api.models.quests.QuestDetails
+import com.dzen.campfire.api.requests.quests.RQuestsGet
 import com.dzen.campfire.api.requests.quests.RQuestsSaveState
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.sayzen.campfiresdk.R
-import com.sayzen.campfiresdk.controllers.ControllerApi
-import com.sayzen.campfiresdk.controllers.ControllerPost
-import com.sayzen.campfiresdk.controllers.ControllerPublications
-import com.sayzen.campfiresdk.controllers.t
+import com.sayzen.campfiresdk.controllers.*
 import com.sayzen.campfiresdk.models.cards.CardQuestDetails
 import com.sayzen.campfiresdk.models.cards.quests.CardQuestInfo
 import com.sayzen.campfiresdk.models.cards.quests.CardQuestStart
@@ -19,7 +17,9 @@ import com.sayzen.campfiresdk.support.ApiRequestsSupporter
 import com.sayzen.campfiresdk.support.adapters.AdapterComments
 import com.sayzen.campfiresdk.support.adapters.XPublication
 import com.sup.dev.android.libs.screens.Screen
+import com.sup.dev.android.libs.screens.navigator.NavigationAction
 import com.sup.dev.android.libs.screens.navigator.Navigator
+import com.sup.dev.android.tools.ToolsAndroid
 import com.sup.dev.android.tools.ToolsToast
 import com.sup.dev.android.tools.ToolsView
 import com.sup.dev.android.views.splash.SplashAlert
@@ -31,6 +31,14 @@ class SQuest(
     val details: QuestDetails,
     commentId: Long,
 ) : Screen(R.layout.screen_quest_view) {
+    companion object {
+        fun instance(id: Long, action: NavigationAction) {
+            ApiRequestsSupporter.executeInterstitial(action, RQuestsGet(id)) { r ->
+                SQuest(r.questDetails, 0)
+            }
+        }
+    }
+
     private val vRecycler: RecyclerView = findViewById(R.id.vRecycler)
     private val vFab: FloatingActionButton = findViewById(R.id.vFab)
     private val vShare: ViewIcon = findViewById(R.id.vShare)
@@ -81,8 +89,14 @@ class SQuest(
                     .condition(details.isPublic)
                 .add(t(API_TRANSLATE.app_report)) { ControllerPublications.report(details) }
                     .condition(!ControllerApi.isCurrentAccount(details.creator.id))
+                .add(t(API_TRANSLATE.app_copy_link)) {
+                    ToolsAndroid.setToClipboard(ControllerLinks.linkToQuest(details.id))
+                    ToolsToast.show(t(API_TRANSLATE.app_copied))
+                }
+                    .condition(details.isPublic)
 
-                .groupCondition(details.isPublic).spoiler(t(API_TRANSLATE.app_moderator))
+                .groupCondition(details.isPublic)
+                .spoiler(t(API_TRANSLATE.app_moderator))
                     .add(t(API_TRANSLATE.app_clear_reports)) { ControllerPublications.clearReports(details) }
                         .backgroundRes(R.color.blue_700)
                         .textColorRes(R.color.white)
@@ -107,8 +121,8 @@ class SQuest(
     private fun removeSelf() {
         ControllerApi.removePublication(
             details.id,
-            t(API_TRANSLATE.post_remove_confirm),
-            t(API_TRANSLATE.post_error_gone)
+            t(API_TRANSLATE.quests_remove_q),
+            t(API_TRANSLATE.error_gone)
         ) {
             Navigator.back()
         }

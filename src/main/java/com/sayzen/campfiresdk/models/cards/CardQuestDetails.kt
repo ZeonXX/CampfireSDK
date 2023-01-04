@@ -2,6 +2,7 @@ package com.sayzen.campfiresdk.models.cards
 
 import android.view.View
 import android.widget.LinearLayout
+import android.widget.TextView
 import com.dzen.campfire.api.API
 import com.dzen.campfire.api.API_TRANSLATE
 import com.dzen.campfire.api.models.quests.QuestDetails
@@ -9,11 +10,13 @@ import com.sayzen.campfiresdk.R
 import com.sayzen.campfiresdk.controllers.ControllerLinks
 import com.sayzen.campfiresdk.controllers.t
 import com.sayzen.campfiresdk.models.events.publications.EventPostStatusChange
-import com.sayzen.campfiresdk.models.events.publications.EventPublicationRemove
 import com.sayzen.campfiresdk.models.events.quests.EventQuestChanged
 import com.sayzen.campfiresdk.screens.quests.SQuest
+import com.sayzen.campfiresdk.screens.reports.SReports
 import com.sayzen.campfiresdk.support.adapters.XAccount
+import com.sayzen.campfiresdk.views.ViewKarmaHorizontal
 import com.sup.dev.android.libs.screens.navigator.Navigator
+import com.sup.dev.android.tools.ToolsView
 import com.sup.dev.android.views.views.ViewAvatarTitle
 import com.sup.dev.android.views.views.ViewButton
 import com.sup.dev.android.views.views.ViewText
@@ -22,6 +25,7 @@ import com.sup.dev.java.libs.eventBus.EventBus
 class CardQuestDetails constructor(
     var questDetails: QuestDetails,
     private val onClick: (() -> Unit)? = null,
+    private val onLongClick: ((View, Float, Float) -> Unit)? = null,
     private val onPublish: (() -> Unit)? = null,
 ) : CardPublication(R.layout.card_quest_details, questDetails) {
     private val eventBus = EventBus
@@ -29,11 +33,6 @@ class CardQuestDetails constructor(
             if (it.quest.id == questDetails.id) {
                 questDetails = it.quest
                 update()
-            }
-        }
-        .subscribe(EventPublicationRemove::class) {
-            if (it.publicationId == questDetails.id) {
-                adapter.remove(this)
             }
         }
         .subscribe(EventPostStatusChange::class) {
@@ -69,13 +68,37 @@ class CardQuestDetails constructor(
 
         if (onClick != null) vTouch.setOnClickListener { onClick.invoke() }
         else vTouch.setOnClickListener { Navigator.to(SQuest(questDetails, 0)) }
+
+        onLongClick?.let { ToolsView.setOnLongClickCoordinates(vTouch, it) }
+
+        if (onClick == null && onPublish == null) {
+            val vInfoContainer: LinearLayout = view.findViewById(R.id.vInfoContainer)
+            vInfoContainer.visibility = View.VISIBLE
+
+            updateKarma()
+            updateComments()
+            updateReports()
+        }
     }
 
     override fun updateAccount() {}
     override fun updateFandom() {}
-    override fun updateKarma() {}
-    override fun updateComments() {}
-    override fun updateReports() {}
+    override fun updateKarma() {
+        val view = getView() ?: return
+        val vKarma: ViewKarmaHorizontal = view.findViewById(R.id.vKarma)
+        xPublication.xKarma.setView(vKarma)
+    }
+    override fun updateComments() {
+        val view = getView() ?: return
+        val vComments: TextView = view.findViewById(R.id.vComments)
+        xPublication.xComments.setView(vComments)
+    }
+    override fun updateReports() {
+        val view = getView() ?: return
+        val vReports: TextView = view.findViewById(R.id.vReports)
+        vReports.setOnClickListener { Navigator.to(SReports(xPublication.publication.id)) }
+        xPublication.xReports.setView(vReports)
+    }
     override fun updateReactions() {}
     override fun notifyItem() {}
 }

@@ -1,5 +1,7 @@
 package com.sayzen.campfiresdk.screens.quests
 
+import android.os.Handler
+import android.os.Looper
 import android.text.InputType
 import android.view.Gravity
 import android.widget.Button
@@ -12,6 +14,7 @@ import com.dzen.campfire.api.models.quests.*
 import com.dzen.campfire.api.requests.quests.RQuestsSaveState
 import com.sayzen.campfiresdk.R
 import com.sayzen.campfiresdk.controllers.ControllerLinks
+import com.sayzen.campfiresdk.controllers.ControllerScreenAnimations
 import com.sayzen.campfiresdk.controllers.api
 import com.sayzen.campfiresdk.controllers.t
 import com.sup.dev.android.libs.image_loader.ImageLoader
@@ -19,9 +22,11 @@ import com.sup.dev.android.libs.screens.Screen
 import com.sup.dev.android.libs.screens.navigator.Navigator
 import com.sup.dev.android.tools.ToolsResources
 import com.sup.dev.android.tools.ToolsToast
+import com.sup.dev.android.tools.ToolsVibration
 import com.sup.dev.android.tools.ToolsView
 import com.sup.dev.android.views.settings.SettingsCheckBox
 import com.sup.dev.android.views.settings.SettingsField
+import com.sup.dev.android.views.splash.SplashAlert
 import com.sup.dev.android.views.views.ViewIcon
 import com.sup.dev.android.views.views.ViewText
 import com.sup.dev.android.views.views.layouts.LayoutCorned
@@ -177,6 +182,11 @@ class SQuestPlayer(
     private val vInputContainer: LinearLayout = findViewById(R.id.vInputContainer)
     private val vButtonContainer: LinearLayout = findViewById(R.id.vButtonContainer)
     private val vSaveState: ViewIcon = findViewById(R.id.vSaveState)
+    private val vDebugButton: ViewIcon = findViewById(R.id.vDebugButton)
+
+    private val vibrateHandler = Handler(Looper.getMainLooper())
+    private var vibrateRemaining = 0
+    private var vibrateRunnable: Runnable? = null
 
     init {
         disableNavigation()
@@ -272,6 +282,23 @@ class SQuestPlayer(
             vButtonContainer.addView(button)
         }
 
+        part.effects.forEach { effect ->
+            when (effect) {
+                is QuestEffectVibrate -> {
+                    vibrateRemaining = effect.times.takeIf { it != 0 } ?: Int.MAX_VALUE
+                    vibrateRunnable = getVibrationRunnable(effect)
+                    vibrateHandler.postDelayed(vibrateRunnable!!, effect.delayStart.toLong())
+                }
+                is QuestEffectBox -> {
+                    ControllerLinks.parseLink(effect.box.asLink())
+                }
+                is QuestEffectBoxReset -> {
+                    ControllerScreenAnimations.clearAnimation()
+                }
+            }
+        }
+
+        if (state.dev) vSaveState.visibility = GONE
         updateSaveButtonIcon()
         vSaveState.setOnClickListener {
             val splash = ToolsView.showProgressDialog()
@@ -279,11 +306,41 @@ class SQuestPlayer(
                 splash.hide()
             }
         }
+
+        if (state.dev) vDebugButton.setImageResource(R.drawable.baseline_bug_report_24)
+        vDebugButton.setOnClickListener {
+            Navigator.replace(SQuestDebug(details, state, parts, index))
+        }
+    }
+
+    private fun getVibrationRunnable(effect: QuestEffectVibrate) = Runnable {
+        ToolsVibration.vibrate(effect.length.toLong())
+        if (--vibrateRemaining > 0) {
+            vibrateHandler.postDelayed(vibrateRunnable!!, (effect.delayBetween + effect.length).toLong())
+        }
     }
 
     private fun endQuest() {
-        ToolsToast.show("TODO")
-        Navigator.back()
+        SplashAlert()
+            .setTitle(t(API_TRANSLATE.quests_end))
+            .setText(t(API_TRANSLATE.quests_end_d))
+            .setOnEnter(t(API_TRANSLATE.quests_play_again)) {
+                it.hide()
+                Navigator.to(SQuestPlayer(
+                    details,
+                    parts,
+                    index = 0,
+                    QuestState(dev = state.dev),
+                ))
+            }
+            .setOnCancel(t(API_TRANSLATE.app_back)) {
+                it.hide()
+                Navigator.back()
+            }
+            .setOnHide {
+                Navigator.back()
+            }
+            .asSheetShow()
     }
 
     private fun updateVariables(): Boolean {

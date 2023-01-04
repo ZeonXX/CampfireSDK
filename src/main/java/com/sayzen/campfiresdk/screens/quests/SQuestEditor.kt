@@ -209,10 +209,6 @@ class SQuestEditor(
 
     private fun startQuest() {
         if (!checkQuest()) return
-        if (questDetails.description.isBlank()) {
-            ToolsToast.show(t(API_TRANSLATE.quests_edit_error_12))
-            return
-        }
 
         val parts = adapter.get(CardQuestPart::class).map { it.part }
         Navigator.to(SQuestPlayer(questDetails, parts, 0, SQuestPlayer.QuestState(dev = true)))
@@ -260,6 +256,10 @@ class SQuestEditor(
 
     private fun publishQuest() {
         if (!checkQuest()) return
+        if (questDetails.description.isBlank()) {
+            ToolsToast.show(t(API_TRANSLATE.quests_edit_error_12))
+            return
+        }
 
         SplashAlert()
             .setText(t(API_TRANSLATE.quests_publish_q))
@@ -268,6 +268,7 @@ class SQuestEditor(
                 ApiRequestsSupporter.executeProgressDialog(
                     RQuestsPublish(questDetails.id)
                 ) { _ ->
+                    questDetails.status = API.STATUS_PUBLIC
                     EventBus.post(EventPostStatusChange(questDetails.id, API.STATUS_PUBLIC))
                     Navigator.replace(SQuest(questDetails, 0))
                 }.onApiError {

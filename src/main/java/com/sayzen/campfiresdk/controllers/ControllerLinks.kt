@@ -28,6 +28,7 @@ import com.sayzen.campfiresdk.screens.other.rules.SRulesModerators
 import com.sayzen.campfiresdk.screens.other.rules.SRulesUser
 import com.sayzen.campfiresdk.screens.post.search.SPostsSearch
 import com.sayzen.campfiresdk.screens.post.view.SPost
+import com.sayzen.campfiresdk.screens.quests.SQuest
 import com.sayzen.campfiresdk.screens.translates.STranslates
 import com.sayzen.campfiresdk.screens.wiki.SWikiArticleView
 import com.sayzen.campfiresdk.screens.wiki.SWikiList
@@ -132,6 +133,7 @@ object ControllerLinks {
                 API.LINK_FANDOM_CHAT.link -> SChat.instance(ChatTag(API.CHAT_TYPE_FANDOM_SUB, params[0].toLong(), 0), 0, false, Navigator.TO)
                 API.LINK_ACTIVITY.link -> SRelayRaceInfo.instance(params[0].toLong(), Navigator.TO)
                 API.LINK_RUBRIC.link -> SRubricPosts.instance(params[0].toLong(), Navigator.TO)
+                API.LINK_QUEST.link -> SQuest.instance(params[0].toLong(), Navigator.TO)
                 else -> {
                     if (link.startsWith("@") && ToolsText.isOnly(t, API.ACCOUNT_LOGIN_CHARS)) {
                         SProfile.instance(t, Navigator.TO)
