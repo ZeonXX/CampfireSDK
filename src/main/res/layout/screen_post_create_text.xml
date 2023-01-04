@@ -84,6 +84,32 @@
 
         </LinearLayout>
 
+        <LinearLayout
+            android:id="@+id/vQuestOptionsContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center|start"
+            android:orientation="horizontal"
+            android:visibility="gone"
+            android:layout_marginStart="8dp">
+
+            <com.sup.dev.android.views.views.ViewIcon
+                android:id="@+id/vInsertVariable"
+                style="@style/Icon.18.Filtered"
+                android:src="@drawable/outline_rtt_24" />
+
+            <com.sup.dev.android.views.views.ViewIcon
+                android:id="@+id/vSaveText"
+                style="@style/Icon.18.Filtered"
+                android:src="@drawable/outline_save_24" />
+
+            <com.sup.dev.android.views.views.ViewIcon
+                android:id="@+id/vLoadText"
+                style="@style/Icon.18.Filtered"
+                android:src="@drawable/outline_folder_open_24" />
+
+        </LinearLayout>
+
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             style="@style/Fab.Mini"
             android:layout_marginLeft="8dp"

@@ -1,18 +1,21 @@
 package com.sayzen.campfiresdk.screens.quests
 
+import android.view.View
 import com.dzen.campfire.api.API
 import com.dzen.campfire.api.API_TRANSLATE
 import com.dzen.campfire.api.models.quests.*
-import com.dzen.campfire.api.requests.quests.RQuestsAddPart
-import com.dzen.campfire.api.requests.quests.RQuestsModify
+import com.dzen.campfire.api.requests.quests.*
 import com.sayzen.campfiresdk.R
 import com.sayzen.campfiresdk.controllers.t
 import com.sayzen.campfiresdk.models.cards.CardQuestDetails
+import com.sayzen.campfiresdk.models.events.publications.EventPostStatusChange
 import com.sayzen.campfiresdk.models.events.quests.EventQuestChanged
 import com.sayzen.campfiresdk.models.events.quests.EventQuestPartChangedOrAdded
+import com.sayzen.campfiresdk.screens.post.create.creators.CardMove
 import com.sayzen.campfiresdk.screens.quests.edit.*
 import com.sayzen.campfiresdk.support.ApiRequestsSupporter
 import com.sup.dev.android.libs.screens.navigator.Navigator
+import com.sup.dev.android.tools.ToolsResources
 import com.sup.dev.android.tools.ToolsToast
 import com.sup.dev.android.tools.ToolsView
 import com.sup.dev.android.views.cards.CardTitle
@@ -23,7 +26,6 @@ import com.sup.dev.android.views.splash.SplashMenu
 import com.sup.dev.android.views.support.adapters.recycler_view.RecyclerCardAdapter
 import com.sup.dev.java.libs.eventBus.EventBus
 import com.sup.dev.java.libs.json.Json
-import com.sup.dev.java.tools.ToolsThreads
 
 class SQuestEditor(
     private var questDetails: QuestDetails,
@@ -44,11 +46,16 @@ class SQuestEditor(
         }
         .subscribe(EventQuestPartChangedOrAdded::class) { ev ->
             ev.parts.forEach { part ->
-                adapter.find<CardQuestPart> { (it as? CardQuestPart)?.part?.id == part.id }?.let {
-                    it.part = part
-                    it.update()
-                    it
-                } ?: adapter.add(CardQuestPart.instance(part, container))
+                adapter
+                    .find<CardQuestPart> { (it as? CardQuestPart)?.part?.id == part.id }
+                    ?.let {
+                        it.part = part
+                        it.update()
+                        it
+                    }
+                    ?: adapter.add(CardQuestPart.instance(part, container) { v, x, y ->
+                        openQuestPartMenu(part, v, x, y)
+                    })
             }
         }
 
@@ -69,7 +76,9 @@ class SQuestEditor(
         vRecycler.adapter = adapter
 
         parts.forEach {
-            adapter.add(CardQuestPart.instance(it, container))
+            adapter.add(CardQuestPart.instance(it, container) { v, x, y ->
+                openQuestPartMenu(it, v, x, y)
+            })
         }
 
         addToolbarIcon(R.drawable.ic_play_arrow_white_24dp) {
@@ -77,7 +86,85 @@ class SQuestEditor(
         }
     }
 
-    fun startQuest() {
+    private fun openQuestPartMenu(part: QuestPart, view: View, x: Float, y: Float) {
+        val card = adapter.find<CardQuestPart> {
+            (it as? CardQuestPart)?.part?.id == part.id
+        }
+        SplashMenu()
+            .add(t(API_TRANSLATE.app_remove)) {
+                ApiRequestsSupporter.executeProgressDialog(RQuestsRemovePart(questDetails.id, part.id)) { resp ->
+                    if (card != null) adapter.remove(card)
+                }
+            }
+            .add(t(API_TRANSLATE.app_move)) {
+                if (card != null) startMove(card)
+            }
+            .asPopupShow(view, x, y)
+    }
+
+    private fun startMove(movingCard: CardQuestPart) {
+        vFab.setImageResource(R.drawable.ic_clear_white_24dp)
+        ToolsView.setFabColorR(vFab, R.color.red_700)
+        vFab.setOnClickListener { stopMove() }
+
+        val startPosition = adapter.indexOf(movingCard)
+        for (i in adapter.size() downTo 3) {
+            if (i == startPosition || i == startPosition + 1) continue
+            val beforeCard = adapter.getOrNull(i) as? CardQuestPart?
+            adapter.add(i, CardMove {
+                movePage(movingCard, beforeCard)
+                stopMove()
+            })
+        }
+        for (card in adapter.get(CardQuestPart::class)) {
+            card.editMode = false
+        }
+    }
+
+    private fun stopMove() {
+        vFab.setImageResource(R.drawable.ic_add_white_24dp)
+        ToolsView.setFabColor(vFab, ToolsResources.getColorAttr(R.attr.colorSecondary))
+        vFab.setOnClickListener { openNewQuestPart() }
+
+        for (card in adapter.get(CardMove::class)) {
+            adapter.remove(card)
+        }
+        for (card in adapter.get(CardQuestPart::class)) {
+            card.editMode = true
+        }
+    }
+
+    private fun movePage(argMovingCard: CardQuestPart, argBeforeCard: CardQuestPart?, cb: () -> Unit = {}) {
+        val impl = { movingCard: CardQuestPart, beforeCard: CardQuestPart, cb: () -> Unit ->
+            ApiRequestsSupporter.executeProgressDialog(RQuestsReorderPart(
+                questId = questDetails.id,
+                partId = movingCard.part.id,
+                partIdBefore = beforeCard.part.id,
+            )) { _ ->
+                adapter.remove(movingCard)
+                val targetIdx = adapter.indexOf(beforeCard)
+                adapter.add(targetIdx, movingCard)
+                cb()
+            }
+        }
+
+        if (argBeforeCard == null) {
+            val lastCard = adapter[adapter.size() - 2] as CardQuestPart
+            impl(argMovingCard, lastCard) {
+                impl(lastCard, argMovingCard) {
+                    stopMove()
+                    cb()
+                }
+            }
+        } else {
+            impl(argMovingCard, argBeforeCard) {
+                stopMove()
+                cb()
+            }
+        }
+    }
+
+    private fun checkQuest(): Boolean {
         val d = ToolsView.showProgressDialog(t(API_TRANSLATE.quests_edit_checking))
 
         val errors = mutableListOf<QuestException>()
@@ -85,7 +172,8 @@ class SQuestEditor(
         val parts = adapter.get(CardQuestPart::class).map { it.part }
         if (parts.isEmpty()) {
             d.hide()
-            return
+            ToolsToast.show(t(API_TRANSLATE.quests_edit_error_10))
+            return false
         }
         parts.forEach {
             it.checkValid(questDetails, parts, errors)
@@ -112,20 +200,32 @@ class SQuestEditor(
             alert.setOnEnter(t(API_TRANSLATE.app_ok))
             alert.asSheetShow()
 
+            return false
+        }
+
+        d.hide()
+        return true
+    }
+
+    private fun startQuest() {
+        if (!checkQuest()) return
+        if (questDetails.description.isBlank()) {
+            ToolsToast.show(t(API_TRANSLATE.quests_edit_error_12))
             return
         }
 
+        val parts = adapter.get(CardQuestPart::class).map { it.part }
         Navigator.to(SQuestPlayer(questDetails, parts, 0, SQuestPlayer.QuestState(dev = true)))
-
-        d.hide()
     }
 
     private fun onDetailsUpdated() {
         setTitle(questDetails.title)
 
-        val cardDetails = CardQuestDetails(questDetails) {
-            openDetailsEditor()
-        }
+        val cardDetails = CardQuestDetails(
+            questDetails,
+            onClick = { openDetailsEditor() },
+            onPublish = { publishQuest() },
+        )
         if (!adapter.isEmpty) adapter.replace(0, cardDetails)
         else adapter.add(cardDetails)
     }
@@ -154,6 +254,31 @@ class SQuestEditor(
                     it.title = title
                     it.description = description
                 }
+            }
+            .asSheetShow()
+    }
+
+    private fun publishQuest() {
+        if (!checkQuest()) return
+
+        SplashAlert()
+            .setText(t(API_TRANSLATE.quests_publish_q))
+            .setOnEnter(t(API_TRANSLATE.quests_publish_q_absolutely)) {
+                it.hide()
+                ApiRequestsSupporter.executeProgressDialog(
+                    RQuestsPublish(questDetails.id)
+                ) { _ ->
+                    EventBus.post(EventPostStatusChange(questDetails.id, API.STATUS_PUBLIC))
+                    Navigator.replace(SQuest(questDetails, 0))
+                }.onApiError {
+                    SplashAlert()
+                        .setText(t(API_TRANSLATE.quests_edit_error_11))
+                        .setOnEnter(t(API_TRANSLATE.app_ok))
+                        .asSheetShow()
+                }
+            }
+            .setOnCancel(t(API_TRANSLATE.quests_publish_q_not_yet)) {
+                it.hide()
             }
             .asSheetShow()
     }

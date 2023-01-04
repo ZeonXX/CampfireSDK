@@ -1,10 +1,8 @@
 package com.sayzen.campfiresdk.screens.quests.edit
 
 import android.view.View
-import com.dzen.campfire.api.API
 import com.dzen.campfire.api.API_TRANSLATE
 import com.dzen.campfire.api.models.quests.*
-import com.dzen.campfire.api.models.translate.Translate
 import com.dzen.campfire.api.requests.quests.RQuestsAddPart
 import com.dzen.campfire.api.requests.quests.RQuestsChangePart
 import com.sayzen.campfiresdk.controllers.t
@@ -12,23 +10,37 @@ import com.sayzen.campfiresdk.models.events.quests.EventQuestPartChangedOrAdded
 import com.sayzen.campfiresdk.support.ApiRequestsSupporter
 import com.sup.dev.android.libs.screens.navigator.Navigator
 import com.sup.dev.android.tools.ToolsToast
+import com.sup.dev.android.tools.ToolsView
 import com.sup.dev.android.views.cards.Card
 import com.sup.dev.java.libs.eventBus.EventBus
 
-abstract class CardQuestPart(layout: Int, var part: QuestPart, val container: QuestPartContainer) : Card(layout) {
+abstract class CardQuestPart(
+    layout: Int,
+    var part: QuestPart,
+    val container: QuestPartContainer,
+    val onLongTap: (View, Float, Float) -> Unit,
+) : Card(layout) {
     companion object {
-        fun instance(questPart: QuestPart, container: QuestPartContainer): CardQuestPart {
+        fun instance(
+            questPart: QuestPart,
+            container: QuestPartContainer,
+            onLongTap: (View, Float, Float) -> Unit = { _, _, _ -> },
+        ): CardQuestPart {
             return when (questPart) {
-                is QuestPartText -> CardQuestPartText(questPart, container)
-                is QuestPartCondition -> CardQuestPartCondition(questPart, container)
-                else -> CardQuestPartUnknown(questPart, container)
+                is QuestPartText -> CardQuestPartText(questPart, container, onLongTap)
+                is QuestPartCondition -> CardQuestPartCondition(questPart, container, onLongTap)
+                is QuestPartAction -> CardQuestPartAction(questPart, container, onLongTap)
+                else -> CardQuestPartUnknown(questPart, container, onLongTap)
             }
         }
     }
 
+    var editMode = true
+
     override fun bindView(view: View) {
         super.bindView(view)
         view.setOnClickListener {
+            if (!editMode) return@setOnClickListener
             val submit = { part: QuestPart ->
                 ApiRequestsSupporter.executeProgressDialog(RQuestsChangePart(part.id, part)) { resp ->
                     EventBus.post(EventQuestPartChangedOrAdded(arrayOf(resp.part)))
@@ -50,13 +62,9 @@ abstract class CardQuestPart(layout: Int, var part: QuestPart, val container: Qu
                 else -> ToolsToast.show(t(API_TRANSLATE.app_error))
             }
         }
+        ToolsView.setOnLongClickCoordinates(view) { v, x, y ->
+            if (!editMode) return@setOnLongClickCoordinates
+            onLongTap(v, x, y)
+        }
     }
 }
-
-fun API_TRANSLATE.forQuestType(type: Long): Translate =
-    when (type) {
-        API.QUEST_TYPE_TEXT -> this.quests_variable_string
-        API.QUEST_TYPE_NUMBER -> this.quests_variable_number
-        API.QUEST_TYPE_BOOL -> this.quests_variable_bool
-        else -> this.quests_variable_unknown
-    }

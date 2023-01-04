@@ -7,9 +7,13 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.dzen.campfire.api.API
+import com.dzen.campfire.api.API_TRANSLATE
 import com.dzen.campfire.api.models.quests.*
+import com.dzen.campfire.api.requests.quests.RQuestsSaveState
 import com.sayzen.campfiresdk.R
 import com.sayzen.campfiresdk.controllers.ControllerLinks
+import com.sayzen.campfiresdk.controllers.api
+import com.sayzen.campfiresdk.controllers.t
 import com.sup.dev.android.libs.image_loader.ImageLoader
 import com.sup.dev.android.libs.screens.Screen
 import com.sup.dev.android.libs.screens.navigator.Navigator
@@ -18,11 +22,11 @@ import com.sup.dev.android.tools.ToolsToast
 import com.sup.dev.android.tools.ToolsView
 import com.sup.dev.android.views.settings.SettingsCheckBox
 import com.sup.dev.android.views.settings.SettingsField
+import com.sup.dev.android.views.views.ViewIcon
 import com.sup.dev.android.views.views.ViewText
 import com.sup.dev.android.views.views.layouts.LayoutCorned
+import com.sup.dev.java.libs.json.Json
 import com.sup.dev.java.tools.ToolsMath
-import com.sayzen.campfiresdk.controllers.t
-import com.dzen.campfire.api.API_TRANSLATE
 
 class SQuestPlayer(
     private val details: QuestDetails,
@@ -32,8 +36,11 @@ class SQuestPlayer(
 ) : Screen(R.layout.screen_user_quest) {
     data class QuestState(
         val variables: HashMap<Long, String> = hashMapOf(),
-        val dev: Boolean = false
+        val dev: Boolean = false,
+        var savedAge: Int = 0,
     ) {
+        // Behold, the Campfire64 architecture!
+
         // returns Long | String | Boolean
         private fun getVariableValue(details: QuestDetails, id: Long): Any {
             val v = details.variablesMap!![id]!!
@@ -121,6 +128,12 @@ class SQuestPlayer(
                         }
                     }
                 }
+                API.QUEST_ACTION_SUB_ANOTHER -> {
+                    variables[action.varId] = (
+                        variables[action.varId]!!.toLong() -
+                        variables[action.lArg1]!!.toLong()
+                    ).toString()
+                }
                 API.QUEST_ACTION_SET_ARANDOM -> {
                     variables[action.varId] = ToolsMath.randomLong(
                         variables[action.lArg1]!!.toLong(),
@@ -163,24 +176,40 @@ class SQuestPlayer(
     private val vText: ViewText = findViewById(R.id.vText)
     private val vInputContainer: LinearLayout = findViewById(R.id.vInputContainer)
     private val vButtonContainer: LinearLayout = findViewById(R.id.vButtonContainer)
+    private val vSaveState: ViewIcon = findViewById(R.id.vSaveState)
 
     init {
         disableNavigation()
+        disableShadows()
+
+        setTitle(details.title)
 
         if (part !is QuestPartText) {
             throw AssertionError()
         }
 
         if (part.imageId > 0) {
+            vImageWrapper.visibility = VISIBLE
             if (part.gifId > 0) {
                 ImageLoader.loadGif(part.imageId, part.gifId, vTitleImage)
             } else {
                 ImageLoader.load(part.imageId).into(vTitleImage)
             }
+        } else {
+            vImageWrapper.visibility = GONE
         }
 
         vTitle.text = part.title
-        vText.text = part.text
+        
+        var text = part.text
+        for (pair in state.variables) {
+            val id = pair.key
+            val value = pair.value
+            text = text.replace("{${details.variablesMap!![id]?.devName}}", value, ignoreCase = true)
+            text = text.replace("{$id}", value, ignoreCase = true)
+        }
+        
+        vText.text = text
         ControllerLinks.makeLinkable(vText)
 
         part.inputs.forEach {
@@ -214,28 +243,41 @@ class SQuestPlayer(
         }
 
         part.buttons.forEachIndexed { idx, it ->
-            val button = Button(context, null, R.style.Button_Text)
+            val button = Button(context, null, R.style.Button)
             button.gravity = Gravity.CENTER
             button.text = it.label
+            button.textSize = 18f
             button.setTextColor(when (it.color) {
                 // QUEST_BUTTON_COLOR_DEFAULT -> else
-                API.QUEST_BUTTON_COLOR_RED -> R.color.red_500
-                API.QUEST_BUTTON_COLOR_ORANGE -> R.color.orange_500
-                API.QUEST_BUTTON_COLOR_YELLOW -> R.color.yellow_500
-                API.QUEST_BUTTON_COLOR_GREEN -> R.color.green_500
-                API.QUEST_BUTTON_COLOR_AQUA -> R.color.blue_400
-                API.QUEST_BUTTON_COLOR_BLUE -> R.color.blue_700
-                API.QUEST_BUTTON_COLOR_PURPLE -> R.color.purple_500
-                API.QUEST_BUTTON_COLOR_PINK -> R.color.pink_400
-                API.QUEST_BUTTON_COLOR_WHITE -> R.color.white
+                API.QUEST_BUTTON_COLOR_RED -> ToolsResources.getColor(R.color.red_500)
+                API.QUEST_BUTTON_COLOR_ORANGE -> ToolsResources.getColor(R.color.orange_500)
+                API.QUEST_BUTTON_COLOR_YELLOW -> ToolsResources.getColor(R.color.yellow_500)
+                API.QUEST_BUTTON_COLOR_GREEN -> ToolsResources.getColor(R.color.green_500)
+                API.QUEST_BUTTON_COLOR_AQUA -> ToolsResources.getColor(R.color.blue_400)
+                API.QUEST_BUTTON_COLOR_BLUE -> ToolsResources.getColor(R.color.blue_700)
+                API.QUEST_BUTTON_COLOR_PURPLE -> ToolsResources.getColor(R.color.purple_500)
+                API.QUEST_BUTTON_COLOR_PINK -> ToolsResources.getColor(R.color.pink_400)
+                API.QUEST_BUTTON_COLOR_WHITE -> ToolsResources.getColor(R.color.white)
                 else -> ToolsResources.getColorAttr(context, R.attr.colorSecondary)
             })
+            val layoutParams = LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
+            layoutParams.setMargins(0, 0, 0, 24)
+            layoutParams.gravity = Gravity.CENTER
+            button.layoutParams = layoutParams
             button.setOnClickListener {
                 println("[Quests] button $idx pressed")
                 pressButton(idx)
             }
 
             vButtonContainer.addView(button)
+        }
+
+        updateSaveButtonIcon()
+        vSaveState.setOnClickListener {
+            val splash = ToolsView.showProgressDialog()
+            saveState {
+                splash.hide()
+            }
         }
     }
 
@@ -250,17 +292,20 @@ class SQuestPlayer(
             return false
         }
         part.inputs.forEachIndexed { idx, it ->
-            val view = vInputContainer.getChildAt(idx)
-            if (view is SettingsField) {
-                if (it.type == API.QUEST_TYPE_NUMBER) {
-                    view.getText().toLongOrNull() ?: return false
+            when (val view = vInputContainer.getChildAt(idx)) {
+                is SettingsField -> {
+                    if (it.type == API.QUEST_TYPE_NUMBER) {
+                        view.getText().toLongOrNull() ?: return false
+                    }
+                    state.variables[it.varId] = view.getText()
                 }
-                state.variables[it.varId] = view.getText()
-            } else if (view is SettingsCheckBox) {
-                state.variables[it.varId] = if (view.isChecked()) "1" else "0"
-            } else {
-                // halt and catch fire
-                return false
+                is SettingsCheckBox -> {
+                    state.variables[it.varId] = if (view.isChecked()) "1" else "0"
+                }
+                else -> {
+                    // halt and catch fire
+                    return false
+                }
             }
         }
         return true
@@ -280,6 +325,33 @@ class SQuestPlayer(
         jumpTo(button.jumpToId)
     }
 
+    private fun updateSaveButtonIcon() {
+        if (state.savedAge <= 0) vSaveState.setImageResource(R.drawable.ic_check_white_24dp)
+        else vSaveState.setImageResource(R.drawable.baseline_save_24)
+    }
+
+    private fun saveState(cb: (ok: Boolean) -> Unit = { _ -> }) {
+        RQuestsSaveState(
+            details.id,
+            Json().apply {
+                for (item in state.variables) {
+                    put(item.key.toString(), item.value)
+                }
+            },
+            index,
+        )
+            .onError {
+                ToolsToast.show(t(API_TRANSLATE.quests_error_save))
+                cb(false)
+            }
+            .onComplete {
+                cb(true)
+                state.savedAge = 0
+                updateSaveButtonIcon()
+            }
+            .send(api)
+    }
+
     private fun jumpTo(toId: Long, fromIndex: Int = this.index, depth: Int = 0) {
 		if (depth > API.QUEST_MAX_DEPTH) {
 			ToolsToast.show(t(API_TRANSLATE.quests_error_depth))
@@ -288,7 +360,7 @@ class SQuestPlayer(
 
 		println("[Quests] jumping to $toId (depth $depth)")
         if (toId == -2L) { // next part
-            if (parts.size - 1 == fromIndex + 1) {
+            if (parts.size <= fromIndex + 1) {
                 endQuest()
             } else {
                 jumpTo(parts[fromIndex + 1].id, fromIndex, depth + 1)
@@ -308,6 +380,7 @@ class SQuestPlayer(
 			}
         when (val part = parts[partIdx]) {
             is QuestPartText -> {
+                state.savedAge++
                 val player = SQuestPlayer(
                     details,
                     parts,

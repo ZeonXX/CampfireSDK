@@ -51,6 +51,7 @@ class SQuestPartActionCreate(
         vAction.add(t(API_TRANSLATE.quests_edit_action_set_another))
         vAction.add(t(API_TRANSLATE.quests_edit_action_add_literal))
         vAction.add(t(API_TRANSLATE.quests_edit_action_add_another))
+        vAction.add(t(API_TRANSLATE.quests_edit_action_sub_another))
         vAction.add(t(API_TRANSLATE.quests_edit_action_set_arandom))
         vAction.add(t(API_TRANSLATE.quests_edit_action_multiply))
         vAction.add(t(API_TRANSLATE.quests_edit_action_divide))
@@ -63,11 +64,12 @@ class SQuestPartActionCreate(
                 2 -> API.QUEST_ACTION_SET_ANOTHER
                 3 -> API.QUEST_ACTION_ADD_LITERAL
                 4 -> API.QUEST_ACTION_ADD_ANOTHER
-                5 -> API.QUEST_ACTION_SET_ARANDOM
-                6 -> API.QUEST_ACTION_MULTIPLY
-                7 -> API.QUEST_ACTION_DIVIDE
-                8 -> API.QUEST_ACTION_BIT_AND
-                9 -> API.QUEST_ACTION_BIT_OR
+                5 -> API.QUEST_ACTION_SUB_ANOTHER
+                6 -> API.QUEST_ACTION_SET_ARANDOM
+                7 -> API.QUEST_ACTION_MULTIPLY
+                8 -> API.QUEST_ACTION_DIVIDE
+                9 -> API.QUEST_ACTION_BIT_AND
+                10 -> API.QUEST_ACTION_BIT_OR
                 else -> throw IllegalStateException()
             }
             clear()
@@ -79,11 +81,12 @@ class SQuestPartActionCreate(
             API.QUEST_ACTION_SET_ANOTHER -> 2
             API.QUEST_ACTION_ADD_LITERAL -> 3
             API.QUEST_ACTION_ADD_ANOTHER -> 4
-            API.QUEST_ACTION_SET_ARANDOM -> 5
-            API.QUEST_ACTION_MULTIPLY -> 6
-            API.QUEST_ACTION_DIVIDE -> 7
-            API.QUEST_ACTION_BIT_AND -> 8
-            API.QUEST_ACTION_BIT_OR -> 9
+            API.QUEST_ACTION_SUB_ANOTHER -> 5
+            API.QUEST_ACTION_SET_ARANDOM -> 6
+            API.QUEST_ACTION_MULTIPLY -> 7
+            API.QUEST_ACTION_DIVIDE -> 8
+            API.QUEST_ACTION_BIT_AND -> 9
+            API.QUEST_ACTION_BIT_OR -> 10
             else -> throw IllegalStateException()
         })
 
@@ -101,8 +104,8 @@ class SQuestPartActionCreate(
         vSFieldBool.setChecked(part.sArg == "1")
         vLField1.setText(part.lArg1.toString())
         vLField2.setText(part.lArg2.toString())
-        vLField1.setInputType(InputType.TYPE_CLASS_NUMBER)
-        vLField2.setInputType(InputType.TYPE_CLASS_NUMBER)
+        vLField1.setInputType(InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_SIGNED)
+        vLField2.setInputType(InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_SIGNED)
         vAnotherVariable1.setDetails(details)
         vAnotherVariable1.showLiteral = false
         vAnotherVariable1.selected = details.variablesMap!![part.lArg1]
@@ -139,7 +142,7 @@ class SQuestPartActionCreate(
                 vSField.setHint(t(API_TRANSLATE.quests_edit_action_value))
                 when (vVariable.selected?.type) {
                     API.QUEST_TYPE_NUMBER -> {
-                        vSField.setInputType(InputType.TYPE_CLASS_NUMBER)
+                        vSField.setInputType(InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_SIGNED)
                         vSField.setText(
                             vSField.getText().toLongOrNull()?.toString() ?:
                             if (vSFieldBool.isChecked()) "1" else "0"
@@ -174,7 +177,7 @@ class SQuestPartActionCreate(
                 vSField.visibility = VISIBLE
                 when (vVariable.selected?.type) {
                     API.QUEST_TYPE_NUMBER -> {
-                        vSField.setInputType(InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL)
+                        vSField.setInputType(InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_SIGNED)
                         vSField.setText(
                             vSField.getText().toLongOrNull()?.toString() ?:
                             if (vSFieldBool.isChecked()) "1" else "0"
@@ -186,7 +189,7 @@ class SQuestPartActionCreate(
                     }
                 }
             }
-            API.QUEST_ACTION_ADD_ANOTHER -> {
+            API.QUEST_ACTION_ADD_ANOTHER, API.QUEST_ACTION_SUB_ANOTHER -> {
                 vAnotherVariable1.visibility = VISIBLE
                 vAnotherVariable1.setTitle(t(API_TRANSLATE.quests_edit_action_another_var))
             }
@@ -231,7 +234,7 @@ class SQuestPartActionCreate(
                     return
                 }
             }
-            API.QUEST_ACTION_SET_ANOTHER, API.QUEST_ACTION_ADD_ANOTHER -> {
+            API.QUEST_ACTION_SET_ANOTHER, API.QUEST_ACTION_ADD_ANOTHER, API.QUEST_ACTION_SUB_ANOTHER -> {
                 val var1 = details.variablesMap!![part.varId]
                 val var2 = details.variablesMap!![part.lArg1]
                 if (var1?.type == null || var1.type != var2?.type) {

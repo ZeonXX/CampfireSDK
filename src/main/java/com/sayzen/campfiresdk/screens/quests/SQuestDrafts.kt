@@ -6,12 +6,14 @@ import com.dzen.campfire.api.API_RESOURCES
 import com.dzen.campfire.api.API_TRANSLATE
 import com.dzen.campfire.api.models.quests.QuestDetails
 import com.dzen.campfire.api.requests.quests.RQuestsGetDrafts
+import com.dzen.campfire.api.requests.quests.RQuestsGetParts
 import com.dzen.campfire.api.requests.quests.RQuestsNew
 import com.sayzen.campfiresdk.R
 import com.sayzen.campfiresdk.controllers.ControllerApi
 import com.sayzen.campfiresdk.controllers.api
 import com.sayzen.campfiresdk.controllers.t
 import com.sayzen.campfiresdk.models.cards.CardQuestDetails
+import com.sayzen.campfiresdk.models.events.publications.EventPostStatusChange
 import com.sayzen.campfiresdk.models.events.quests.EventQuestChanged
 import com.sayzen.campfiresdk.support.ApiRequestsSupporter
 import com.sup.dev.android.libs.screens.navigator.Navigator
@@ -23,8 +25,17 @@ import kotlin.reflect.KClass
 class SQuestDrafts : SLoadingRecycler<CardQuestDetails, QuestDetails>() {
     private val eventBus = EventBus
         .subscribe(EventQuestChanged::class) { ev ->
-            if (! adapter.get(CardQuestDetails::class).any { it.questDetails.id == ev.quest.id })
-                adapter.reloadBottom()
+            adapter.reloadBottom()
+        }
+        .subscribe(EventPostStatusChange::class) { e ->
+            val card = adapter.find<CardQuestDetails> {
+                (it as? CardQuestDetails)?.questDetails?.id == e.publicationId
+            } ?: run {
+                if (e.status == API.STATUS_DRAFT) adapter.reloadBottom()
+                return@subscribe
+            }
+
+            if (e.status != API.STATUS_DRAFT) adapter.remove(card)
         }
 
     init {
@@ -46,6 +57,7 @@ class SQuestDrafts : SLoadingRecycler<CardQuestDetails, QuestDetails>() {
                 .setOnEnter(t(API_TRANSLATE.app_create)) { splash, title ->
                     ApiRequestsSupporter.executeEnabled(splash, RQuestsNew(title, ControllerApi.getLanguageId())) {
                         EventBus.post(EventQuestChanged(it.quest))
+                        Navigator.to(SQuestEditor(it.quest, emptyArray()))
                     }
                 }
                 .asSheetShow()
@@ -62,6 +74,10 @@ class SQuestDrafts : SLoadingRecycler<CardQuestDetails, QuestDetails>() {
     override fun classOfCard(): KClass<CardQuestDetails> = CardQuestDetails::class
 
     override fun map(item: QuestDetails): CardQuestDetails {
-        return CardQuestDetails(item)
+        return CardQuestDetails(item, onClick = {
+            ApiRequestsSupporter.executeProgressDialog(RQuestsGetParts(item.id)) { resp ->
+                Navigator.to(SQuestEditor(item, resp.parts))
+            }
+        })
     }
 }

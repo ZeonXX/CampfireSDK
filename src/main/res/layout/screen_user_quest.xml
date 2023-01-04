@@ -14,6 +14,18 @@
         <androidx.appcompat.widget.Toolbar
             style="@style/Toolbar">
 
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center|end">
+
+                <com.sup.dev.android.views.views.ViewIcon
+                    android:id="@+id/vSaveState"
+                    style="@style/Icon.Toolbar.Filtered"
+                    android:src="@drawable/baseline_save_24" />
+
+            </LinearLayout>
+
         </androidx.appcompat.widget.Toolbar>
 
     </com.google.android.material.appbar.AppBarLayout>

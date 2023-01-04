@@ -26,7 +26,6 @@ import com.sup.dev.android.views.views.ViewButton
 import com.sup.dev.android.views.views.ViewIcon
 import com.sup.dev.android.views.views.ViewText
 import com.sup.dev.java.libs.eventBus.EventBus
-import com.sup.dev.java.tools.ToolsThreads
 
 class SQuestPartTextCreate(
     private var details: QuestDetails,
@@ -100,7 +99,7 @@ class SQuestPartTextCreate(
         vPartContent.text = part.text.ifEmpty { t(API_TRANSLATE.app_empty) }
         ControllerLinks.makeLinkable(vPartContent)
         vEditContent.setOnClickListener {
-            Navigator.to(SQuestPartTextEditor(this.part.text) {
+            Navigator.to(SQuestPartTextEditor(this.part.text, details) {
                 this.part.text = it
                 vPartContent.text = part.text.ifEmpty { t(API_TRANSLATE.app_empty) }
                 ControllerLinks.makeLinkable(vPartContent)

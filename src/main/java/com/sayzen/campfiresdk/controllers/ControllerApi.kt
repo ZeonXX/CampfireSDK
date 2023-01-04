@@ -17,6 +17,8 @@ import com.dzen.campfire.api.requests.publications.RPublicationsOnShare
 import com.dzen.campfire.api.requests.publications.RPublicationsRemove
 import com.dzen.campfire.api.requests.publications.RPublicationsReport
 import com.dzen.campfire.api.tools.ApiException
+import com.dzen.campfire.api.tools.client.Request
+import com.dzen.campfire.api.tools.client.TokenProvider
 import com.dzen.campfire.api_media.APIMedia
 import com.dzen.campfire.api_media.requests.RResourcesGet
 import com.dzen.campfire.api_media.requests.RResourcesGetByTag
@@ -29,10 +31,12 @@ import com.sayzen.campfiresdk.models.events.publications.EventPublicationRemove
 import com.sayzen.campfiresdk.models.events.publications.EventPublicationReportsAdd
 import com.sayzen.campfiresdk.models.events.publications.EventPublicationReportsClear
 import com.sayzen.campfiresdk.screens.fandoms.moderation.view.SModerationView
-import com.sup.dev.java.libs.text_format.TextFormatter
+import com.sayzen.campfiresdk.support.ApiRequestsSupporter
+import com.sayzen.campfiresdk.support.adapters.XAccount
 import com.sayzen.devsupandroidgoogle.ControllerGoogleAuth
 import com.sup.dev.android.app.SupAndroid
-import com.sayzen.campfiresdk.support.ApiRequestsSupporter
+import com.sup.dev.android.libs.image_loader.ImageLink
+import com.sup.dev.android.libs.image_loader.ImageLoader
 import com.sup.dev.android.libs.image_loader.ImageLoaderId
 import com.sup.dev.android.libs.image_loader.ImageLoaderTag
 import com.sup.dev.android.libs.screens.navigator.NavigationAction
@@ -42,21 +46,16 @@ import com.sup.dev.android.views.screens.SAlert
 import com.sup.dev.android.views.splash.SplashAlert
 import com.sup.dev.android.views.splash.SplashField
 import com.sup.dev.android.views.splash.SplashMenu
+import com.sup.dev.java.classes.items.Item2
 import com.sup.dev.java.classes.items.Item3
 import com.sup.dev.java.classes.items.ItemNullable
-import com.dzen.campfire.api.tools.client.Request
-import com.dzen.campfire.api.tools.client.TokenProvider
-import com.sayzen.campfiresdk.support.adapters.XAccount
-import com.sup.dev.android.libs.image_loader.ImageLoader
-import com.sup.dev.android.libs.image_loader.ImageLink
-import com.sup.dev.java.classes.items.Item2
 import com.sup.dev.java.libs.debug.err
 import com.sup.dev.java.libs.eventBus.EventBus
 import com.sup.dev.java.libs.json.Json
 import com.sup.dev.java.libs.json.JsonArray
+import com.sup.dev.java.libs.text_format.TextFormatter
 import com.sup.dev.java.tools.ToolsMapper
 import com.sup.dev.java.tools.ToolsThreads
-import java.lang.Exception
 
 val api: API = API(
         ControllerCampfireSDK.projectKey,
@@ -474,12 +473,17 @@ object ControllerApi {
     //  Share
     //
 
-    fun sharePost(publicationId: Long) {
+    fun sharePost(publicationId: Long, publicationType: Long = API.PUBLICATION_TYPE_POST) {
         SplashField()
                 .setHint(t(API_TRANSLATE.app_message))
                 .setOnCancel(t(API_TRANSLATE.app_cancel))
                 .setOnEnter(t(API_TRANSLATE.app_share)) { _, text ->
-                    ToolsIntent.shareText(text + "\n\r" + ControllerLinks.linkToPost(publicationId))
+                    val link = when (publicationType) {
+                        API.PUBLICATION_TYPE_POST -> ControllerLinks.linkToPost(publicationId)
+                        API.PUBLICATION_TYPE_QUEST -> ControllerLinks.linkToQuest(publicationId)
+                        else -> ControllerLinks.linkToPost(publicationId)
+                    }
+                    ToolsIntent.shareText(text + "\n\r" + link)
                     ToolsThreads.main(10000) { RPublicationsOnShare(publicationId).send(api) }
                 }
                 .asSheetShow()
@@ -529,6 +533,7 @@ object ControllerApi {
             API.PUBLICATION_TYPE_POST -> clearReportsPublication(publicationId, t(API_TRANSLATE.post_clear_reports_confirm), t(API_TRANSLATE.post_error_gone))
             API.PUBLICATION_TYPE_COMMENT -> clearReportsPublication(publicationId, t(API_TRANSLATE.comment_clear_reports_confirm), t(API_TRANSLATE.comment_error_gone))
             API.PUBLICATION_TYPE_STICKERS_PACK -> clearReportsPublication(publicationId, t(API_TRANSLATE.stickers_packs_clear_reports_confirm), t(API_TRANSLATE.stickers_packs_error_gone))
+            API.PUBLICATION_TYPE_QUEST -> clearReportsPublication(publicationId, t(API_TRANSLATE.quests_mod_clear_reports_q), t(API_TRANSLATE.error_gone))
         }
     }
 

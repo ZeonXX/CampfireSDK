@@ -3,20 +3,28 @@ package com.sayzen.campfiresdk.screens.quests.edit
 import android.view.View
 import com.dzen.campfire.api.API
 import com.dzen.campfire.api.API_TRANSLATE
-import com.dzen.campfire.api.models.quests.*
+import com.dzen.campfire.api.models.quests.QuestConditionValue
+import com.dzen.campfire.api.models.quests.QuestDetails
+import com.dzen.campfire.api.models.quests.QuestPartCondition
+import com.dzen.campfire.api.models.quests.QuestPartContainer
 import com.sayzen.campfiresdk.R
 import com.sayzen.campfiresdk.controllers.t
+import com.sup.dev.android.views.views.ViewIcon
 import com.sup.dev.android.views.views.ViewText
 
 class CardQuestPartCondition(
     part: QuestPartCondition,
     container: QuestPartContainer,
-) : CardQuestPart(R.layout.card_quest_part_short_text, part, container) {
+    onLongTap: (View, Float, Float) -> Unit,
+) : CardQuestPart(R.layout.card_quest_part_short_text, part, container, onLongTap) {
     override fun bindView(view: View) {
         super.bindView(view)
 
+        val vIcon: ViewIcon = view.findViewById(R.id.vIcon)
         val vTitle: ViewText = view.findViewById(R.id.vTitle)
         val vDescription: ViewText = view.findViewById(R.id.vDescription)
+
+        vIcon.setImageResource(R.drawable.source_branch)
 
         vTitle.text = part.toSelectorString()
 

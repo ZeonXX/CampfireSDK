@@ -1,9 +1,9 @@
 package com.sayzen.campfiresdk.controllers.notifications.post
 
 import android.content.Intent
+import com.dzen.campfire.api.API
 import com.dzen.campfire.api.API_TRANSLATE
 import com.dzen.campfire.api.models.notifications.post.NotificationModerationToDraft
-import com.sayzen.campfiresdk.R
 import com.sayzen.campfiresdk.controllers.*
 import com.sayzen.campfiresdk.screens.fandoms.moderation.view.SModerationView
 import com.sup.dev.android.libs.screens.navigator.Navigator
@@ -23,15 +23,27 @@ public class NotificationModerationToDraftParser(override val n: NotificationMod
     }
 
     override fun getTitle(): String {
-        return tCap(API_TRANSLATE.notifications_moderation_to_drafts, n.moderatorName, ToolsResources.sex(n.moderatorSex, t(API_TRANSLATE.he_return), t(API_TRANSLATE.she_return)),
+        return if (n.publicationTyoe == API.PUBLICATION_TYPE_POST) {
+            tCap(
+                API_TRANSLATE.notifications_moderation_to_drafts,
+                n.moderatorName,
+                ToolsResources.sex(n.moderatorSex, t(API_TRANSLATE.he_return), t(API_TRANSLATE.she_return)),
                 ControllerPublications.getMaskForPost(n.maskText, n.maskPageType)
-        )
+            )
+        } else {
+            tCap(
+                API_TRANSLATE.notifications_moderation_to_drafts_quest,
+                n.moderatorName,
+                ToolsResources.sex(n.moderatorSex, t(API_TRANSLATE.he_return), t(API_TRANSLATE.she_return)),
+                ControllerPublications.getMaskForPost(n.maskText, n.maskPageType)
+            )
+        }
     }
 
     override fun canShow() = ControllerSettings.notificationsOther
 
     override fun doAction() {
-        SModerationView.instance(n.moderationId, Navigator.TO)
+        if (n.moderationId > 0) SModerationView.instance(n.moderationId, Navigator.TO)
     }
 
 

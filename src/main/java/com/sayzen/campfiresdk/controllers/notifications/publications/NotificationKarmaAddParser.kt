@@ -5,7 +5,6 @@ import com.dzen.campfire.api.API
 import com.dzen.campfire.api.API_RESOURCES
 import com.dzen.campfire.api.API_TRANSLATE
 import com.dzen.campfire.api.models.notifications.publications.NotificationKarmaAdd
-import com.sayzen.campfiresdk.R
 import com.sayzen.campfiresdk.controllers.*
 import com.sayzen.campfiresdk.screens.notifications.SNotifications
 import com.sup.dev.android.libs.screens.navigator.Navigator
@@ -53,6 +52,9 @@ public class NotificationKarmaAddParser(override val n: NotificationKarmaAdd) : 
         }
         if (n.publicationType == API.PUBLICATION_TYPE_STICKERS_PACK) {
             return tCap(API_TRANSLATE.notification_karma_stickers_pack, name, ToolsResources.sex(n.accountSex, t(API_TRANSLATE.he_rate), t(API_TRANSLATE.she_rate)), karmsS)
+        }
+        if (n.publicationType == API.PUBLICATION_TYPE_QUEST) {
+            return tCap(API_TRANSLATE.notification_karma_quest, name, ToolsResources.sex(n.accountSex, t(API_TRANSLATE.he_rate), t(API_TRANSLATE.she_rate)), karmsS)
         }
         return ""
 

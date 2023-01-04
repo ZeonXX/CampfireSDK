@@ -267,9 +267,12 @@ object ControllerLinks {
             API.PUBLICATION_TYPE_POST -> linkToPostComment(publicationId, commentId)
             API.PUBLICATION_TYPE_MODERATION -> linkToModerationComment(publicationId, commentId)
             API.PUBLICATION_TYPE_STICKERS_PACK -> linkToStickersComment(publicationId, commentId)
+            API.PUBLICATION_TYPE_QUEST -> linkToQuestComment(publicationId, commentId)
             else -> ""
         }
     }
+    fun linkToQuest(questId: Long) = API.LINK_QUEST.asWeb() + questId
+    fun linkToQuestComment(questId: Long, commentId: Long) = API.LINK_QUEST.asWeb() + questId + "_" + commentId
 
     fun makeLinkable(vText: ViewText, onReplace: () -> Unit = {}) {
 
