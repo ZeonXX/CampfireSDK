@@ -17,6 +17,7 @@ import com.dzen.campfire.api.models.publications.moderations.PublicationModerati
 import com.dzen.campfire.api.models.publications.post.PublicationPost
 import com.dzen.campfire.api.models.publications.stickers.PublicationSticker
 import com.dzen.campfire.api.models.publications.stickers.PublicationStickersPack
+import com.dzen.campfire.api.models.quests.QuestDetails
 import com.sayzen.campfiresdk.R
 import com.sayzen.campfiresdk.controllers.ControllerLinks
 import com.sayzen.campfiresdk.controllers.t
@@ -63,6 +64,7 @@ abstract class CardPublication(
                 is PublicationEventFandom -> CardPublicationEventFandom(publication)
                 is PublicationSticker -> CardSticker(publication, isShowFullInfo, isShowReports)
                 is PublicationStickersPack -> CardStickersPack(publication, isShowFullInfo, isShowReports)
+                is QuestDetails -> CardQuestDetails(publication)
                 else -> CardPublicationUnknown(publication)
             }
 

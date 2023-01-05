@@ -28,14 +28,15 @@ import com.sayzen.campfiresdk.screens.other.rules.SRulesModerators
 import com.sayzen.campfiresdk.screens.other.rules.SRulesUser
 import com.sayzen.campfiresdk.screens.post.search.SPostsSearch
 import com.sayzen.campfiresdk.screens.post.view.SPost
+import com.sayzen.campfiresdk.screens.quests.SQuest
 import com.sayzen.campfiresdk.screens.translates.STranslates
 import com.sayzen.campfiresdk.screens.wiki.SWikiArticleView
 import com.sayzen.campfiresdk.screens.wiki.SWikiList
 import com.sup.dev.android.libs.screens.navigator.Navigator
 import com.sup.dev.android.tools.ToolsIntent
 import com.sup.dev.android.tools.ToolsView
-import com.sup.dev.android.views.views.ViewText
 import com.sup.dev.android.views.splash.SplashAlert
+import com.sup.dev.android.views.views.ViewText
 import com.sup.dev.java.libs.debug.err
 import com.sup.dev.java.libs.debug.info
 import com.sup.dev.java.tools.ToolsMath
@@ -132,6 +133,7 @@ object ControllerLinks {
                 API.LINK_FANDOM_CHAT.link -> SChat.instance(ChatTag(API.CHAT_TYPE_FANDOM_SUB, params[0].toLong(), 0), 0, false, Navigator.TO)
                 API.LINK_ACTIVITY.link -> SRelayRaceInfo.instance(params[0].toLong(), Navigator.TO)
                 API.LINK_RUBRIC.link -> SRubricPosts.instance(params[0].toLong(), Navigator.TO)
+                API.LINK_QUEST.link -> SQuest.instance(params[0].toLong(), Navigator.TO)
                 else -> {
                     if (link.startsWith("@") && ToolsText.isOnly(t, API.ACCOUNT_LOGIN_CHARS)) {
                         SProfile.instance(t, Navigator.TO)
@@ -267,9 +269,12 @@ object ControllerLinks {
             API.PUBLICATION_TYPE_POST -> linkToPostComment(publicationId, commentId)
             API.PUBLICATION_TYPE_MODERATION -> linkToModerationComment(publicationId, commentId)
             API.PUBLICATION_TYPE_STICKERS_PACK -> linkToStickersComment(publicationId, commentId)
+            API.PUBLICATION_TYPE_QUEST -> linkToQuestComment(publicationId, commentId)
             else -> ""
         }
     }
+    fun linkToQuest(questId: Long) = API.LINK_QUEST.asWeb() + questId
+    fun linkToQuestComment(questId: Long, commentId: Long) = API.LINK_QUEST.asWeb() + questId + "_" + commentId
 
     fun makeLinkable(vText: ViewText, onReplace: () -> Unit = {}) {
 
@@ -300,10 +305,10 @@ object ControllerLinks {
 
         if (ControllerHoliday.isBirthday()) {
             ToolsView.addLink(vText, "День рождения") { ControllerScreenAnimations.parseHolidayClick() }
-            ToolsView.addLink(vText, "Денём рождения") { ControllerScreenAnimations.parseHolidayClick() }
+            ToolsView.addLink(vText, "Днём рождения") { ControllerScreenAnimations.parseHolidayClick() }
             ToolsView.addLink(vText, "Birthday") { ControllerScreenAnimations.parseHolidayClick() }
             ToolsView.addLink(vText, "день рождения") { ControllerScreenAnimations.parseHolidayClick() }
-            ToolsView.addLink(vText, "денём рождения") { ControllerScreenAnimations.parseHolidayClick() }
+            ToolsView.addLink(vText, "днём рождения") { ControllerScreenAnimations.parseHolidayClick() }
             ToolsView.addLink(vText, "birthday") { ControllerScreenAnimations.parseHolidayClick() }
         }
 

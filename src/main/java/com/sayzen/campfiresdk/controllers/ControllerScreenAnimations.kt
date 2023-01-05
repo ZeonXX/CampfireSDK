@@ -3,7 +3,6 @@ package com.sayzen.campfiresdk.controllers
 import android.annotation.SuppressLint
 import com.sayzen.campfiresdk.models.animations.DrawAnimationBox
 import com.sayzen.campfiresdk.models.animations.DrawAnimationConfetti
-import com.sayzen.campfiresdk.models.animations.DrawAnimationGoose
 import com.sup.dev.android.app.SupAndroid
 import com.sup.dev.android.tools.ToolsAndroid
 import com.sup.dev.android.tools.ToolsVibration
@@ -18,11 +17,11 @@ object ControllerScreenAnimations {
     private var key = 0L
     private var currentAnimation: DrawAnimation? = null
 
-    fun fireworks() {
+    fun fireworks(clear: Boolean = true) {
         if (!ControllerHoliday.isCanChangeAnimation(null)) return
         if (!ControllerEffects.isCanChangeAnimation(null)) return
 
-        clearAnimation()
+        if (clear) clearAnimation()
         val myKey = System.currentTimeMillis()
         key = myKey
 
@@ -67,8 +66,9 @@ object ControllerScreenAnimations {
         return false
     }
 
-    fun box(count: Int) {
-        addAnimationWithClear(DrawAnimationBox(count))
+    fun box(count: Int, clear: Boolean = true) {
+        if (clear) addAnimationWithClear(DrawAnimationBox(count))
+        else addAnimation(DrawAnimationBox(count))
     }
 
     fun clearAnimation() {

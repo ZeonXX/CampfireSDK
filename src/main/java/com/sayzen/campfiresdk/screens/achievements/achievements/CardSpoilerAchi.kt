@@ -2,11 +2,8 @@ package com.sayzen.campfiresdk.screens.achievements.achievements
 
 import androidx.annotation.StringRes
 import com.dzen.campfire.api.API
-import com.dzen.campfire.api.models.AchievementInfo
 import com.sayzen.campfiresdk.R
-
 import com.sayzen.campfiresdk.app.CampfireConstants
-import com.sayzen.campfiresdk.controllers.ControllerApi
 import com.sup.dev.android.tools.ToolsResources
 import com.sup.dev.android.views.cards.CardLoading
 import com.sup.dev.android.views.cards.CardSpoiler
@@ -65,6 +62,7 @@ class CardSpoilerAchi(
                 || card.achievement == API.ACHI_MODERATOR_ACTION_KARMA
                 || card.achievement == API.ACHI_STICKERS_KARMA
                 || card.achievement == API.ACHI_VICEROY_KARMA_COUNT
+                || card.achievement == API.ACHI_QUEST_KARMA
         ) card.setValueMultiplier(0.01)
         super.add(card)
         if (isExpanded() && card.achievement.index == scrollToIndex) {

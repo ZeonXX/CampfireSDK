@@ -6,13 +6,13 @@ import com.dzen.campfire.api.API_TRANSLATE
 import com.dzen.campfire.api.models.publications.events_admins.*
 import com.dzen.campfire.api.models.translate.TranslateHistory
 import com.sayzen.campfiresdk.R
-import com.sayzen.campfiresdk.support.adapters.XAccount
 import com.sayzen.campfiresdk.app.CampfireConstants
 import com.sayzen.campfiresdk.controllers.*
 import com.sayzen.campfiresdk.models.cards.CardPublication
 import com.sayzen.campfiresdk.screens.account.profile.SProfile
 import com.sayzen.campfiresdk.screens.fandoms.view.SFandom
 import com.sayzen.campfiresdk.screens.translates.STranslates
+import com.sayzen.campfiresdk.support.adapters.XAccount
 import com.sup.dev.android.libs.screens.navigator.Navigator
 import com.sup.dev.android.tools.ToolsResources
 import com.sup.dev.android.tools.ToolsView
@@ -215,6 +215,10 @@ class CardPublicationEventAdmin(
             }
             is ApiEventAdminTranslateRejected -> {
                 text = tCap(API_TRANSLATE.translates_event_rejected_in_admin, tSex(e.ownerAccountSex, API_TRANSLATE.he_reject, API_TRANSLATE.she_reject), ControllerLinks.linkToAccount(e.targetAccountName))
+                view.setOnClickListener { SProfile.instance(e.targetAccountId, Navigator.TO) }
+            }
+            is ApiEventAdminQuestToDrafts -> {
+                text = tCap(API_TRANSLATE.moderation_text_to_drafts_quest, tSex(e.ownerAccountSex, API_TRANSLATE.he_move, API_TRANSLATE.she_move), ControllerLinks.linkToAccount(e.targetAccountName))
                 view.setOnClickListener { SProfile.instance(e.targetAccountId, Navigator.TO) }
             }
         }

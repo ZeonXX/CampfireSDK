@@ -476,12 +476,17 @@ object ControllerApi {
     //  Share
     //
 
-    fun sharePost(publicationId: Long) {
+    fun sharePost(publicationId: Long, publicationType: Long = API.PUBLICATION_TYPE_POST) {
         SplashField()
                 .setHint(t(API_TRANSLATE.app_message))
                 .setOnCancel(t(API_TRANSLATE.app_cancel))
                 .setOnEnter(t(API_TRANSLATE.app_share)) { _, text ->
-                    ToolsIntent.shareText(text + "\n\r" + ControllerLinks.linkToPost(publicationId))
+                    val link = when (publicationType) {
+                        API.PUBLICATION_TYPE_POST -> ControllerLinks.linkToPost(publicationId)
+                        API.PUBLICATION_TYPE_QUEST -> ControllerLinks.linkToQuest(publicationId)
+                        else -> ControllerLinks.linkToPost(publicationId)
+                    }
+                    ToolsIntent.shareText(text + "\n\r" + link)
                     ToolsThreads.main(10000) { RPublicationsOnShare(publicationId).send(api) }
                 }
                 .asSheetShow()
@@ -531,6 +536,7 @@ object ControllerApi {
             API.PUBLICATION_TYPE_POST -> clearReportsPublication(publicationId, t(API_TRANSLATE.post_clear_reports_confirm), t(API_TRANSLATE.post_error_gone))
             API.PUBLICATION_TYPE_COMMENT -> clearReportsPublication(publicationId, t(API_TRANSLATE.comment_clear_reports_confirm), t(API_TRANSLATE.comment_error_gone))
             API.PUBLICATION_TYPE_STICKERS_PACK -> clearReportsPublication(publicationId, t(API_TRANSLATE.stickers_packs_clear_reports_confirm), t(API_TRANSLATE.stickers_packs_error_gone))
+            API.PUBLICATION_TYPE_QUEST -> clearReportsPublication(publicationId, t(API_TRANSLATE.quests_mod_clear_reports_q), t(API_TRANSLATE.error_gone))
         }
     }
 

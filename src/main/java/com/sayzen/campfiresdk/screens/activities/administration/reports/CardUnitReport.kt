@@ -3,8 +3,10 @@ package com.sayzen.campfiresdk.screens.activities.administration.reports
 import android.view.View
 import android.widget.Button
 import com.dzen.campfire.api.API_TRANSLATE
+import com.dzen.campfire.api.models.quests.QuestDetails
 import com.sayzen.campfiresdk.R
 import com.sayzen.campfiresdk.controllers.ControllerApi
+import com.sayzen.campfiresdk.controllers.ControllerPost
 import com.sayzen.campfiresdk.controllers.ControllerPublications
 import com.sayzen.campfiresdk.controllers.t
 import com.sayzen.campfiresdk.models.cards.CardPublication
@@ -27,13 +29,19 @@ class CardUnitReport(
         val vBlock: Button = view.findViewById(R.id.vBlock)
         val vClear: Button = view.findViewById(R.id.vClear)
 
-        vBlock.text = t(API_TRANSLATE.app_block)
+        if (cardPublication.xPublication.publication is QuestDetails) vBlock.text = t(API_TRANSLATE.app_to_drafts)
+        else vBlock.text = t(API_TRANSLATE.app_block)
+
         vClear.text = t(API_TRANSLATE.app_clear)
 
         vBlock.setOnClickListener {
-            ControllerPublications.block(cardPublication.xPublication.publication){
-                remove()
-                cardPublication.remove()
+            if (cardPublication.xPublication.publication is QuestDetails) {
+                ControllerPost.moderatorToDrafts(cardPublication.xPublication.publication.id)
+            } else {
+                ControllerPublications.block(cardPublication.xPublication.publication) {
+                    remove()
+                    cardPublication.remove()
+                }
             }
         }
 

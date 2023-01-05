@@ -107,8 +107,8 @@ object CampfireConstants {
             Achievement(API.ACHI_VICEROY_SUBSCRIBERS_COUNT,  API_TRANSLATE.achi_73, R.color.orange_500, false, API_RESOURCES.IMAGE_ICHI_21),
             Achievement(API.ACHI_VICEROY_LINK,  API_TRANSLATE.achi_74, R.color.indigo_800, false, API_RESOURCES.IMAGE_ICHI_21),
             Achievement(API.ACHI_VICEROY_IMAGES,  API_TRANSLATE.achi_75, R.color.cyan_700, false, API_RESOURCES.IMAGE_ICHI_21),
-            Achievement(API.ACHI_VICEROY_DESCRIPTION,  API_TRANSLATE.achi_76, R.color.red_500, false, API_RESOURCES.IMAGE_ICHI_21)
-
+            Achievement(API.ACHI_VICEROY_DESCRIPTION,  API_TRANSLATE.achi_76, R.color.red_500, false, API_RESOURCES.IMAGE_ICHI_21),
+            Achievement(API.ACHI_QUEST_KARMA, API_TRANSLATE.achi_77, R.color.teal_a_400, false, API_RESOURCES.IMAGE_ICHI_5_2),
     )
 
     val LVLS = arrayOf(
@@ -119,6 +119,7 @@ object CampfireConstants {
             AppLevel(API.LVL_CAN_CHANGE_AVATAR_GIF, API_TRANSLATE.lvl_avatar_gif),
             AppLevel(API.LVL_CAN_PIN_POST, API_TRANSLATE.lvl_pin_post),
             AppLevel(API.LVL_CREATE_STICKERS, API_TRANSLATE.lvl_create_stickers),
+            AppLevel(API.LVL_CREATE_QUESTS, API_TRANSLATE.lvl_create_quests),
             AppLevel(API_TRANSLATE.lvl_moderate_block, API.LVL_MODERATOR_BLOCK, R.color.blue_500),
             AppLevel(API_TRANSLATE.lvl_moderate_to_drafts, API.LVL_MODERATOR_TO_DRAFTS, R.color.blue_500),
             AppLevel(API_TRANSLATE.lvl_moderate_chats, API.LVL_MODERATOR_CHATS, R.color.blue_500),
@@ -142,6 +143,7 @@ object CampfireConstants {
             AppLevel(API_TRANSLATE.lvl_admin_fandom_rename, API.LVL_ADMIN_FANDOM_NAME, R.color.red_500),
             AppLevel(API_TRANSLATE.lvl_admin_fandom_image, API.LVL_ADMIN_FANDOM_AVATAR, R.color.red_500),
             AppLevel(API_TRANSLATE.lvl_admin_fandom_genres, API.LVL_ADMIN_FANDOM_PARAMS, R.color.red_500),
+            AppLevel(API_TRANSLATE.lvl_admin_quest_moderate, API.LVL_QUEST_MODERATOR, R.color.red_500),
             AppLevel(API_TRANSLATE.lvl_admin_fandom_category, API.LVL_ADMIN_FANDOM_CATEGORY, R.color.red_500),
             AppLevel(API_TRANSLATE.lvl_ads_ban, API.LVL_ADMIN_BAN, R.color.red_500),
             AppLevel(API_TRANSLATE.lvl_post_fandom_change, API.LVL_ADMIN_POST_CHANGE_FANDOM, R.color.red_500),

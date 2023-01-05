@@ -12,12 +12,13 @@ import com.sayzen.campfiresdk.controllers.ControllerCampfireObjects
 import com.sayzen.campfiresdk.controllers.ControllerLinks
 import com.sayzen.campfiresdk.controllers.t
 import com.sayzen.campfiresdk.screens.account.profile.SProfile
+import com.sayzen.campfiresdk.screens.account.stickers.SStickersView
 import com.sayzen.campfiresdk.screens.chat.SChat
 import com.sayzen.campfiresdk.screens.fandoms.view.SFandom
 import com.sayzen.campfiresdk.screens.post.view.SPost
-import com.sayzen.campfiresdk.screens.account.stickers.SStickersView
-import com.sup.dev.android.libs.screens.navigator.Navigator
+import com.sayzen.campfiresdk.screens.quests.SQuest
 import com.sup.dev.android.libs.image_loader.ImageLoader
+import com.sup.dev.android.libs.screens.navigator.Navigator
 import com.sup.dev.android.views.views.ViewAvatarTitle
 
 class CardPageCampfireObject(
@@ -63,6 +64,7 @@ class CardPageCampfireObject(
                 link.isLinkToChat() -> SChat.instance(ChatTag(API.CHAT_TYPE_FANDOM_ROOT, link.getLongParamOrZero(0), link.getLongParamOrZero(1)), 0, false, Navigator.TO)
                 link.isLinkToFandom() -> SFandom.instance(link.getLongParamOrZero(0), link.getLongParamOrZero(1), Navigator.TO)
                 link.isLinkToStickersPack() -> SStickersView.instance(link.getLongParamOrZero(0), Navigator.TO)
+                link.isLinkToQuest() -> SQuest.instance(link.getLongParamOrZero(0), Navigator.TO)
             }
         }
 
