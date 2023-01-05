@@ -50,14 +50,26 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical" />
 
-            <com.sup.dev.android.views.views.ViewButton
-                android:id="@+id/vBlackListView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right"
+            <LinearLayout
                 android:layout_marginTop="-8dp"
-                android:layout_marginRight="8dp"
-                style="@style/Button.Text" />
+                android:layout_marginEnd="8dp"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="end"
+            >
+                <com.sup.dev.android.views.views.ViewButton
+                    android:id="@+id/vPollResults"
+                    android:visibility="gone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/Button.Text" />
+                <com.sup.dev.android.views.views.ViewButton
+                    android:id="@+id/vBlackListView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/Button.Text" />
+            </LinearLayout>
 
         </LinearLayout>
 

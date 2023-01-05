@@ -81,6 +81,11 @@ class SGallery : Screen(R.layout.screen_other_gallery) {
                 || imageId == API_RESOURCES.AVATAR_4
                 || imageId == API_RESOURCES.AVATAR_5
                 || imageId == API_RESOURCES.AVATAR_6
+                || imageId == API_RESOURCES.IMAGE_BACKGROUND_LEVEL_16
+                || imageId == API_RESOURCES.IMAGE_BACKGROUND_LEVEL_17
+                || imageId == API_RESOURCES.IMAGE_BACKGROUND_LEVEL_18
+                || imageId == API_RESOURCES.IMAGE_BACKGROUND_LEVEL_19
+                || imageId == API_RESOURCES.IMAGE_BACKGROUND_LEVEL_20
         ) return "NikiTank"
 
         if (imageId == API_RESOURCES.DEVELOPER_ZEON) return "Zeon"

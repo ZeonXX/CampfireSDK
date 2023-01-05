@@ -12,5 +12,8 @@
     <string name="connection_error">Ошибка подключения</string>
     <string name="retry">Повторить</string>
     <string name="app_change_account">Изменить аккаунт</string>
+    <string name="app_email_verify">Найдите в своём почтовом ящике письмо для подтверждения почты и вернитесь в приложение, когда подтвердите свой адрес.</string>
+    <string name="app_continue">Продолжить</string>
+    <string name="app_error">Ошибка</string>
 
 </resources>

@@ -20,6 +20,8 @@ import com.dzen.campfire.api.requests.publications.RPublicationsReactionAdd
 import com.dzen.campfire.api.requests.publications.RPublicationsReactionRemove
 import com.sayzen.campfiresdk.R
 import com.sayzen.campfiresdk.controllers.*
+import com.sayzen.campfiresdk.models.events.account.EventAccountAddToBlackList
+import com.sayzen.campfiresdk.models.events.account.EventAccountRemoveFromBlackList
 import com.sayzen.campfiresdk.models.events.chat.*
 import com.sayzen.campfiresdk.models.events.notifications.EventNotification
 import com.sayzen.campfiresdk.models.events.publications.EventPublicationBlocked
@@ -96,6 +98,18 @@ open class CardChatMessage constructor(
             .subscribe(EventPublicationDeepBlockRestore::class) { onEventPublicationDeepBlockRestore(it) }
             .subscribe(EventVoiceMessageStateChanged::class) { update() }
             .subscribe(EventVoiceMessageStep::class) { if (it.id == publication.voiceResourceId) updatePlayTime() }
+            .subscribe(EventAccountRemoveFromBlackList::class) {
+                if (publication.creator.id == it.accountId) {
+                    publication.blacklisted = false
+                    update()
+                }
+            }
+            .subscribe(EventAccountAddToBlackList::class) {
+                if (publication.creator.id == it.accountId) {
+                    publication.blacklisted = true
+                    update()
+                }
+            }
 
     var changeEnabled = true
     var useMessageContainerBackground = true
@@ -120,6 +134,8 @@ open class CardChatMessage constructor(
     //
 
     override fun bindView(view: View) {
+        if (updateBlacklisted(view)) return
+
         super.bindView(view)
 
         val publication = xPublication.publication as PublicationChatMessage
@@ -334,12 +350,12 @@ open class CardChatMessage constructor(
         val vImages: ViewImagesContainer = vImagesContainer.findViewById(R.id.vImages)
 
         ToolsView.setOnLongClickCoordinates(vImages) { v, x, y -> showMenu(v,x,y) }
-        vImages.setOnClickListener { Navigator.to(SImageView(ImageLoader.load(publication.resourceId))) }
+        vImages.setOnClickListener { Navigator.to(SImageView(ImageLoader.load(publication.resourceId, publication.imagePwd))) }
         vImages.clear()
 
         for (i in publication.imageIdArray.indices) {
             vImages.add(
-                    ImageLoader.load(publication.imageIdArray[i])
+                    ImageLoader.load(publication.imageIdArray[i], publication.imagePwdArray.getOrNull(i) ?: "")
                             .size(publication.imageWArray[i], publication.imageHArray[i]),
                     null,
                     { showMenu(it.view, it.x, it.y) })
@@ -378,13 +394,13 @@ open class CardChatMessage constructor(
         vLabelRemoved.tag = publication
         vLabelRemoved.visibility = View.GONE
 
-        ImageLoader.loadGif(publication.resourceId, publication.gifId, vImage, vGifProgressBar) {
+        ImageLoader.loadGif(publication.resourceId, publication.gifId, publication.imagePwd, vImage, vGifProgressBar) {
             it.maxSize(ToolsView.dpToPx(612).toInt())
             it.minSize(ToolsView.dpToPx(128).toInt())
             it.size((publication.imageW * 1.7f).toInt(), (publication.imageH * 1.7f).toInt())
         }
 
-        vImage.setOnClickListener { Navigator.to(SImageView(ImageLoader.load(if (publication.gifId == 0L) publication.resourceId else publication.gifId))) }
+        vImage.setOnClickListener { Navigator.to(SImageView(ImageLoader.load(if (publication.gifId == 0L) publication.resourceId else publication.gifId, publication.imagePwd))) }
     }
 
     fun updateText() {
@@ -419,7 +435,7 @@ open class CardChatMessage constructor(
         val vMessageContainer: LayoutCorned? = view.findViewById(R.id.vMessageContainer)
 
         if (vRootContainer != null) {
-            (vRootContainer.layoutParams as FrameLayout.LayoutParams).gravity = if (ControllerApi.isCurrentAccount(publication.creator.id)) Gravity.RIGHT or Gravity.TOP else Gravity.LEFT or Gravity.TOP
+            (vRootContainer.layoutParams as LinearLayout.LayoutParams).gravity = if (ControllerApi.isCurrentAccount(publication.creator.id)) Gravity.RIGHT or Gravity.TOP else Gravity.LEFT or Gravity.TOP
         }
 
         if (vMessageContainer != null) {
@@ -505,7 +521,7 @@ open class CardChatMessage constructor(
                     .crop(ToolsView.dpToPx(100).toInt()).cropSquare(),
                     onClick = { SStickersView.instanceBySticker(publication.quoteStickerId, Navigator.TO) })
         } else if (publication.quoteImages.isNotEmpty()) {
-            for (i in publication.quoteImages) vQuoteImage.add(ImageLoader.load(i)
+            for (i in publication.quoteImages.indices) vQuoteImage.add(ImageLoader.load(publication.quoteImages[i], publication.quoteImagesPwd.getOrNull(i) ?: "")
                     .crop(ToolsView.dpToPx(100).toInt()).cropSquare())
         } else {
             vQuoteImage.visibility = View.GONE
@@ -803,7 +819,7 @@ open class CardChatMessage constructor(
         for (i in API.REACTIONS.indices) {
             val v: ViewIcon = ToolsView.inflate(vMenuReactionsLinear, R.layout.z_icon_18)
             v.setPadding(p, p, p, p)
-            v.setOnClickListener { sendReaction(i.toLong()); w.hide(); }
+            v.setOnClickListener { sendReaction(i.toLong()); w?.hide(); }
             vMenuReactionsLinear.addView(v)
             ImageLoader.load(API.REACTIONS[i]).into(v)
         }

@@ -11,7 +11,10 @@ import com.dzen.campfire.api.models.account.Account
 import com.dzen.campfire.api.models.lvl.LvlInfo
 import com.dzen.campfire.api.models.lvl.LvlInfoAdmin
 import com.dzen.campfire.api.models.lvl.LvlInfoUser
-import com.dzen.campfire.api.requests.accounts.*
+import com.dzen.campfire.api.requests.accounts.RAccountsClearReports
+import com.dzen.campfire.api.requests.accounts.RAccountsLoginSimple
+import com.dzen.campfire.api.requests.accounts.RAccountsLogout
+import com.dzen.campfire.api.requests.accounts.RAccountsRegistration
 import com.dzen.campfire.api.requests.publications.RPublicationsAdminClearReports
 import com.dzen.campfire.api.requests.publications.RPublicationsOnShare
 import com.dzen.campfire.api.requests.publications.RPublicationsRemove
@@ -126,10 +129,10 @@ object ControllerApi {
     internal fun init() {
         ApiRequestsSupporter.init(api)
 
-        ImageLoaderId.loader = { imageId ->
+        ImageLoaderId.loader = { imageId, pwd ->
             val item = ItemNullable<ByteArray>(null)
             if (imageId > 0) {
-                val r = RResourcesGet(imageId)
+                val r = RResourcesGet(imageId, pwd ?: "")
                         .onComplete { r -> item.a = r.bytes }
                         .onError { err("Error while loading image ID[$imageId] ex[$it]") }
                 r.noErrorLogs = true

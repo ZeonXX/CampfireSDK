@@ -3,15 +3,13 @@ package com.sayzen.campfiresdk.models.cards
 import android.view.View
 import android.widget.TextView
 import com.dzen.campfire.api.API
-
 import com.dzen.campfire.api.models.fandoms.Fandom
 import com.sayzen.campfiresdk.R
-import com.sayzen.campfiresdk.support.adapters.XFandom
 import com.sayzen.campfiresdk.controllers.ControllerFandoms
 import com.sayzen.campfiresdk.models.events.fandom.EventFandomRemove
 import com.sayzen.campfiresdk.models.events.fandom.EventFandomSubscribe
 import com.sayzen.campfiresdk.screens.fandoms.view.SFandom
-import com.sup.dev.android.app.SupAndroid
+import com.sayzen.campfiresdk.support.adapters.XFandom
 import com.sup.dev.android.libs.screens.navigator.Navigator
 import com.sup.dev.android.tools.ToolsView
 import com.sup.dev.android.views.cards.Card
@@ -20,9 +18,10 @@ import com.sup.dev.java.libs.eventBus.EventBus
 
 class CardFandom constructor(
         val fandom: Fandom,
-        var onClick: (() -> Unit)? = null,
-        var onLongClick: (() -> Unit)? = null)
-    : Card(R.layout.card_fandom) {
+        var onClick: ((Long) -> Unit)? = null,
+        val showLanguage: Boolean = false,
+        var onLongClick: (() -> Unit)? = null,
+) : Card(R.layout.card_fandom) {
 
     private val eventBus = EventBus
             .subscribe(EventFandomRemove::class) { if (it.fandomId == fandom.id) adapter.remove(this) }
@@ -68,7 +67,7 @@ class CardFandom constructor(
 
     private fun onClick() {
         if (onClick != null) {
-            onClick?.invoke()
+            onClick?.invoke(fandom.languageId)
             return
         }
         SFandom.instance(xFandom.getFandom(), Navigator.TO)
@@ -79,8 +78,7 @@ class CardFandom constructor(
             onLongClick?.invoke()
             return
         }
-        SupAndroid.activity?.hideAllSplash()
-        ControllerFandoms.showPopupMenu(xFandom, view, x, y)
+        ControllerFandoms.showPopupMenu(xFandom, view, x, y, onClick.takeIf { showLanguage })
     }
 
     //

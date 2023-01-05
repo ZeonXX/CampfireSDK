@@ -27,11 +27,12 @@ import com.sup.dev.java.tools.ToolsThreads
 
 object ControllerFandoms {
 
-    fun showPopupMenu(xFandom: XFandom, view: View, x: Float = 0f, y: Float = 0f) {
+    fun showPopupMenu(xFandom: XFandom, view: View, x: Float = 0f, y: Float = 0f, onLanguage: ((Long) -> Unit)? = null) {
         SplashMenu()
                 .add(t(API_TRANSLATE.app_copy_link)) { ToolsAndroid.setToClipboard(xFandom.linkToWithLanguage());ToolsToast.show(t(API_TRANSLATE.app_copied)) }
                 .add(t(API_TRANSLATE.app_subscription)) { showSubscription(xFandom) }
                 .add(t(API_TRANSLATE.settings_black_list)) { ControllerCampfireSDK.switchToBlackListFandom(xFandom.getId()) }
+                .add(t(API_TRANSLATE.fandom_language_choose)) { chooseLanguage(onLanguage!!) }.condition(onLanguage != null)
                 .spoiler(t(API_TRANSLATE.app_moderator))
                 .add(t(API_TRANSLATE.profile_change_background)) { changeTitleImage(xFandom) }.condition(ControllerApi.can(xFandom.getId(), xFandom.getLanguageId(), API.LVL_MODERATOR_FANDOM_IMAGE)).backgroundRes(R.color.blue_700).textColorRes(R.color.white)
                 .spoiler(t(API_TRANSLATE.app_admin))
@@ -43,6 +44,15 @@ object ControllerFandoms {
                 .asPopupShow(view, x, y)
     }
 
+    private fun chooseLanguage(onLanguage: (Long) -> Unit) {
+        val splash = SplashMenu()
+        for (language in API.LANGUAGES) {
+            splash.add(language.name) {
+                onLanguage(language.id)
+            }
+        }
+        splash.asSheetShow()
+    }
 
     private fun showSubscription(xFandom: XFandom) {
 

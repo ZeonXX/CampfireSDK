@@ -20,6 +20,8 @@ import com.dzen.campfire.api.requests.publications.RPublicationsReactionAdd
 import com.dzen.campfire.api.requests.publications.RPublicationsReactionRemove
 import com.sayzen.campfiresdk.R
 import com.sayzen.campfiresdk.controllers.*
+import com.sayzen.campfiresdk.models.events.account.EventAccountAddToBlackList
+import com.sayzen.campfiresdk.models.events.account.EventAccountRemoveFromBlackList
 import com.sayzen.campfiresdk.models.events.publications.*
 import com.sayzen.campfiresdk.models.splashs.SplashComment
 import com.sayzen.campfiresdk.screens.account.stickers.SStickersView
@@ -31,13 +33,12 @@ import com.sup.dev.android.app.SupAndroid
 import com.sup.dev.android.libs.image_loader.ImageLoader
 import com.sup.dev.android.libs.screens.navigator.Navigator
 import com.sup.dev.android.tools.ToolsAndroid
-import com.sup.dev.android.tools.ToolsResources
 import com.sup.dev.android.tools.ToolsToast
 import com.sup.dev.android.tools.ToolsView
 import com.sup.dev.android.views.screens.SImageView
+import com.sup.dev.android.views.splash.SplashMenu
 import com.sup.dev.android.views.views.*
 import com.sup.dev.android.views.views.layouts.LayoutMaxSizes
-import com.sup.dev.android.views.splash.SplashMenu
 import com.sup.dev.java.classes.collections.HashList
 import com.sup.dev.java.libs.eventBus.EventBus
 import com.sup.dev.java.libs.text_format.TextFormatter
@@ -77,6 +78,18 @@ open class CardComment protected constructor(
     private val eventBus = EventBus
             .subscribe(EventCommentChange::class) { e: EventCommentChange -> this.onCommentChange(e) }
             .subscribe(EventPublicationDeepBlockRestore::class) { onEventPublicationDeepBlockRestore(it) }
+            .subscribe(EventAccountRemoveFromBlackList::class) {
+                if (publication.creator.id == it.accountId) {
+                    publication.blacklisted = false
+                    update()
+                }
+            }
+            .subscribe(EventAccountAddToBlackList::class) {
+                if (publication.creator.id == it.accountId) {
+                    publication.blacklisted = true
+                    update()
+                }
+            }
 
     var maxTextSize = Integer.MAX_VALUE
     var changeEnabled = true
@@ -94,6 +107,13 @@ open class CardComment protected constructor(
     @Suppress("DEPRECATION")
     @SuppressLint("SetTextI18n")
     override fun bindView(view: View) {
+        if (updateBlacklisted(view)) {
+            view.findViewById<ViewSwipe?>(R.id.vSwipe)?.swipeEnabled = false
+            return
+        } else {
+            view.findViewById<ViewSwipe?>(R.id.vSwipe)?.swipeEnabled = true
+        }
+
         super.bindView(view)
         val publication = xPublication.publication as PublicationComment
 
@@ -462,7 +482,7 @@ open class CardComment protected constructor(
         for (i in API.REACTIONS.indices) {
             val v: ViewIcon = ToolsView.inflate(vMenuReactionsLinear, R.layout.z_icon_18)
             v.setPadding(p, p, p, p)
-            v.setOnClickListener { sendReaction(i.toLong()); w.hide(); }
+            v.setOnClickListener { sendReaction(i.toLong()); w?.hide(); }
             vMenuReactionsLinear.addView(v)
             ImageLoader.load(API.REACTIONS[i]).into(v)
         }

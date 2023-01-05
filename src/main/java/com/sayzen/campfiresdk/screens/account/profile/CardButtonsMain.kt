@@ -3,6 +3,7 @@ package com.sayzen.campfiresdk.screens.account.profile
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.TextView
 import com.dzen.campfire.api.API
 import com.dzen.campfire.api.API_TRANSLATE
 import com.dzen.campfire.api.models.chat.ChatTag
@@ -29,25 +30,36 @@ class CardButtonsMain(
     private val eventBus = EventBus
             .subscribe(EventAccountsFollowsChange::class) { this.onAccountsFollowChange(it) }
     private var isFollow:Boolean? = null
+    private var followsYou: Boolean? = null
 
     override fun bindView(view: View) {
         super.bindView(view)
         val vButtonsContainer: ViewGroup = view.findViewById(R.id.vButtonsContainer)
         val vFollow: Button = view.findViewById(R.id.vFollow)
         val vMessage: Button = view.findViewById(R.id.vMessage)
+        val vFollowsYou: TextView = view.findViewById(R.id.vFollowsYou)
 
         vMessage.text = t(API_TRANSLATE.app_message)
         vFollow.text = t(API_TRANSLATE.app_follow)
 
         vButtonsContainer.visibility = if (ControllerApi.isCurrentAccount(xAccount.getId())) View.GONE else View.VISIBLE
 
-        vFollow.setText(if (isFollow != null && isFollow!!) t(API_TRANSLATE.app_unfollow) else t(API_TRANSLATE.app_follow))
+        vFollow.text = if (isFollow == true) t(API_TRANSLATE.app_unfollow)
+                       else t(API_TRANSLATE.app_follow)
         vFollow.setOnClickListener { toggleFollows() }
         vMessage.setOnClickListener { SChat.instance(ChatTag(API.CHAT_TYPE_PRIVATE, xAccount.getId(), ControllerApi.account.getId()), 0, false, Navigator.TO) }
+
+        vFollowsYou.visibility = if (followsYou == true) View.VISIBLE else View.GONE
+        vFollowsYou.text = if (xAccount.getSex() == 1L) t(API_TRANSLATE.profile_follows_empty_female)
+                           else t(API_TRANSLATE.profile_follows_empty_male)
     }
 
     fun setIsFollow(isFollow:Boolean){
         this.isFollow= isFollow
+        update()
+    }
+    fun setFollowsYou(isFollow:Boolean){
+        this.followsYou = isFollow
         update()
     }
 

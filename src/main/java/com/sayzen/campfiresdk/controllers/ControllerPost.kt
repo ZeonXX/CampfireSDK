@@ -15,6 +15,7 @@ import com.sayzen.campfiresdk.models.cards.post_pages.CardPage
 import com.sayzen.campfiresdk.models.cards.post_pages.CardPageSpoiler
 import com.sayzen.campfiresdk.models.events.publications.*
 import com.sayzen.campfiresdk.screens.account.profile.SProfile
+import com.sayzen.campfiresdk.screens.fandoms.rubrics.SRubricsList
 import com.sayzen.campfiresdk.screens.post.create.SPostCreationTags
 import com.sayzen.campfiresdk.screens.post.history.SPublicationHistory
 import com.sayzen.campfiresdk.support.ApiRequestsSupporter
@@ -23,11 +24,10 @@ import com.sup.dev.android.libs.screens.navigator.Navigator
 import com.sup.dev.android.tools.ToolsAndroid
 import com.sup.dev.android.tools.ToolsToast
 import com.sup.dev.android.views.screens.SImageView
-import com.sup.dev.android.views.support.adapters.recycler_view.RecyclerCardAdapter
 import com.sup.dev.android.views.splash.SplashField
 import com.sup.dev.android.views.splash.SplashMenu
+import com.sup.dev.android.views.support.adapters.recycler_view.RecyclerCardAdapter
 import com.sup.dev.java.libs.eventBus.EventBus
-import java.util.*
 
 object ControllerPost {
 
@@ -86,6 +86,7 @@ object ControllerPost {
                                 .add(t(API_TRANSLATE.publication_menu_multilingual_not)) { multilingualNot(post) }.backgroundRes(R.color.focus).condition(ENABLED_MAKE_MULTILINGUAL && post.fandom.languageId == -1L && post.status == API.STATUS_PUBLIC && ControllerApi.isCurrentAccount(post.creator.id))
                                 .add(t(API_TRANSLATE.app_close)) { close(post) }.backgroundRes(R.color.focus).condition(!post.closed && ControllerApi.isCurrentAccount(post.creator.id))
                                 .add(t(API_TRANSLATE.app_open)) { open(post) }.backgroundRes(R.color.focus).condition(post.closed && ControllerApi.isCurrentAccount(post.creator.id))
+                                .add(t(API_TRANSLATE.post_change_rubric)) { changeRubric(post) }.backgroundRes(R.color.focus).condition(ControllerApi.isCurrentAccount(post.creator.id) && post.dateCreate < System.currentTimeMillis() - 1000 * 3600 * 24 * 7)
                                 .finishItemBuilding()
                     }
                 }
@@ -133,6 +134,23 @@ object ControllerPost {
             EventBus.post(EventPostCloseChange(publications.id, false))
             ToolsToast.show(t(API_TRANSLATE.app_done))
         }
+    }
+
+    fun changeRubric(post: PublicationPost) {
+        Navigator.to(SRubricsList(
+            fandomId = post.fandom.id,
+            languageId = post.fandom.languageId,
+            ownerId = ControllerApi.account.getId(),
+            canCreatePost = false,
+        ) { rubric ->
+            ApiRequestsSupporter.executeProgressDialog(RPostMoveRubric(post.id, rubric.id)) { _ ->
+                post.rubricId = rubric.id
+                post.rubricName = rubric.name
+
+                EventBus.post(EventPostRubricChange(post.id, rubric))
+                ToolsToast.show(t(API_TRANSLATE.app_done))
+            }
+        })
     }
 
     fun closeAdmin(publications: PublicationPost) {
@@ -485,15 +503,10 @@ object ControllerPost {
     }
 
     private fun duplicateDraft(publication: PublicationPost) {
-        ApiRequestsSupporter.executeProgressDialog(RPostPutPage(
-            publicationId = 0,
-            pages = publication.pages,
-            fandomId = publication.fandom.id,
-            languageId = publication.fandom.languageId,
-            appKey = ControllerCampfireSDK.ROOT_PROJECT_KEY,
-            appSubKey = ControllerCampfireSDK.ROOT_PROJECT_SUB_KEY
-        )) { response ->
-            EventBus.post(EventPostDraftCreated(response.publicationId))
+        ApiRequestsSupporter.executeProgressDialog(RPostDuplicateDraft(
+            postId = publication.id,
+        )) { resp ->
+            EventBus.post(EventPostDraftCreated(resp.unitId))
         }
     }
 
@@ -510,14 +523,23 @@ object ControllerPost {
         var index = 0
 
         for (p in pagesContainer.getPagesArray()) {
-            if (p is PageImage) {
-                if (p.imageId == imageId) index = list.size
-                list.add(p.getMainImageId())
-            }
-            if (p is PageImages) {
-                for (subImageId in p.imagesIds) {
-                    if (subImageId == imageId) index = list.size
-                    list.add(subImageId)
+            when (p) {
+                is PageImage -> {
+                    if (p.imageId == imageId) index = list.size
+                    list.add(p.getMainImageId())
+                }
+                is PageImages -> {
+                    for (subImageId in p.imagesIds) {
+                        if (subImageId == imageId) index = list.size
+                        list.add(subImageId)
+                    }
+                }
+                is PageTable -> {
+                    for (cell in p.cells) {
+                        if (cell.imageId < 1) continue
+                        if (cell.imageId == imageId) index = list.size
+                        list.add(cell.imageId)
+                    }
                 }
             }
         }
