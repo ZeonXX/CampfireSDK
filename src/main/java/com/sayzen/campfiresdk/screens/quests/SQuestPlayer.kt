@@ -17,6 +17,7 @@ import com.sayzen.campfiresdk.controllers.ControllerLinks
 import com.sayzen.campfiresdk.controllers.ControllerScreenAnimations
 import com.sayzen.campfiresdk.controllers.api
 import com.sayzen.campfiresdk.controllers.t
+import com.sayzen.campfiresdk.models.animations.*
 import com.sup.dev.android.libs.image_loader.ImageLoader
 import com.sup.dev.android.libs.screens.Screen
 import com.sup.dev.android.libs.screens.navigator.Navigator
@@ -187,6 +188,7 @@ class SQuestPlayer(
     private val vibrateHandler = Handler(Looper.getMainLooper())
     private var vibrateRemaining = 0
     private var vibrateRunnable: Runnable? = null
+    private var vibrationEnabled = true
 
     init {
         disableNavigation()
@@ -290,7 +292,19 @@ class SQuestPlayer(
                     vibrateHandler.postDelayed(vibrateRunnable!!, effect.delayStart.toLong())
                 }
                 is QuestEffectBox -> {
-                    ControllerLinks.parseLink(effect.box.asLink())
+                    when (effect.box.link) {
+                        API.LINK_BOX_WITH_FIREWORKS.link -> ControllerScreenAnimations.fireworks(clear = false)
+                        API.LINK_BOX_WITH_SUMMER.link -> ControllerScreenAnimations.addAnimation(DrawAnimationSummer())
+                        API.LINK_BOX_WITH_AUTUMN.link -> ControllerScreenAnimations.addAnimation(DrawAnimationAutumn())
+                        API.LINK_BOX_WITH_WINTER.link -> ControllerScreenAnimations.addAnimation(DrawAnimationWinter())
+                        API.LINK_BOX_WITH_BOMB.link -> ControllerScreenAnimations.addAnimation(DrawAnimationBomb())
+                        API.LINK_BOX_WITH_SNOW.link -> ControllerScreenAnimations.addAnimation(DrawAnimationSnow(100))
+                        API.LINK_BOX_WITH_MAGIC_X2.link -> ControllerScreenAnimations.addAnimation(DrawAnimationMagic(2f))
+                        API.LINK_BOX_WITH_MAGIC.link -> ControllerScreenAnimations.addAnimation(DrawAnimationMagic())
+                        API.LINK_BOX_WITH_GOOSE.link -> ControllerScreenAnimations.addAnimation(DrawAnimationGoose())
+                        API.LINK_BOX_WITH_CONFETTI.link -> ControllerScreenAnimations.addAnimation(DrawAnimationConfetti())
+                        API.LINK_BOX_WITH_BOX.link -> ControllerScreenAnimations.box(1, clear = false)
+                    }
                 }
                 is QuestEffectBoxReset -> {
                     ControllerScreenAnimations.clearAnimation()
@@ -314,10 +328,25 @@ class SQuestPlayer(
     }
 
     private fun getVibrationRunnable(effect: QuestEffectVibrate) = Runnable {
-        ToolsVibration.vibrate(effect.length.toLong())
+        if (vibrationEnabled) ToolsVibration.vibrate(effect.length.toLong())
         if (--vibrateRemaining > 0) {
             vibrateHandler.postDelayed(vibrateRunnable!!, (effect.delayBetween + effect.length).toLong())
         }
+    }
+
+    override fun onDestroy() {
+        vibrateRunnable?.let { vibrateHandler.removeCallbacks(it) }
+        super.onDestroy()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        vibrationEnabled = false
+    }
+
+    override fun onResume() {
+        super.onResume()
+        vibrationEnabled = true
     }
 
     private fun endQuest() {
@@ -326,7 +355,7 @@ class SQuestPlayer(
             .setText(t(API_TRANSLATE.quests_end_d))
             .setOnEnter(t(API_TRANSLATE.quests_play_again)) {
                 it.hide()
-                Navigator.to(SQuestPlayer(
+                Navigator.replace(SQuestPlayer(
                     details,
                     parts,
                     index = 0,
@@ -335,9 +364,6 @@ class SQuestPlayer(
             }
             .setOnCancel(t(API_TRANSLATE.app_back)) {
                 it.hide()
-                Navigator.back()
-            }
-            .setOnHide {
                 Navigator.back()
             }
             .asSheetShow()
@@ -409,7 +435,7 @@ class SQuestPlayer(
             .send(api)
     }
 
-    private fun jumpTo(toId: Long, fromIndex: Int = this.index, depth: Int = 0) {
+    fun jumpTo(toId: Long, fromIndex: Int = this.index, depth: Int = 0) {
 		if (depth > API.QUEST_MAX_DEPTH) {
 			ToolsToast.show(t(API_TRANSLATE.quests_error_depth))
 			return
@@ -447,14 +473,31 @@ class SQuestPlayer(
                 Navigator.replace(player)
             }
             is QuestPartCondition -> {
-                if (state.conditionFulfilled(details, part)) {
+                val fulfilled = try {
+                    state.conditionFulfilled(details, part)
+                } catch (e: Exception) {
+                    SplashAlert()
+                        .setText(t(API_TRANSLATE.quests_error_uninit))
+                        .setOnCancel(t(API_TRANSLATE.app_ok))
+                        .asSheetShow()
+                    return
+                }
+                if (fulfilled) {
                     jumpTo(part.trueJumpId, partIdx, depth + 1)
                 } else {
                     jumpTo(part.falseJumpId, partIdx, depth + 1)
                 }
             }
             is QuestPartAction -> {
-                state.executeAction(details, part)
+                try {
+                    state.executeAction(details, part)
+                } catch (e: Exception) {
+                    SplashAlert()
+                        .setText(t(API_TRANSLATE.quests_error_uninit))
+                        .setOnCancel(t(API_TRANSLATE.app_ok))
+                        .asSheetShow()
+                    return
+                }
                 jumpTo(part.jumpId, partIdx, depth + 1)
             }
         }

@@ -45,17 +45,20 @@ class SettingsPartSelector constructor(context: Context, attrs: AttributeSet? = 
         setLineVisible(false)
     }
 
-    private fun openSelector() {
+    fun openSelector(cb: ((Long) -> Unit)? = null) {
         SplashMenu().run {
             if (enableFinishQuest) add(t(API_TRANSLATE.quests_edit_text_button_finish_quest)) {
                 selectedId = -1
+                cb?.invoke(-1)
             }
             if (enableNextPart) add(t(API_TRANSLATE.quests_edit_text_button_next_part)) {
                 selectedId = -2
+                cb?.invoke(-2)
             }
             for (part in partContainer.getParts()) {
                 add(part.toSelectorString()) {
                     selectedId = part.id
+                    cb?.invoke(part.id)
                 }
             }
             asSheetShow()

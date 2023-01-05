@@ -177,8 +177,20 @@ class SQuestPartTextCreate(
             vEffectsContainer.addView(root)
         }
         vAddEffect.setOnClickListener {
+            if (part.effects.size > API.QUEST_EFFECT_MAX_L) {
+                ToolsToast.show(t(API_TRANSLATE.quests_edit_text_effect_error_3))
+                return@setOnClickListener
+            }
             SplashQuestEffect()
                 .setOnDone { effect ->
+                    if (
+                        effect is QuestEffectVibrate &&
+                        part.effects.any { it is QuestEffectVibrate }
+                    ) {
+                        ToolsToast.show(t(API_TRANSLATE.quests_edit_text_effect_error_2))
+                        return@setOnDone
+                    }
+
                     part.effects += effect
                     val root: FrameLayout = ToolsView.inflate(vEffectsContainer, R.layout.card_quest_vat)
                     updateEffectFor(root, effect)
@@ -265,6 +277,14 @@ class SQuestPartTextCreate(
         root.setOnClickListener {
             SplashQuestEffect(effect)
                 .setOnDone { newEffect ->
+                    if (
+                        newEffect is QuestEffectVibrate &&
+                        part.effects.first { it is QuestEffectVibrate } != effect
+                    ) {
+                        ToolsToast.show(t(API_TRANSLATE.quests_edit_text_effect_error_2))
+                        return@setOnDone
+                    }
+
                     part.effects[part.effects.indexOf(effect)] = newEffect
                     updateEffectFor(root, newEffect)
                     ToolsToast.show(t(API_TRANSLATE.app_changed))

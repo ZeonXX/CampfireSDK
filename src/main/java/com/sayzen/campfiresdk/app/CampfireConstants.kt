@@ -107,8 +107,8 @@ object CampfireConstants {
             Achievement(API.ACHI_VICEROY_SUBSCRIBERS_COUNT,  API_TRANSLATE.achi_73, R.color.orange_500, false, API_RESOURCES.IMAGE_ICHI_21),
             Achievement(API.ACHI_VICEROY_LINK,  API_TRANSLATE.achi_74, R.color.indigo_800, false, API_RESOURCES.IMAGE_ICHI_21),
             Achievement(API.ACHI_VICEROY_IMAGES,  API_TRANSLATE.achi_75, R.color.cyan_700, false, API_RESOURCES.IMAGE_ICHI_21),
-            Achievement(API.ACHI_VICEROY_DESCRIPTION,  API_TRANSLATE.achi_76, R.color.red_500, false, API_RESOURCES.IMAGE_ICHI_21)
-
+            Achievement(API.ACHI_VICEROY_DESCRIPTION,  API_TRANSLATE.achi_76, R.color.red_500, false, API_RESOURCES.IMAGE_ICHI_21),
+            Achievement(API.ACHI_QUEST_KARMA, API_TRANSLATE.achi_77, R.color.teal_a_400, false, API_RESOURCES.IMAGE_ICHI_5_2),
     )
 
     val LVLS = arrayOf(

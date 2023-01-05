@@ -44,7 +44,7 @@ class SQuestDrafts : SLoadingRecycler<CardQuestDetails, QuestDetails>() {
         setTitle(t(API_TRANSLATE.quests_drafts))
         setTextEmpty(t(API_TRANSLATE.quests_empty))
         setTextProgress(t(API_TRANSLATE.quests_loading))
-        setBackgroundImage(API_RESOURCES.IMAGE_BACKGROUND_2)
+        setBackgroundImage(API_RESOURCES.IMAGE_BACKGROUND_30)
 
         vFab.visibility = View.VISIBLE
         vFab.setImageResource(R.drawable.ic_add_white_24dp)

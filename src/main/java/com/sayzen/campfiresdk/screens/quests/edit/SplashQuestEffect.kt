@@ -73,7 +73,8 @@ class SplashQuestEffect(
         ))
         vVibrateTimes.setMinProgress(1)
         vVibrateTimes.setMaxProgress(API.QUEST_EFFECT_VIBRATE_COUNT_MAX.toInt() + 1)
-        vVibrateTimes.progress = (effect as? QuestEffectVibrate)?.times ?: 2
+        vVibrateTimes.progress = ((effect as? QuestEffectVibrate)?.times ?: 2)
+            .takeUnless { it == 0 } ?: 6
         vVibrateTimes.setOnInstantProgressChanged {
             vVibrateTimes.setTitle(t(
                 API_TRANSLATE.quests_edit_text_effect_vibrate_times,

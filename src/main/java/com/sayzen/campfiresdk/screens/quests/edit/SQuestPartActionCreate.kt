@@ -36,7 +36,7 @@ class SQuestPartActionCreate(
     init {
         disableShadows()
         disableNavigation()
-        setTitle(t(API_TRANSLATE.quests_part_condition))
+        setTitle(t(API_TRANSLATE.quests_part_action))
 
         vCreate.text = t(API_TRANSLATE.app_done)
         vPartDevName.setHint(t(API_TRANSLATE.quests_edit_dev_name))

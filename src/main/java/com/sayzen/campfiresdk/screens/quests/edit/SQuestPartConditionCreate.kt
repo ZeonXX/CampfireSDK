@@ -97,7 +97,6 @@ class SQuestPartConditionCreate(
 
         vTitleRight.visibility = VISIBLE
         vRightVariable.visibility = VISIBLE
-        vRightLiteral.visibility = VISIBLE
 
         when (type) {
             API.QUEST_TYPE_TEXT -> {
@@ -106,6 +105,12 @@ class SQuestPartConditionCreate(
                 vCondition.clear()
                 vCondition.add(t(API_TRANSLATE.quests_edit_cond_eq))
                 vCondition.add(t(API_TRANSLATE.quests_edit_cond_neq))
+                vCondition.onSelected {
+                    when (it) {
+                        0 -> API.QUEST_CONDITION_EQ
+                        1 -> API.QUEST_CONDITION_NEQ
+                    }
+                }
                 vCondition.setCurrentIndex(when (part.cond) {
                     API.QUEST_CONDITION_EQ -> 0
                     API.QUEST_CONDITION_NEQ -> 1
@@ -115,6 +120,8 @@ class SQuestPartConditionCreate(
             API.QUEST_TYPE_NUMBER -> {
                 vLeftLiteral.setInputType(InputType.TYPE_CLASS_NUMBER)
                 vRightLiteral.setInputType(InputType.TYPE_CLASS_NUMBER)
+                if (vLeftLiteral.getText().toLongOrNull() == null) vLeftLiteral.setText("")
+                if (vRightLiteral.getText().toLongOrNull() == null) vRightLiteral.setText("")
                 vCondition.clear()
                 vCondition.add(t(API_TRANSLATE.quests_edit_cond_less))
                 vCondition.add(t(API_TRANSLATE.quests_edit_cond_leq))
@@ -122,6 +129,16 @@ class SQuestPartConditionCreate(
                 vCondition.add(t(API_TRANSLATE.quests_edit_cond_neq))
                 vCondition.add(t(API_TRANSLATE.quests_edit_cond_geq))
                 vCondition.add(t(API_TRANSLATE.quests_edit_cond_greater))
+                vCondition.onSelected {
+                    when (it) {
+                        0 -> API.QUEST_CONDITION_LESS
+                        1 -> API.QUEST_CONDITION_LEQ
+                        2 -> API.QUEST_CONDITION_EQ
+                        3 -> API.QUEST_CONDITION_NEQ
+                        4 -> API.QUEST_CONDITION_GEQ
+                        5 -> API.QUEST_CONDITION_GREATER
+                    }
+                }
                 vCondition.setCurrentIndex(when (part.cond) {
                     API.QUEST_CONDITION_LESS -> 0
                     API.QUEST_CONDITION_LEQ -> 1
@@ -134,12 +151,19 @@ class SQuestPartConditionCreate(
             }
             API.QUEST_TYPE_BOOL -> {
                 vTitleRight.visibility = GONE
+                vLeftLiteral.visibility = GONE
                 vRightVariable.visibility = GONE
                 vRightLiteral.visibility = GONE
                 if (vLeftVariable.selected == null) vLeftVariable.selected = vRightVariable.selected
                 vCondition.clear()
                 vCondition.add(t(API_TRANSLATE.quests_edit_cond_true))
                 vCondition.add(t(API_TRANSLATE.quests_edit_cond_false))
+                vCondition.onSelected {
+                    when (it) {
+                        0 -> part.cond = API.QUEST_CONDITION_EQ
+                        1 -> part.cond = API.QUEST_CONDITION_NEQ
+                    }
+                }
                 vCondition.setCurrentIndex(when (part.cond) {
                     API.QUEST_CONDITION_EQ -> 0
                     API.QUEST_CONDITION_NEQ -> 1
