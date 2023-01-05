@@ -113,7 +113,6 @@ class SQuest(
                             !ControllerApi.isCurrentAccount(details.id)
                         )
 
-
                 .asPopupShow(view, x, y)
         }
     }
