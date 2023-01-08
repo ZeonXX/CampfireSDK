@@ -97,6 +97,7 @@ class SQuestPartConditionCreate(
 
         vTitleRight.visibility = VISIBLE
         vRightVariable.visibility = VISIBLE
+        vRightVariable.showLiteral = false
 
         when (type) {
             API.QUEST_TYPE_TEXT -> {
@@ -152,23 +153,27 @@ class SQuestPartConditionCreate(
             API.QUEST_TYPE_BOOL -> {
                 vTitleRight.visibility = GONE
                 vLeftLiteral.visibility = GONE
-                vRightVariable.visibility = GONE
                 vRightLiteral.visibility = GONE
                 if (vLeftVariable.selected == null) vLeftVariable.selected = vRightVariable.selected
+                vRightVariable.showLiteral = false
                 vCondition.clear()
                 vCondition.add(t(API_TRANSLATE.quests_edit_cond_true))
-                vCondition.add(t(API_TRANSLATE.quests_edit_cond_false))
+                vCondition.add(t(API_TRANSLATE.quests_edit_cond_eq))
                 vCondition.onSelected {
-                    when (it) {
-                        0 -> part.cond = API.QUEST_CONDITION_EQ
-                        1 -> part.cond = API.QUEST_CONDITION_NEQ
-                    }
+                    if (it == 0) {
+                        vRightVariable.visibility = GONE
+                        vRightVariable.selected = null
+                    } else vRightVariable.visibility = VISIBLE
+                    part.cond = API.QUEST_CONDITION_EQ
                 }
-                vCondition.setCurrentIndex(when (part.cond) {
-                    API.QUEST_CONDITION_EQ -> 0
-                    API.QUEST_CONDITION_NEQ -> 1
-                    else -> 0
+                vCondition.setCurrentIndex(when (part.rightValue.type == API.QUEST_CONDITION_VALUE_VAR || vRightVariable.selected != null) {
+                    true -> 1
+                    false -> 0
                 })
+                if (vCondition.getCurrentIndex() == 0) {
+                    vRightVariable.visibility = GONE
+                    vRightVariable.selected = null
+                } else vRightVariable.visibility = VISIBLE
             }
         }
     }
@@ -195,35 +200,6 @@ class SQuestPartConditionCreate(
         part.id = this.part.id
         part.devLabel = vPartDevName.getText()
 
-        part.cond = when (type) {
-            API.QUEST_TYPE_TEXT -> when (vCondition.getCurrentIndex()) {
-                0 -> API.QUEST_CONDITION_EQ
-                1 -> API.QUEST_CONDITION_NEQ
-                else -> throw IllegalStateException()
-            }
-            API.QUEST_TYPE_NUMBER -> when (vCondition.getCurrentIndex()) {
-                0 -> API.QUEST_CONDITION_LESS
-                1 -> API.QUEST_CONDITION_LEQ
-                2 -> API.QUEST_CONDITION_EQ
-                3 -> API.QUEST_CONDITION_NEQ
-                4 -> API.QUEST_CONDITION_GEQ
-                5 -> API.QUEST_CONDITION_GREATER
-                else -> throw IllegalStateException()
-            }
-            API.QUEST_TYPE_BOOL -> {
-                part.rightValue = QuestConditionValue().apply {
-                    this.type = API.QUEST_CONDITION_VALUE_LITERAL_BOOL
-                    this.value = 1 // true
-                }
-                when (vCondition.getCurrentIndex()) {
-                    0 -> API.QUEST_CONDITION_EQ
-                    1 -> API.QUEST_CONDITION_NEQ
-                    else -> throw IllegalStateException()
-                }
-            }
-            else -> throw IllegalStateException()
-        }
-
         fun buildQCV(variableSelector: SettingsVariableSelector, literalField: SettingsField): QuestConditionValue =
             if (variableSelector.selected == null) {
                 QuestConditionValue().apply {
@@ -242,6 +218,41 @@ class SQuestPartConditionCreate(
                     this.value = variableSelector.selected!!.id
                 }
             }
+
+        part.cond = when (type) {
+            API.QUEST_TYPE_TEXT -> when (vCondition.getCurrentIndex()) {
+                0 -> API.QUEST_CONDITION_EQ
+                1 -> API.QUEST_CONDITION_NEQ
+                else -> throw IllegalStateException()
+            }
+            API.QUEST_TYPE_NUMBER -> when (vCondition.getCurrentIndex()) {
+                0 -> API.QUEST_CONDITION_LESS
+                1 -> API.QUEST_CONDITION_LEQ
+                2 -> API.QUEST_CONDITION_EQ
+                3 -> API.QUEST_CONDITION_NEQ
+                4 -> API.QUEST_CONDITION_GEQ
+                5 -> API.QUEST_CONDITION_GREATER
+                else -> throw IllegalStateException()
+            }
+            API.QUEST_TYPE_BOOL -> {
+                part.rightValue = when (vCondition.getCurrentIndex()) {
+                    0 -> QuestConditionValue().apply {
+                        this.type = API.QUEST_CONDITION_VALUE_LITERAL_BOOL
+                        this.value = 1 // true
+                    }
+                    1 -> QuestConditionValue().apply {
+                        this.type = API.QUEST_CONDITION_VALUE_VAR
+                        this.value = vRightVariable.selected?.id ?: run {
+                            ToolsToast.show(t(API_TRANSLATE.quests_edit_cond_error_1))
+                            return
+                        }
+                    }
+                    else -> throw IllegalStateException()
+                }
+                API.QUEST_CONDITION_EQ
+            }
+            else -> throw IllegalStateException()
+        }
 
         part.leftValue = buildQCV(vLeftVariable, vLeftLiteral)
         if (type != API.QUEST_TYPE_BOOL) // if bool, rightValue is set when settings part.cond

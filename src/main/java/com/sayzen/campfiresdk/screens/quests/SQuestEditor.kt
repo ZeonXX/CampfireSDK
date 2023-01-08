@@ -221,6 +221,7 @@ class SQuestEditor(
             questDetails,
             onClick = { openDetailsEditor() },
             onPublish = { publishQuest() },
+            showMore = true,
         )
         if (!adapter.isEmpty) adapter.replace(0, cardDetails)
         else adapter.add(cardDetails)

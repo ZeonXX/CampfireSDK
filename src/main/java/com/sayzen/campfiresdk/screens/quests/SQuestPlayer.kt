@@ -124,7 +124,7 @@ class SQuestPlayer(
                 API.QUEST_ACTION_ADD_ANOTHER -> {
                     when (details.variablesMap!![action.varId]!!.type) {
                         API.QUEST_TYPE_TEXT -> {
-                            variables[action.varId] += action.sArg
+                            variables[action.varId] += variables[action.lArg1]!!
                         }
                         API.QUEST_TYPE_NUMBER -> {
                             variables[action.varId] = (
@@ -476,6 +476,7 @@ class SQuestPlayer(
                 val fulfilled = try {
                     state.conditionFulfilled(details, part)
                 } catch (e: Exception) {
+                    e.printStackTrace()
                     SplashAlert()
                         .setText(t(API_TRANSLATE.quests_error_uninit))
                         .setOnCancel(t(API_TRANSLATE.app_ok))
@@ -492,6 +493,7 @@ class SQuestPlayer(
                 try {
                     state.executeAction(details, part)
                 } catch (e: Exception) {
+                    e.printStackTrace()
                     SplashAlert()
                         .setText(t(API_TRANSLATE.quests_error_uninit))
                         .setOnCancel(t(API_TRANSLATE.app_ok))

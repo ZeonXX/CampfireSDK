@@ -19,6 +19,7 @@ import com.sup.dev.android.libs.screens.navigator.Navigator
 import com.sup.dev.android.tools.ToolsView
 import com.sup.dev.android.views.views.ViewAvatarTitle
 import com.sup.dev.android.views.views.ViewButton
+import com.sup.dev.android.views.views.ViewIcon
 import com.sup.dev.android.views.views.ViewText
 import com.sup.dev.java.libs.eventBus.EventBus
 
@@ -27,6 +28,7 @@ class CardQuestDetails constructor(
     private val onClick: (() -> Unit)? = null,
     private val onLongClick: ((View, Float, Float) -> Unit)? = null,
     private val onPublish: (() -> Unit)? = null,
+    private val showMore: Boolean = false,
 ) : CardPublication(R.layout.card_quest_details, questDetails) {
     private val eventBus = EventBus
         .subscribe(EventQuestChanged::class) {
@@ -47,6 +49,7 @@ class CardQuestDetails constructor(
         val vAvatar: ViewAvatarTitle = view.findViewById(R.id.vAvatar)
         val vDescription: ViewText = view.findViewById(R.id.vDescription)
         val vPublish: ViewButton = view.findViewById(R.id.vPublish)
+        val vMore: ViewIcon = view.findViewById(R.id.vMore)
 
         vAvatar.setTitle(questDetails.title)
         vAvatar.setSubtitle(t(API_TRANSLATE.quest))
@@ -65,6 +68,10 @@ class CardQuestDetails constructor(
 
         vDescription.text = questDetails.description.ifEmpty { "Нет описания" }
         ControllerLinks.makeLinkable(vDescription)
+
+        if (showMore) vMore.visibility = View.VISIBLE
+        else vMore.visibility = View.GONE
+        vMore.setOnClickListener { onClick?.invoke() }
 
         if (onClick != null) vTouch.setOnClickListener { onClick.invoke() }
         else vTouch.setOnClickListener { Navigator.to(SQuest(questDetails, 0)) }

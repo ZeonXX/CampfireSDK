@@ -47,6 +47,7 @@ import com.sayzen.campfiresdk.screens.comments.SComments
 import com.sayzen.campfiresdk.screens.fandoms.rubrics.SRubricPosts
 import com.sayzen.campfiresdk.screens.fandoms.tags.SplashTagCreate
 import com.sayzen.campfiresdk.screens.fandoms.tags.SplashTagRemove
+import com.sayzen.campfiresdk.screens.quests.SQuest
 import com.sayzen.campfiresdk.support.ApiRequestsSupporter
 import com.sup.dev.android.libs.screens.navigator.Navigator
 import com.sup.dev.android.tools.ToolsAndroid
@@ -131,7 +132,6 @@ object ControllerPublications {
     }
 
     fun toPublication(publicationType: Long, publicationId: Long, commentId: Long = 0) {
-
         if (publicationType == API.PUBLICATION_TYPE_POST) ControllerCampfireSDK.onToPostClicked(publicationId, commentId, Navigator.TO)
         if (publicationType == API.PUBLICATION_TYPE_MODERATION) ControllerCampfireSDK.onToModerationClicked(publicationId, commentId, Navigator.TO)
         if (publicationType == API.PUBLICATION_TYPE_STICKER) SStickersView.instanceBySticker(publicationId, Navigator.TO)
@@ -140,6 +140,7 @@ object ControllerPublications {
             if (commentId == 0L) SStickersView.instance(publicationId, Navigator.TO)
             else Navigator.to(SComments(publicationId, commentId))
         }
+        if (publicationType == API.PUBLICATION_TYPE_QUEST) SQuest.instance(publicationId, commentId, Navigator.TO)
     }
 
     fun block(publication: Publication, onBlock: () -> Unit = {}) {

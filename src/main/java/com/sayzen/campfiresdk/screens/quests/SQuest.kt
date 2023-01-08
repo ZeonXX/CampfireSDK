@@ -32,10 +32,14 @@ class SQuest(
     commentId: Long,
 ) : Screen(R.layout.screen_quest_view) {
     companion object {
-        fun instance(id: Long, action: NavigationAction) {
+        fun instance(id: Long, commentId: Long, action: NavigationAction) {
             ApiRequestsSupporter.executeInterstitial(action, RQuestsGet(id)) { r ->
-                SQuest(r.questDetails, 0)
+                SQuest(r.questDetails, commentId)
             }
+        }
+
+        fun instance(id: Long, action: NavigationAction) {
+            instance(id, 0, action)
         }
     }
 

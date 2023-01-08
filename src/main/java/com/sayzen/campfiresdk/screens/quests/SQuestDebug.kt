@@ -64,7 +64,7 @@ class SQuestDebug(
         details.variables.forEachIndexed { idx, variable ->
             val view = CardAvatar()
             view.setTitle(variable.devName)
-            view.setSubtitle(state.variables[variable.id] ?: "<не инициализирована>")
+            view.setSubtitle(state.variables[variable.id] ?: t(API_TRANSLATE.quests_debug_uninit))
             view.setOnClick {
                 SplashField()
                     .setTitle(t(API_TRANSLATE.quests_debug_change_value, variable.devName))
