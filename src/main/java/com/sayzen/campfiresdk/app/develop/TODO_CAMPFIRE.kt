@@ -2,6 +2,37 @@ package com.sayzen.campfiresdk.app.develop
 
 /*
 
+!!!!
+ИНСТРУКЦИЯ ПО СБОРКЕ СЕРВЕРА
+
+1. В консоли в корне \Campfire
+gradlew CampfireServer:build
+
+2. Сделать резервную копию
+
+3. Выключить сервер
+systemctl stop campfire*.service
+или
+systemctl stop campfire.service
+
+4. Содержимым Campfire\CampfireServer\build\distributions\CampfireServer.zip заменить аналогичные файлы на сервере
+
+5. Включить сервер
+systemctl start campfire*.service
+или
+systemctl start campfire.service
+
+Журнал:
+journalctl -r -xu campfire.service
+
+Sql:
+psql campfire_db
+!!!
+
+
+
+
+
 
         !!! Исправить баг с отрицательными переводами!!!
 
